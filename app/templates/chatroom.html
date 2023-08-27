@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="stylesheet" href="../static/css/root.css" />
+        <link rel="stylesheet" href="../static/css/chatroom.css" />
+        <title>Chatroom</title>
+    </head>
+    <body>
+        <div class="background"></div>
+
+        <div id="app">
+            <sharebox ref="share"></sharebox>
+            <navbar active_item="chat"></navbar>
+            <div class="content" ref="content">
+                <messageL
+                    message="hi!"
+                    user='{"image_src": "https://cdn-icons-png.flaticon.com/512/7185/7185808.png", "username": "Ali", "url":"#"}'
+                ></messageL>
+                <messager message="hi!"></messager>
+            </div>
+            <sendInput ref="send" @new-message="addMessage"></sendInput>
+        </div>
+
+        <!-- script -->
+
+        <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script> -->
+        <!-- Build Vue -->
+        <script src="../static/library/vue.js"></script>
+        <script
+            src="https://kit.fontawesome.com/7552b865b0.js"
+            crossorigin="anonymous"
+        ></script>
+        <!-- FontAwesome -->
+        <script>
+            Vue.component("navbar-item", {
+                props: {
+                    text: {},
+                    href: {},
+                    active: {
+                        default: false,
+                    },
+                },
+                template: `
+                          <a ref="a" class="navbar-item" v-html="text" :href="href"></a>
+                          `,
+            });
+
+            Vue.component("navbar", {
+                props: {
+                    active_item: {
+                        default: false,
+                    },
+                    message_count: {
+                        default: 0,
+                    },
+                },
+                data() {
+                    return {};
+                },
+                methods: {
+                    plus() {
+                        this.$refs.button.classList.toggle("is-active");
+                    },
+                    comment() {
+                        this.$emit("comment");
+                    },
+                },
+                template: `
+                        <nav class="nav">
+                              <img class="logo" src="https://cdn-icons-png.flaticon.com/512/4096/4096358.png" />
+                              <div class="nav-items">
+                                <navbar-item href="#" ref="profile" text="پروفایل" :class="{ active: active_item === 'profile' }"></navbar-item>
+                                <navbar-item href="#" ref="dasboard" text="جستجو" :class="{ active: active_item === 'search' }"></navbar-item>
+                                <navbar-item href="#" ref="chatroom" text="گفتگو" :class="{ active: active_item === 'chat' }"></navbar-item>
+                                <navbar-item href="#" ref="chatroom" text="خانه" :class="{ active: active_item === 'home' }"></navbar-item>
+                              </div>
+                              <div class="profile-nav">
+                                  <i class="fa-solid fa-envelope"><div v-if="message_count" class="note_num">3</div></i>
+                                  <img class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/4096/4096358.png" />
+                              </div>
+                              <div dir="rtl" ref="button" class="plus-button">
+                                <a @click="plus" href="#" class="button">
+                                    <svg class="arrow arrow-left" viewBox="0 0 448 448">
+                                        <path
+                                            d="M272 176H32c-18 0-32 14-32 32v32c0 18 14 32 32 32h144v144c0 18 14 32 32 32h32c18 0 32-14 32-32V176z"
+                                        />
+                                    </svg>
+                                    <svg class="arrow arrow-right" viewBox="0 0 448 448">
+                                        <path
+                                            d="M176 272h240c18 0 32-14 32-32v-32c0-18-14-32-32-32H272V32c0-18-14-32-32-32h-32c-18 0-32 14-32 32v240z"
+                                        />
+                                    </svg>
+                                </a>
+                                <div class="menu">
+                                    <a href="#">مقاله</a><br />
+                                    <a @click="comment" href="#">نظر</a><br />
+                                </div>
+                            </div>
+                        </nav>`,
+            });
+            function formatText(inputText) {
+                const maxLength = 40;
+                const spacesBeforeBr = [37, 38, 39, 41, 42, 43];
+
+                let outputText = "";
+                let count = 0;
+
+                for (let i = 0; i < inputText.length; i++) {
+                    outputText += inputText[i];
+                    count++;
+
+                    if (count === maxLength) {
+                        if (spacesBeforeBr.includes(inputText[i + 1])) {
+                            outputText = outputText.replace(/ $/, "ـ<br />");
+                        } else {
+                            outputText += "<br />";
+                        }
+                        count = 0;
+                    }
+                }
+
+                return outputText;
+            }
+
+            document.body.addEventListener("click", (ev) => {
+                document.querySelectorAll(".context-menu").forEach((item) => {
+                    item.style.display = "none";
+                });
+            });
+
+            Vue.component("status-box", {
+                props: {
+                    online_count: {
+                        default: 0,
+                    },
+                    users_count: {
+                        default: 0,
+                    },
+                    admin_status: {
+                        default: "offline",
+                    },
+                },
+                data() {
+                    return {
+                        open: false,
+                    };
+                },
+                methods: {
+                    clopen(ev) {
+                        if (ev != "FR") {
+                            if (!this.open) {
+                                this.$refs.statusDiv.style.height = "100px";
+                                setTimeout(() => {
+                                    this.$refs.statusDiv.style.width = "150px";
+                                }, 500);
+                            } else {
+                                this.$refs.statusDiv.style.height = "30px";
+                                setTimeout(() => {
+                                    this.$refs.statusDiv.style.width = "30px";
+                                }, 500);
+                            }
+                            this.open = !this.open;
+                        } else {
+                            this.$refs.statusDiv.style.height = "30px";
+                            setTimeout(() => {
+                                this.$refs.statusDiv.style.width = "30px";
+                            }, 500);
+                        }
+                    },
+                },
+                mounted() {
+                    this.clopen("FR");
+                },
+                template: `
+              <div>
+                  <div ref="statusDiv" @click.stop="clopen" class="status">
+                      <p v-if="open">onlines: {{ online_count }}</p><br v-if="open" />
+                      <p v-if="open">all_users: {{ users_count }}</p><br v-if="open" />
+                      <p v-if="open">admin: {{ admin_status }}</p>
+                      <i v-if="!open" class="fa-solid fa-expand"></i>
+                  </div/>
+              </div>
+`,
+            });
+            Vue.component("messagel", {
+                props: {
+                    message: {},
+                    user: {},
+                    like_count: {
+                        default: 0,
+                    },
+                },
+                data() {
+                    return {
+                        date:
+                            new Date().getHours() +
+                            ":" +
+                            new Date().getMinutes(),
+                        seen: false,
+                        text: formatText(this.message),
+                        image_src: JSON.parse(this.user).image_src,
+                        username: JSON.parse(this.user).username,
+                        url: JSON.parse(this.user).url,
+                    };
+                },
+                methods: {
+                    GoToUser() {
+                        window.location = this.url;
+                    },
+                    contextmenu(event) {
+                        if (this.$refs.cx.style.display === "none") {
+                            this.$refs.cx.style.left = event.pageX - 20 + "px";
+                            this.$refs.cx.style.top = event.pageY - 70 + "px";
+                            this.$refs.cx.style.display = "block";
+                        }
+                    },
+                    copy() {
+                        navigator.clipboard.writeText(this.text);
+                        document
+                            .querySelectorAll(".context-menu")
+                            .forEach((item) => {
+                                item.style.display = "none";
+                            });
+                    },
+                    share() {
+                        document
+                            .querySelectorAll(".context-menu")
+                            .forEach((item) => {
+                                item.style.display = "none";
+                            });
+                        this.$parent.$refs.share.open(this.text);
+                    },
+                    like() {
+                        document
+                            .querySelectorAll(".context-menu")
+                            .forEach((item) => {
+                                item.style.display = "none";
+                            });
+                        this.like_count++;
+                    },
+                },
+                template: `
+        <div class="mess-container">
+            <div>
+                <div @contextmenu.prevent="contextmenu" @click.stop="contextmenu" class="message_left">
+                    <pre v-html="text"></pre>
+                    <div class="date">{{ date }}</div>
+                    <i v-if="seen" class="fa-solid fa-check-double"></i>
+                    <i v-if="!seen" class="fa-solid fa-check"></i>
+                    <i style="margin-left: 80px" class="fa-solid fa-heart"></i>
+                    <i style="position : absolute;left: 95px; font-size: 1rem;bottom: -1.5px">{{ like_count }}</i>
+                </div>
+                <img @click="GoToUser" class="user-pic-mess" :src="image_src" />
+                <div class="username">{{ username }}</div>
+            </div>
+            <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
+                <ul class="menu">
+                    <li @click.stop="share">
+                        <a href="#" @click.stop="share"
+                            ><i class="fa fa-share" aria-hidden="true" @click.stop="share"></i> Share</a
+                        >
+                    </li>
+                    <li @click.stop="copy">
+                        <a @click.stop="copy" href="#"
+                            ><i @click.stop="copy" class="fa fa-copy" aria-hidden="true"></i> Copy
+                        </a>
+                    </li>
+                    <li @click.stop="like">
+                        <a @click.stop="like" href="#"
+                            ><i @click.stop="like" class="fa fa-heart" aria-hidden="true"></i> like
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+            `,
+            });
+
+            Vue.component("messager", {
+                props: {
+                    message: {},
+                    like_count: {
+                        default: 0,
+                    },
+                },
+                data() {
+                    return {
+                        is: true,
+                        date:
+                            new Date().getHours() +
+                            ":" +
+                            new Date().getMinutes(),
+                        seen: false,
+                        text: formatText(this.message),
+                    };
+                },
+                methods: {
+                    contextmenu(event) {
+                        if (this.$refs.cx.style.display === "none") {
+                            this.$refs.cx.style.left = event.pageX - 20 + "px";
+                            this.$refs.cx.style.top = event.pageY - 70 + "px";
+                            this.$refs.cx.style.display = "block";
+                        }
+                    },
+                    copy() {
+                        navigator.clipboard.writeText(this.text);
+                        document
+                            .querySelectorAll(".context-menu")
+                            .forEach((item) => {
+                                item.style.display = "none";
+                            });
+                    },
+                    share() {
+                        document
+                            .querySelectorAll(".context-menu")
+                            .forEach((item) => {
+                                item.style.display = "none";
+                            });
+                        this.$parent.$refs.share.open(this.text);
+                    },
+                    remove() {
+                        this.is = false;
+                        document
+                            .querySelectorAll(".context-menu")
+                            .forEach((item) => {
+                                item.style.display = "none";
+                            });
+                    },
+                },
+                template: `
+        <div v-if="is" class="mess-container">
+            <div dir="rtl">
+                <div @click.stop="contextmenu($event)" @contextmenu.prevent="contextmenu" class="message_right">
+                    <pre v-html="text"></pre>
+                    <div class="date">{{ date }}</div>
+                    <i v-if="seen" class="fa-solid fa-check-double"></i>
+                    <i v-if="!seen" class="fa-solid fa-check"></i>
+                    <i style="margin-left: 80px" class="fa-solid fa-heart"></i>
+                    <i style="position : absolute;left: 95px; font-size: 1rem;bottom: -1.5px">{{ like_count }}</i>                                
+                </div>
+            </div>
+            <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
+                <ul class="menu">
+                    <li @click.stop="share">
+                        <a href="#" @click.stop="share"
+                            ><i class="fa fa-share" aria-hidden="true" @click.stop="share"></i> Share</a
+                        >
+                    </li>
+                    <li @click.stop="copy">
+                        <a @click.stop="copy" href="#"
+                            ><i @click.stop="copy" class="fa fa-copy" aria-hidden="true"></i> Copy
+                        </a>
+                    </li>
+                    <li @click.stop="remove" class="trash">
+                        <a @click.stop="remove" href="#"
+                            ><i @click.stop="remove" class="fa fa-trash" aria-hidden="true"></i>
+                            Delete</a
+                        >
+                    </li>
+                </ul>
+            </div>
+        </div>
+            `,
+            });
+
+            Vue.component("sendinput", {
+                data() {
+                    return {
+                        message: "",
+                    };
+                },
+                methods: {
+                    send() {
+                        if (this.message.trim() !== "") {
+                            this.$emit("new-message", this.message);
+                            this.message = "";
+                        }
+                    },
+                },
+                template: `
+        <div class="send-input">
+            <input dir="rtl" @keyup.enter="send" v-model="message" type="text" class="send-input-text" placeholder="پیامی بنویسید...">
+            <i @click="send" class="fa-solid fa-paper-plane"></i>
+        </div>`,
+            });
+
+            Vue.component("sharebox", {
+                data() {
+                    return {
+                        text: "",
+                    };
+                },
+                methods: {
+                    close() {
+                        this.$refs.share_model.style.transform = "scale(.9)";
+                        setTimeout(() => {
+                            this.$refs.root.style.display = "none";
+                        }, 300);
+                    },
+                    open(text) {
+                        this.text = encodeURIComponent(text);
+                        this.$refs.share_model.style.transform = "scale(.9)";
+                        this.$refs.root.style.display = "flex";
+                        setTimeout(() => {
+                            this.$refs.share_model.style.transform = "scale(1)";
+                        }, 31);
+                    },
+                },
+                template: `
+    <div style="display: none;" ref="root" class="modelcontainer">
+        <div ref="share_model" class="sharemodel">
+            <i @click="close" class="fa-solid fa-x"></i>
+            <h4>Share With</h4>
+            <div class="items">
+                <div class="item">
+                    <a :href="'mailto:?subject=a%20message&body=' + text"><i class="fa-solid fa-envelope"></i></a>
+                </div>
+                <div class="item">
+                    <a target="_blank" :href="'https://www.facebook.com/sharer/sharer.php?u='+ text"><i class="fa-brands fa-facebook"></i></a>
+                </div>
+                <div class="item">
+                    <a target="_blank" :href="'https://api.whatsapp.com/send?text=' + text"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>`,
+            });
+
+            // root instance
+            new Vue({
+                el: "#app",
+                data: {},
+                methods: {
+                    addMessage(message) {
+                        const messagerComponent = Vue.extend({
+                            template:
+                                '<messager :message="message"></messager>',
+                            data() {
+                                return {
+                                    message: message,
+                                };
+                            },
+                        });
+                        const vm = new messagerComponent().$mount();
+                        this.$refs.content.appendChild(vm.$el);
+                    },
+                },
+            });
+        </script>
+    </body>
+</html>

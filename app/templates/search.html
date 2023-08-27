@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>search</title>
+
+        <link rel="stylesheet" href="../static/css/root.css" />
+        <link rel="stylesheet" href="../static/css/search.css" />
+        <link rel="stylesheet" href="../static/library/Vuetify.css" />
+    </head>
+    <body>
+        <div id="app">
+            <navbar active_item="search"></navbar>
+            <search></search>
+        </div>
+
+        <script src="../static/library/vue.js"></script>
+        <script src="../static/library/vuetify.js"></script>
+
+        <script>
+            Vue.component("navbar-item", {
+                props: {
+                    text: {},
+                    href: {},
+                    active: {
+                        default: false,
+                    },
+                },
+                template: `
+                          <a ref="a" class="navbar-item" v-html="text" :href="href"></a>
+                          `,
+            });
+
+            Vue.component("navbar", {
+                props: {
+                    active_item: {
+                        default: false,
+                    },
+                    message_count: {
+                        default: 0,
+                    },
+                },
+                data() {
+                    return {};
+                },
+                methods: {
+                    plus() {
+                        this.$refs.button.classList.toggle("is-active");
+                    },
+                    comment() {
+                        this.$emit("comment");
+                    },
+                },
+                template: `
+                        <nav class="nav">
+                              <img class="logo" src="https://cdn-icons-png.flaticon.com/512/4096/4096358.png" />
+                              <div class="nav-items">
+                                <navbar-item href="#" ref="profile" text="پروفایل" :class="{ active: active_item === 'profile' }"></navbar-item>
+                                <navbar-item href="#" ref="dasboard" text="جستجو" :class="{ active: active_item === 'search' }"></navbar-item>
+                                <navbar-item href="#" ref="chatroom" text="گفتگو" :class="{ active: active_item === 'chat' }"></navbar-item>
+                                <navbar-item href="#" ref="chatroom" text="خانه" :class="{ active: active_item === 'home' }"></navbar-item>
+                              </div>
+                              <div class="profile-nav">
+                                  <i class="fa-solid fa-envelope"><div v-if="message_count" class="note_num">3</div></i>
+                                  <img class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/4096/4096358.png" />
+                              </div>
+                              <div v-if="active_item == 'home'" dir="rtl" ref="button" class="plus-button">
+                                <a @click="plus" href="#" class="button">
+                                    <svg class="arrow arrow-left" viewBox="0 0 448 448">
+                                        <path
+                                            d="M272 176H32c-18 0-32 14-32 32v32c0 18 14 32 32 32h144v144c0 18 14 32 32 32h32c18 0 32-14 32-32V176z"
+                                        />
+                                    </svg>
+                                    <svg class="arrow arrow-right" viewBox="0 0 448 448">
+                                        <path
+                                            d="M176 272h240c18 0 32-14 32-32v-32c0-18-14-32-32-32H272V32c0-18-14-32-32-32h-32c-18 0-32 14-32 32v240z"
+                                        />
+                                    </svg>
+                                </a>
+                                <div class="menu">
+                                    <a href="#">مقاله</a><br />
+                                    <a href="#">عکس</a><br />
+                                    <a @click="comment" href="#">نظر</a><br />
+                                </div>
+                            </div>
+                        </nav>`,
+            });
+
+            Vue.component("search", {
+                data() {},
+                methods: {
+                    submit() {
+                        if (
+                            this.$refs.search_input.value.replace(/\s/g, "") != ""
+                        ) {
+                            setTimeout(() => {
+                                this.$refs.root.submit();
+                            }, 500);
+                        }
+                    },
+                },
+                template: `
+                    <form ref='root' action="">
+                        <input ref="search_input" required type="search" name="search">
+                        <v-btn @click="submit" x-large color="blue">جستجو</v-btn>
+                    </form>
+                `,
+            });
+
+            new Vue({
+                el: "#app",
+            });
+        </script>
+    </body>
+</html>
