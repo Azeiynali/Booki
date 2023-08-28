@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ورود</title>
+        <link rel="stylesheet" href="./static/css/Login.css" />
+        <link rel="stylesheet" href="./static/css/root.css" />
+        <link rel="stylesheet" href="./static/library/vuetify.css" />
+    </head>
+    <body>
+        {% raw %}
+        <div id="app" dir="rtl" class="Form-box">
+            <h3 ref="title" class="title">خوش آمدید!</h3>
+            <h4 ref="des" class="des">نام کاربری خود را وارد کنید</h4>
+            <img
+                ref="image"
+                style="margin-right: 90%"
+                class="image"
+                v-show="next_"
+                :src="image"
+                alt="user-picture"
+            />
+            <h1 v-if="Login_" class="title" style="color: green">
+                You Login success ful
+            </h1>
+            <div class="inp-box">
+                <h3
+                    style="margin-right: 100%; transition: all 0.5s"
+                    v-show="next_"
+                    ref="title2"
+                    class="title2"
+                >
+                    لطفا پسورد خود را وارد کنید
+                </h3>
+                <input
+                    ref="usernameinput"
+                    @keydown="check_E($event)"
+                    :style="style"
+                    ref="username"
+                    v-model="value"
+                    name="username"
+                    type="text"
+                    id="username"
+                    class="username-inp"
+                /><br />
+                <p ref="nval" v-if="isEmpty" class="error">
+                    {{ input }} خالی است
+                </p>
+                <p ref="empt" v-if="isInvalid" class="error i">
+                    {{ input }} غلط است
+                </p>
+                <p ref="empt" v-if="isError" class="error i">
+                    مشکلی پیش آمد، لطفا بعدا تلاش کنید
+                </p>
+            </div>
+            <button ref="sub" @click="check()" id="username-sub">بعدی</button>
+        </div>
+
+        <script src="./static/library/vue.js"></script>
+        <script src="./static/library/vuetify.js"></script>
+        <script>
+            new Vue({
+                el: "#app",
+                data: {
+                    value: "",
+                    isEmpty: false,
+                    next_: false,
+                    isInvalid: false,
+                    this_username: "",
+                    style: "",
+                    image: "",
+                    input: "نام کاربری",
+                    Login_: false,
+                    isError: false,
+                },
+                methods: {
+                    no_username: function (x) {
+                        this.style = "border: #c90000b2 solid 1px !important;";
+                        if (x == 1) {
+                            this.isEmpty = true;
+                            this.isInvalid = false;
+                            this.isError = false;
+                        } else if (x == 2) {
+                            this.isInvalid = true;
+                            this.isEmpty = false;
+                            this.isError = false;
+                        } else if (x == 3) {
+                            this.isInvalid = false;
+                            this.isEmpty = false;
+                            this.isError = true;
+                        } else {
+                            this.isInvalid = false;
+                            this.isEmpty = false;
+                            this.style = "";
+                            this.isError = false;
+                        }
+                    },
+                    Login: function () {
+                        console.log("you login successfully");
+
+                        this.isInvalid = false;
+                        this.isEmpty = false;
+                        this.style = "";
+                        this.$refs.title2.style.marginLeft = "100%";
+                        setTimeout(() => {
+                            this.$refs.title2.style.display = "none";
+                        }, 450);
+
+                        this.$refs.sub.style.marginLeft = "100%";
+                        setTimeout(() => {
+                            this.$refs.sub.style.display = "none";
+                        }, 450);
+
+                        this.$refs.image.style.marginLeft = "100%";
+                        setTimeout(() => {
+                            this.$refs.image.style.display = "none";
+                        }, 450);
+
+                        this.$refs.usernameinput.style.marginLeft = "100%";
+                        setTimeout(() => {
+                            this.$refs.usernameinput.style.display = "none";
+                        }, 450);
+
+                        this.Login_ = true;
+                        this.$root.style.alignItems = "center";
+                    },
+                    new_check: function () {
+                        var myHeaders = new Headers();
+                        myHeaders.append(
+                            "Content-Type",
+                            "application/x-www-form-urlencoded"
+                        );
+
+                        var urlencoded = new URLSearchParams();
+                        urlencoded.append("password", this.value);
+                        urlencoded.append("username", this.this_username);
+
+                        var requestOptions = {
+                            method: "POST",
+                            headers: myHeaders,
+                            body: urlencoded,
+                            redirect: "follow",
+                        };
+
+                        if (this.value != "") {
+                            fetch("/api/userValid", requestOptions)
+                                .then((response) => response.text())
+                                .then((data) => {
+                                    console.log(JSON.parse(data));
+                                    if (JSON.parse(data).success) {
+                                        if (JSON.parse(data).valid) {
+                                            var response_json = data;
+                                            this.no_username("clear");
+                                            console.log("Yes!");
+                                            window.location = "/"
+                                        } else {
+                                            this.no_username(2);
+                                        }
+                                    } else {
+                                        this.no_username(3);
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.log("error", error);
+                                    this.no_username(3);
+                                });
+                        } else {
+                            this.no_username(1);
+                        }
+                    },
+                    next: function () {
+                        this.this_username = this.$refs.usernameinput.value;
+
+                        this.isInvalid = true;
+                        this.next_ = true;
+
+                        this.isEmpty = false;
+                        this.style = "";
+
+                        this.$refs.title.style.position = "absolute";
+                        this.$refs.title.style.marginLeft = "100%";
+
+                        setTimeout(() => {
+                            this.$refs.title.style.display = "none";
+                        }, 450);
+
+                        this.$refs.des.style.position = "absolute";
+                        this.$refs.des.style.marginLeft = "100%";
+                        setTimeout(() => {
+                            this.$refs.des.style.display = "none";
+                        }, 450);
+                        setTimeout(() => {
+                            this.$refs.title2.style.marginRight = "0";
+                        }, 50);
+                        setTimeout(() => {
+                            this.$refs.image.style.marginRight = "0";
+                        }, 50);
+
+                        this.$refs.sub.textContent = "Login";
+                        this.$refs.sub.removeEventListener("click", this.check);
+                        this.$refs.sub.addEventListener(
+                            "click",
+                            this.new_check
+                        );
+                        this.input = "رمز ورود";
+                        this.value = "";
+                        this.no_username("clear");
+                    },
+                    check: function () {
+                        var myHeaders = new Headers();
+                        myHeaders.append(
+                            "Content-Type",
+                            "application/x-www-form-urlencoded"
+                        );
+
+                        var urlencoded = new URLSearchParams();
+                        urlencoded.append("username", this.value);
+
+                        var requestOptions = {
+                            method: "POST",
+                            headers: myHeaders,
+                            body: urlencoded,
+                            redirect: "follow",
+                        };
+
+                        if (this.value != "") {
+                            fetch("/api/userValid", requestOptions)
+                                .then((response) => response.text())
+                                .then((data) => {
+                                    console.log(JSON.parse(data));
+                                    if (JSON.parse(data).success) {
+                                        if (JSON.parse(data).valid) {
+                                            this.image =
+                                                JSON.parse(data).avatar;
+                                            var response_json = data;
+                                            this.no_username("clear");
+                                            this.next();
+                                        } else {
+                                            this.no_username(2);
+                                            this.image = null;
+                                        }
+                                    } else {
+                                        this.no_username(3);
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.log("error", error);
+                                    this.no_username(3);
+                                });
+                        } else {
+                            this.no_username(1);
+                        }
+                    },
+                    check_E: function ($event) {
+                        if ($event.keyCode == 13) {
+                            if (this.next_) {
+                                this.new_check();
+                            } else {
+                                this.check();
+                            }
+                        } else if ($event.keyCode == 32) {
+                            $event.preventDefault();
+                            this.value += "_";
+                        }
+                    },
+                },
+            });
+        </script>
+        {% endraw %}
+    </body>
+</html>
