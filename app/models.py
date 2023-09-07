@@ -14,6 +14,7 @@ class User(db.Model, UserMixin):
     coins = db.Column(db.Integer)
     password = db.Column(db.String, unique=False)
     avatar = db.Column(db.String, unique=False)
+    notifictions = db.Column(db.String, unique=False)
 
     posts = db.relationship("Post", backref='writer', lazy=True)
     comments = db.relationship("Comment", backref='writer', lazy=True)
