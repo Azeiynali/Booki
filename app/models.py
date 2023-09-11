@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     posts = db.relationship("Post", backref='writer', lazy=True)
     comments = db.relationship("Comment", backref='writer', lazy=True)
     images = db.relationship("Image", backref='writer', lazy=True)
+    messages = db.relationship("Message", backref='writer', lazy=True)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.id} ---> {self.username})'

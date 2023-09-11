@@ -43,8 +43,8 @@ Vue.component("navbar", {
                       <div class="nav-items">
                         <navbar-item href="#" ref="profile" text="پروفایل" :class="{ active: active_item === 'profile' }"></navbar-item>
                         <navbar-item href="#" ref="dasboard" text="جستجو" :class="{ active: active_item === 'search' }"></navbar-item>
-                        <navbar-item href="#" ref="chatroom" text="گفتگو" :class="{ active: active_item === 'chat' }"></navbar-item>
-                        <navbar-item href="#" ref="chatroom" text="خانه" :class="{ active: active_item === 'home' }"></navbar-item>
+                        <navbar-item href="/chat" ref="chatroom" text="گفتگو" :class="{ active: active_item === 'chat' }"></navbar-item>
+                        <navbar-item href="/" ref="chatroom" text="خانه" :class="{ active: active_item === 'home' }"></navbar-item>
                       </div>
                       <div class="profile-nav">
                           <i class="fa-solid fa-envelope"><div v-if="Number(message_count)" class="note_num">{{ Number(message_count) }}</div></i>

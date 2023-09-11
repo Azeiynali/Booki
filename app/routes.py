@@ -1,7 +1,8 @@
-from app import app
+from app import app, db
 from flask import render_template, abort, request
-from app.models import User
+from app.models import User, Message
 from flask_login import login_user, login_required, current_user
+from app.functions import *
 
 
 @app.route("/")
@@ -60,3 +61,52 @@ def user_valid():
         return '{"success":false, "valid": "?", "message": "?"}'
 
     return abort(400)
+
+
+@app.route("/api")
+def api() -> 403:
+    return abort(403)
+
+
+@app.route("/api/addMessage", methods=["GET", "POST"])
+def addMessage():
+    if request.method == "POST":
+        data = request.form
+        usr_id = data.get("user_id")
+        content = data.get("content")
+        PIN = data.get("pin")
+
+        if encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07":
+            if content and usr_id:
+                with app.app_context():
+                    mess = Message(writer=User.query.get(usr_id), content=content)
+                    db.session.add(mess)
+                    db.session.commit()
+                    return {"id": mess.id}
+
+    return abort(403)
+
+
+@app.route("/api/delMessage", methods=["GET", "DELETE"])
+def delMessage():
+    if request.method == "DELETE":
+        data = request.form
+        mess_id = data.get("id")
+        PIN = data.get("pin")
+        usr_id = data.get("user_id")
+
+        if encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07":
+            if mess_id:
+                mess = Message.query.get_or_404(mess_id)
+                if mess.writer.id == int(usr_id):
+                    db.session.delete(mess)
+                    db.session.commit()
+                    return {"success": 1}
+    return abort(403)
+
+
+@app.route("/chat")
+@login_required
+def chat():
+    messages = Message
+    return render_template("chatroom.html", messages=messages)

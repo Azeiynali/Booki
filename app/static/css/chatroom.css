@@ -104,9 +104,9 @@
     overflow-y: scroll;
     overflow-x: hidden;
     height: calc(100vh - 120px);
-    padding-bottom: 40px;
+    padding-bottom: 140px;
     position: relative;
-    top: 19px;
+    top: 89px;
     left: 20px;
     width: 98vw;
 }
@@ -177,8 +177,12 @@ pre {
     width: 100vw;
     height: 70px;
     border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     outline: none;
     position: fixed;
+    column-gap: 20px;
     bottom: 0;
     right: 0;
     text-align: center;
@@ -205,12 +209,10 @@ pre {
 }
 .send-input i {
     font-size: 2rem;
-    margin-left: 20px;
     cursor: pointer;
     padding: 15px;
-    position: absolute;
-    bottom: 12px;
     color: white;
+    margin-top: 1px;
     border-radius: 100px;
     background-color: #1975ff;
 }
