@@ -1,8 +1,13 @@
 from app import app, db
-from flask import render_template, abort, request
+from flask import render_template, abort, request, jsonify
 from app.models import User, Message
 from flask_login import login_user, login_required, current_user
 from app.functions import *
+
+
+# !
+root_url = "http://127.0.0.1:1223"
+# !
 
 
 @app.route("/")
@@ -16,7 +21,6 @@ def index():
         else:
             n = []
 
-        print(len(n))
         return render_template("index.html", current_user=current_user, not_list=len(n))
     else:
         return render_template("Login.html")
@@ -34,8 +38,8 @@ def user_valid():
             data = request.form
             usr = data.get("username")
             pwd = data.get("password")
+
             if usr and not pwd:
-                print(User.query.filter_by(username=usr).first())
                 if User.query.filter_by(username=usr).first():
                     avatar = User.query.filter_by(username=usr).first().avatar
                     return (
@@ -63,6 +67,35 @@ def user_valid():
     return abort(400)
 
 
+@app.route("/chat")
+@login_required
+def chat():
+    messages = Message.query.all()
+    return render_template(
+        "chatroom.html", messages=messages, current_user=current_user
+    )
+
+
+@app.route("/chatContent")
+@login_required
+def chatContent():
+    classMessages = Message.query.all()
+    messages = []
+
+    for i in classMessages:
+        message = {
+            "content": i.content,
+            "id": i.id,
+            "type": "right" if i.writer.id == current_user.id else "left",
+            "avatar": i.writer.avatar if i.writer.id != current_user.id else None,
+            "username": i.writer.username if i.writer.id != current_user.id else None
+        }
+        messages.append(message)
+
+    return jsonify({"all": messages})
+
+
+# API
 @app.route("/api")
 def api() -> 403:
     return abort(403)
@@ -76,13 +109,18 @@ def addMessage():
         content = data.get("content")
         PIN = data.get("pin")
 
-        if encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07":
-            if content and usr_id:
-                with app.app_context():
-                    mess = Message(writer=User.query.get(usr_id), content=content)
-                    db.session.add(mess)
-                    db.session.commit()
-                    return {"id": mess.id}
+        referer = request.headers.get("Referer")
+        if (
+            content
+            and usr_id
+            and referer
+            and root_url in referer
+            and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
+        ):
+            mess = Message(writer=User.query.get(usr_id), content=content)
+            db.session.add(mess)
+            db.session.commit()
+            return {"id": mess.id}
 
     return abort(403)
 
@@ -94,19 +132,17 @@ def delMessage():
         mess_id = data.get("id")
         PIN = data.get("pin")
         usr_id = data.get("user_id")
+        referer = request.headers.get("Referer")
+        if (
+            mess_id
+            and referer
+            and root_url in referer
+            and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
+        ):
+            mess = Message.query.get_or_404(mess_id)
+            if mess.writer.id == int(usr_id):
+                db.session.delete(mess)
+                db.session.commit()
+                return {"success": 1}
 
-        if encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07":
-            if mess_id:
-                mess = Message.query.get_or_404(mess_id)
-                if mess.writer.id == int(usr_id):
-                    db.session.delete(mess)
-                    db.session.commit()
-                    return {"success": 1}
     return abort(403)
-
-
-@app.route("/chat")
-@login_required
-def chat():
-    messages = Message
-    return render_template("chatroom.html", messages=messages)

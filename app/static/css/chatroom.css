@@ -107,6 +107,7 @@
     padding-bottom: 140px;
     position: relative;
     top: 89px;
+    transition: all 1s;
     left: 20px;
     width: 98vw;
 }
@@ -198,6 +199,12 @@ pre {
     font-size: 1.5rem;
     padding-left: 20px;
     padding-right: 20px;
+}
+.send-input .send-input-text::placeholder {
+    color: #d8d8d8 !important;
+}
+.send-input .send-input-text:focus::placeholder {
+    color: #555555 !important;
 }
 .send-input .send-input-text:focus {
     background-color: white;
