@@ -17,13 +17,14 @@
             <navbar active_item="chat"></navbar>
             <div class="content" ref="content">
                 {% for i in messages %} {% if i.writer == current_user %}
-                <messager message="{{ i.content }}" id="{{ i.id }}"></messager>
+                    <messager date="{{ i.date }}" message="{{ i.content }}" id="{{ i.id }}"></messager>
                 {% else %}
-                <messageL
-                    id="{{ i.id }}"
-                    message="{{ i.content }}"
-                    user='{"image_src": "{{ i.writer.avatar }}", "username": "{{ i.writer.username }}", "url":"/@{{ i.writer.username }}"}'
-                ></messageL>
+                    <messageL
+                        id="{{ i.id }}"
+                        date="{{ i.date }}"
+                        message="{{ i.content }}"
+                        user='{"image_src": "{{ i.writer.avatar }}", "username": "{{ i.writer.username }}", "url":"/@{{ i.writer.username }}"}'
+                    ></messageL>
                 {% endif %} {% endfor %}
             </div>
             <sendInput ref="send" @new-message="addMessage"></sendInput>
@@ -137,13 +138,10 @@
                                 like_count: {
                                     default: 0,
                                 },
+                                date: {}
                             },
                             data() {
                                 return {
-                                    date:
-                                        new Date().getHours() +
-                                        ":" +
-                                        new Date().getMinutes(),
                                     seen: false,
                                     text: formatText(this.message),
                                     image_src: JSON.parse(this.user).image_src,
@@ -225,15 +223,12 @@
                         Vue.component("messager", {
                             props: {
                                 message: {},
-                                id: {}
+                                id: {},
+                                date: {}
                             },
                             data() {
                                 return {
                                     is: true,
-                                    date:
-                                        new Date().getHours() +
-                                        ":" +
-                                        new Date().getMinutes(),
                                     seen: false,
                                     text: formatText(this.message),
                                 };
@@ -360,7 +355,7 @@
                                         .then(response => response.text())
 
                                         .then(result => {
-                                            this.$emit("new-message", this.message)
+                                            this.$emit("new-message", this.message, JSON.parse(result).date, JSON.parse(result).id)
                                             this.message = "";
                                             }
                                         )
@@ -426,13 +421,15 @@
                                 this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
                             },
                             methods: {
-                                addMessage(message) {
+                                addMessage(message, date, id) {
                                     const messagerComponent = Vue.extend({
                                         template:
-                                            '<messager :message="message"></messager>',
+                                            '<messager :id="id" :message="message" :date="date"></messager>',
                                         data() {
                                             return {
                                                 message: message,
+                                                date: date,
+                                                id: id
                                             };
                                         },
                                     });

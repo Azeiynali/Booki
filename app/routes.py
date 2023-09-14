@@ -3,6 +3,7 @@ from flask import render_template, abort, request, jsonify
 from app.models import User, Message
 from flask_login import login_user, login_required, current_user
 from app.functions import *
+import re
 
 
 # !
@@ -120,7 +121,7 @@ def addMessage():
             mess = Message(writer=User.query.get(usr_id), content=content)
             db.session.add(mess)
             db.session.commit()
-            return {"id": mess.id}
+            return jsonify({"id": mess.id, "date": str(mess.date)})
 
     return abort(403)
 

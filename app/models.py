@@ -1,6 +1,7 @@
 from app import db, Login_mg
 from datetime import datetime
 from flask_login import UserMixin
+import re
 
 
 @Login_mg.user_loader
@@ -67,7 +68,7 @@ class Medal(db.Model):
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime(), default=datetime.now, nullable=False, unique=False)
+    date = db.Column(db.String(), default= str(re.findall(r"(\d+:\d+):\d+", str(datetime.now()))[0]), nullable=False, unique=False)
     User_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     content = db.Column(db.String, nullable=False)
 
