@@ -114,11 +114,16 @@
 .mess-container {
     width: 93vw;
 }
+.mess-container div:nth-child(1) {
+    position: relative;
+    padding-left: 45px;
+}
 .user-pic-mess {
     width: 40px;
     cursor: pointer;
-    margin-top: 30px;
-    float: left;
+    position: absolute;
+    bottom: 10px;
+    left: 2px;
 }
 .username {
     padding-left: 10px;
@@ -126,8 +131,8 @@
     border-radius: 5px;
     color: white;
     position: absolute;
-    top: 43px;
-    left: 45px;
+    bottom: 10px;
+    left: 50px;
     height: 25px;
     display: inline-block;
     background-color: #1c2025bb;

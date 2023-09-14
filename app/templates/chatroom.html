@@ -195,8 +195,6 @@
                                 <div class="date">{{ date }}</div>
                                 <i v-if="seen" class="fa-solid fa-check-double"></i>
                                 <i v-if="!seen" class="fa-solid fa-check"></i>
-                                <i style="margin-left: 80px" class="fa-solid fa-heart"></i>
-                                <i style="position : absolute;left: 95px; font-size: 1rem;bottom: -1.5px">{{ like_count }}</i>
                             </div>
                             <img @click="GoToUser" class="user-pic-mess" :src="image_src" />
                             <div class="username">{{ username }}</div>
@@ -491,7 +489,7 @@
                                 });
 
                         }
-                        fetchData()
+                        // fetchData()
                        {% endraw %}
         </script>
     </body>

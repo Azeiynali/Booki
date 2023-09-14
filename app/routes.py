@@ -131,7 +131,6 @@ def delMessage():
         data = request.form
         mess_id = data.get("id")
         PIN = data.get("pin")
-        usr_id = data.get("user_id")
         referer = request.headers.get("Referer")
         if (
             mess_id
@@ -140,7 +139,7 @@ def delMessage():
             and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
         ):
             mess = Message.query.get_or_404(mess_id)
-            if mess.writer.id == int(usr_id):
+            if mess.writer.id == current_user.id:
                 db.session.delete(mess)
                 db.session.commit()
                 return {"success": 1}
