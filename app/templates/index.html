@@ -80,6 +80,18 @@
             <image-model ref="immd"></image-model>
             <div class="container">
                 <div class="posts">
+                    {% for post in posts %}
+                        <post
+                        content="{{ post.content }}"
+                        user_detail='{
+                        "img": "{{ post.writer.avatar }}",
+                        "username": "{{ post.writer.username }}",
+                        "ckeck": true,
+                        "date": "{{ post.date }}",
+                        "href": "/@{{ post.writer.username }}"
+                        }'
+                        ></post>
+                    {% endfor %}
                     <post
                         content="<img class='img' src='https://cdn.dribbble.com/userupload/9583660/file/original-e27155a0df451cd4cb30db64a51883a8.jpg?resize=752x'><p>اینیک تصویر است که یک تصویر است و.... چرا 1 2 3 و..... هم اینکه من <br /> ااا</p>"
                         user_detail='{

@@ -339,10 +339,6 @@
                                         var urlencoded = new URLSearchParams();
                                         urlencoded.append("content", this.message);
                                         urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
-                                        {% endraw %}
-                                        urlencoded.append("user_id", {{ current_user.id }});
-                                        {% raw %}
-
 
                                         var requestOptions = {
                                             method: 'POST',
@@ -351,7 +347,7 @@
                                             redirect: 'follow'
                                         };
 
-                                        fetch("http://127.0.0.1:1223//api/addMessage", requestOptions)
+                                        fetch("http://127.0.0.1:1223/api/addMessage", requestOptions)
                                         .then(response => response.text())
 
                                         .then(result => {
@@ -442,11 +438,12 @@
                                         if (message.type == "right"){
                                             const messagerComponent = Vue.extend({
                                                 template:
-                                                        '<messager :message="message" :id="id"></messager>',
+                                                        '<messager :date="date" :message="message" :id="id"></messager>',
                                                 data() {
                                                         return {
                                                             message: message.content,
-                                                            id: message.id
+                                                            id: message.id,
+                                                            date: message.date
                                                         };
                                                     },
                                             });
@@ -457,12 +454,14 @@
                                             const messagerComponent = Vue.extend({
                                                 template:
                                                         `<messagel :message="message"
+                                                        :date="date"
                                                         user='{"image_src": "${message.avatar}",
                                                         "username": "${message.username}",
                                                         "url":"/@${message.username}"}'></messagel>`,
 
                                                 data() {
                                                         return {
+                                                            date: message.date,
                                                             message: message.content,
                                                         };
                                                     },

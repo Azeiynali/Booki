@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>CKEditor&nbsp;5 – Classic editor</title>
+        <link href="/static/library/vuetify.css" rel="stylesheet" />
+        <link href="/static/css/editor.css" rel="stylesheet" />
+        <link href="/static/css/root.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="app">
+            <navbar></navbar>
+            <v-btn @click="save" color="blue" elevation="5" x-large
+                >دخیره و انتشار</v-btn
+            >
+            <v-btn color="red" elevation="5" x-large>خروج</v-btn>
+        </div>
+        <div id="editor">
+            <p>این متن را تغییر دهید!</p>
+        </div>
+        <div id="result"></div>
+
+        <!-- script -->
+
+        <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+        <!-- ckeditor -->
+        <script src="/static/library/vue.js"></script>
+        <!-- Vue -->
+        <script src="/static/library/vuetify.js"></script>
+        <!-- Vuetify -->
+        <script
+            src="https://kit.fontawesome.com/7552b865b0.js"
+            crossorigin="anonymous"
+        ></script>
+        <!-- FontAwesome -->
+        <script>
+            {% include "inc/navbarComp.html" %}
+            {% raw %}
+
+            const app = new Vue({
+                el: "#app",
+                data: {
+                    content: "",
+                },
+                methods: {
+                    save() {
+                        var myHeaders = new Headers();
+                        myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+                        var urlencoded = new URLSearchParams();
+                        urlencoded.append("content", this.content);
+                        urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
+
+                        var requestOptions = {
+                            method: 'POST',
+                            headers: myHeaders,
+                            body: urlencoded,
+                            redirect: 'follow'
+                        };
+
+                        fetch("http://127.0.0.1:1223/api/addPost", requestOptions)
+                                        .then(response => response.text())
+
+                                        .then(result => {
+                                            window.location = "/"
+                                            }
+                                        )
+                                        .catch(error => console.log('error', error));
+                    },
+                    setContent(content) {
+                        this.content = content;
+                    },
+                },
+            });
+
+            ClassicEditor.create(document.querySelector("#editor"), {
+                language: "ar",
+            })
+                .then((editor) => {
+                    var content = editor.getData();
+                    app.setContent(content);
+
+                    const uploadButton = document.querySelector(
+                        ".ck-file-dialog-button"
+                    );
+                    uploadButton.remove();
+
+                    let upload_video_Button = document.querySelector(
+                        "div.ck:nth-child(12) button:nth-child(1)"
+                    );
+
+                    upload_video_Button.remove();
+
+                    editor.model.document.on("change:data", () => {
+                        var content = editor.getData();
+                        app.setContent(content);
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        </script>
+        {% endraw %}
+    </body>
+</html>

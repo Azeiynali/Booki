@@ -1,0 +1,135 @@
+:root {
+    --transition-duration: 0.15s;
+    --color-primary: #f38a00;
+}
+
+/* Plus Button Styles */
+.plus-button {
+    display: inline-block;
+    position: absolute;
+    top: 60px;
+    left: 20px;
+}
+
+.plus-button.is-active .menu {
+    display: block;
+    background-color: #fefefe;
+    box-shadow: 5px 5px 15px #1c202550;
+}
+
+.plus-button.is-active .button {
+    transform: rotate(45deg) !important;
+    transition-delay: 0;
+}
+
+.plus-button.is-active .arrow {
+    transition-delay: var(--transition-duration);
+}
+
+.plus-button.is-active .arrow-left {
+    transform: translate(1.9rem, -1.9rem);
+    fill: var(--color-primary);
+}
+
+.plus-button.is-active .arrow-right {
+    transform: translate(-0.15rem, 0.15rem);
+}
+
+.plus-button:not(.is-active) .button {
+    transition-delay: var(--transition-duration);
+}
+
+.plus-button:not(.is-active) .arrow {
+    transition-delay: 0;
+}
+
+/* Button Styles */
+.plus-button .button {
+    display: inline-block;
+    transform: rotate(0);
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 50%;
+    background: var(--color-primary);
+    position: relative;
+    cursor: pointer;
+    transition-property: transform;
+    transition-duration: var(--transition-duration);
+    transition-timing-function: linear;
+}
+
+.plus-button .button:hover {
+    transform: scale(1.15) rotate(0);
+}
+
+/* Arrow Styles */
+.plus-button .arrow {
+    fill: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: -0.6rem;
+    margin-left: -0.6rem;
+    transition-property: transform, fill;
+    transition-duration: var(--transition-duration);
+    transition-timing-function: linear;
+}
+
+/* Menu Styles */
+.plus-button .menu {
+    z-index: 999;
+    color: var(--color-primary);
+    background: rgba(var(--color-primary), 0.1);
+    min-width: 20rem;
+    padding: 0.8rem;
+    position: absolute;
+    display: grid;
+    border-radius: 0.8em;
+    grid-gap: 0.5em;
+    top: 0;
+    left: 5.5rem;
+    box-shadow: 0 0.18em 0.37em rgba(var(--color-primary), 0.16),
+        0 0.18em 0.37em rgba(var(--color-primary), 0.23);
+    opacity: 0;
+    display: none;
+    animation: fade-in 0.25s ease-in-out 0.15s forwards;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        left: 4.5rem;
+    }
+    to {
+        opacity: 1;
+        left: 5.5rem;
+    }
+}
+.ck.ck-editor {
+    margin-top: 70px !important;
+}
+.arabic-text {
+    direction: rtl;
+    text-align: right;
+}
+.ck-balloon-panel.ck-balloon-panel_position_border-side_left {
+    display: none !important;
+}
+.blue {
+    background-color: var(--blue) !important;
+    color: white !important;
+    position: fixed !important;
+    bottom: 10px;
+    z-index: 11111111111111111111111111111;
+    right: 10px;
+}
+.red {
+    background-color: var(--red) !important;
+    color: white !important;
+    position: fixed !important;
+    bottom: 10px;
+    z-index: 11111111111111111111111111111;
+    right: 180px;
+}

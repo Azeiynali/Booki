@@ -401,10 +401,17 @@ a {
         height: 150px;
     }
 }
-.table > table tbody > tr td {
+td {
     border: 1px solid #2929296b;
     padding: 10px;
     border-radius: 5px;
+}
+.post .content a{
+    color: #0000a5;
+}
+.post .content a:hover{
+    color: #1f1ff0;
+    text-decoration: underline;
 }
 blockquote {
     padding: 10px;

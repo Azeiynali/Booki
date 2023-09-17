@@ -1,74 +1,74 @@
-{% raw %}
-
-Vue.component("navbar-item", {
-    props: {
-        text: {},
-        href: {},
-        active: {
-            default: false,
-        },
-    },
-    template: `
-                  <a ref="a" class="navbar-item" v-html="text" :href="href"></a>
-                  `,
-});
-
-Vue.component("navbar", {
-    props: {
-        active_item: {
-            default: false,
-        },
-        message_count: {
-            default: 0,
-        },
-        avatar: {}
-    },
-    data() {
-        return {};
-    },
-    methods: {
-        plus() {
-            this.$refs.button.classList.toggle("is-active");
-        },
-        comment() {
-            this.$emit("comment");
-        },
-        image() {
-            this.$emit("image");
-        },
-    },
-    template: `
-                <nav class="nav">
-                      <img class="logo" src="https://cdn-icons-png.flaticon.com/512/4096/4096358.png" />
-                      <div class="nav-items">
-                        <navbar-item href="#" ref="profile" text="پروفایل" :class="{ active: active_item === 'profile' }"></navbar-item>
-                        <navbar-item href="#" ref="dasboard" text="جستجو" :class="{ active: active_item === 'search' }"></navbar-item>
-                        <navbar-item href="/chat" ref="chatroom" text="گفتگو" :class="{ active: active_item === 'chat' }"></navbar-item>
-                        <navbar-item href="/" ref="chatroom" text="خانه" :class="{ active: active_item === 'home' }"></navbar-item>
-                      </div>
-                      <div class="profile-nav">
-                          <i class="fa-solid fa-envelope"><div v-if="Number(message_count)" class="note_num">{{ Number(message_count) }}</div></i>
-                          <img class="profile-pic" :src="avatar" />
-                      </div>
-                      <div v-if="active_item == 'home'" dir="rtl" ref="button" class="plus-button">
-                        <a @click="plus" href="#" class="button">
-                            <svg class="arrow arrow-left" viewBox="0 0 448 448">
-                                <path
-                                    d="M272 176H32c-18 0-32 14-32 32v32c0 18 14 32 32 32h144v144c0 18 14 32 32 32h32c18 0 32-14 32-32V176z"
-                                />
-                            </svg>
-                            <svg class="arrow arrow-right" viewBox="0 0 448 448">
-                                <path
-                                    d="M176 272h240c18 0 32-14 32-32v-32c0-18-14-32-32-32H272V32c0-18-14-32-32-32h-32c-18 0-32 14-32 32v240z"
-                                />
-                            </svg>
-                        </a>
-                        <div class="menu">
-                            <a href="#">مقاله</a><br />
-                            <a @click="image" href="#">عکس</a><br />
-                            <a @click="comment" href="#">نظر</a><br />
-                        </div>
-                    </div>
-                </nav>`,
-});
-{% endraw %}
+{% raw %} Vue.component("navbar-item", { props: { text: {}, href: {}, active: {
+default: false, }, }, template: `
+<a ref="a" class="navbar-item" v-html="text" :href="href"></a>
+`, }); Vue.component("navbar", { props: { active_item: { default: false, },
+message_count: { default: 0, }, avatar: {} }, data() { return {}; }, methods: {
+plus() { this.$refs.button.classList.toggle("is-active"); }, comment() {
+this.$emit("comment"); }, image() { this.$emit("image"); }, }, template: `
+<nav class="nav">
+    <img
+        class="logo"
+        src="https://cdn-icons-png.flaticon.com/512/4096/4096358.png"
+    />
+    <div class="nav-items">
+        <navbar-item
+            href="#"
+            ref="profile"
+            text="پروفایل"
+            :class="{ active: active_item === 'profile' }"
+        ></navbar-item>
+        <navbar-item
+            href="#"
+            ref="dasboard"
+            text="جستجو"
+            :class="{ active: active_item === 'search' }"
+        ></navbar-item>
+        <navbar-item
+            href="/chat"
+            ref="chatroom"
+            text="گفتگو"
+            :class="{ active: active_item === 'chat' }"
+        ></navbar-item>
+        <navbar-item
+            href="/"
+            ref="chatroom"
+            text="خانه"
+            :class="{ active: active_item === 'home' }"
+        ></navbar-item>
+    </div>
+    <div class="profile-nav">
+        <i class="fa-solid fa-envelope"
+            ><div v-if="Number(message_count)" class="note_num">
+                {{ Number(message_count) }}
+            </div></i
+        >
+        {% endraw %}
+            <img class="profile-pic" src="{{ current_user.avatar }}" />
+        {% raw %}
+    </div>
+    <div
+        v-if="active_item == 'home'"
+        dir="rtl"
+        ref="button"
+        class="plus-button"
+    >
+        <a @click="plus" href="#" class="button">
+            <svg class="arrow arrow-left" viewBox="0 0 448 448">
+                <path
+                    d="M272 176H32c-18 0-32 14-32 32v32c0 18 14 32 32 32h144v144c0 18 14 32 32 32h32c18 0 32-14 32-32V176z"
+                />
+            </svg>
+            <svg class="arrow arrow-right" viewBox="0 0 448 448">
+                <path
+                    d="M176 272h240c18 0 32-14 32-32v-32c0-18-14-32-32-32H272V32c0-18-14-32-32-32h-32c-18 0-32 14-32 32v240z"
+                />
+            </svg>
+        </a>
+        <div class="menu">
+            <a href="new/post">مقاله</a><br />
+            <a @click="image" href="#">عکس</a><br />
+            <a @click="comment" href="#">نظر</a><br />
+        </div>
+    </div>
+</nav>
+`, }); {% endraw %}
