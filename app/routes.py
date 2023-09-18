@@ -4,6 +4,27 @@ from app.models import *
 from flask_login import login_user, login_required, current_user
 from app.functions import *
 import re
+from itertools import zip_longest
+
+
+def format_age(date):
+    now = datetime.now()
+    ageY = now.year - date.year
+    ageM = now.month - date.month
+    ageD = now.day - date.day
+    ageH = now.hour - date.hour
+
+    if not ageY and not ageM and not ageD and ageH < 2:
+        return "به تازگی"
+    elif not ageY and not ageM:
+        return f"{ageD} روز پیش"
+    elif not ageY:
+        if ageD > 10:
+            return f"{ageM} ماه و {ageD} روز پیش"
+        else:
+            return f"{ageM} ماه"
+    else:
+        return f"{ageY} سال پیش"
 
 
 # !
@@ -23,8 +44,24 @@ def index():
             n = []
 
         posts = Post.query.all()
+        if posts:
+            posts = reversed(posts)
+        comments = Comment.query.all()
+        if comments:
+            comments = reversed(comments)
+
+        combined_list = [
+            item
+            for sublist in zip_longest(comments, posts)
+            for item in sublist
+            if item is not None
+        ]
         return render_template(
-            "index.html", posts=posts, current_user=current_user, not_list=len(n)
+            "index.html",
+            fAge=format_age,
+            all=combined_list,
+            current_user=current_user,
+            not_list=len(n),
         )
     else:
         return render_template("Login.html")
@@ -77,6 +114,7 @@ def api() -> 403:
 
 
 @app.route("/api/addMessage", methods=["GET", "POST"])
+@login_required
 def addMessage():
     if request.method == "POST":
         data = request.form
@@ -99,6 +137,7 @@ def addMessage():
 
 
 @app.route("/api/delMessage", methods=["GET", "DELETE"])
+@login_required
 def delMessage():
     if request.method == "DELETE":
         data = request.form
@@ -191,8 +230,8 @@ def addPost():
             and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
         ):
             content = re.sub('"', '\\"', content)
-            content = re.sub('<a .*href="\\"\/(.*)\\"">.*<\/a>', '\1', content)
-            content = re.sub('<a .*href=\\"\/(.*)\\">.*<\/a>', '\1', content)
+            content = re.sub('<a .*href="\\"\/(.*)\\"">.*<\/a>', "\1", content)
+            content = re.sub('<a .*href=\\"\/(.*)\\">.*<\/a>', "\1", content)
             print(content)
             pos = Post(writer=User.query.get(current_user.id), content=content)
             db.session.add(pos)
@@ -203,6 +242,7 @@ def addPost():
 
 
 @app.route("/api/addComment", methods=["POST", "GET"])
+@login_required
 def addComment():
     if request.method == "POST":
         data = request.form
@@ -215,9 +255,9 @@ def addComment():
             and root_url in referer
             and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
         ):
-            mess = Comment(writer=User.query.get(usr_id), content=content)
-            db.session.add(mess)
+            comm = Comment(writer=User.query.get(current_user.id), content=content)
+            db.session.add(comm)
             db.session.commit()
-            return jsonify({"id": mess.id, "date": "به تازگی"})
+            return jsonify({"success": True})
 
     return abort(403)
