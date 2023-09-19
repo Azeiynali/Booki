@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block Title %}{% endblock %}</title>
+    {% block head %}{% endblock %}
+    <link href="../static/library/Vuetify.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/root.css">
+    <link rel="icon" href="/static/pictures/favicon.png">
+</head>
+<body>
+    {% block content %}{% endblock %}
+    <script src="/static/library/vue.js"></script>
+    <script
+        src="https://kit.fontawesome.com/7552b865b0.js"
+        crossorigin="anonymous"
+    ></script>
+    <script src="/static/library/Vuetify.js"></script>
+
+    <script>{% include "inc/navbarComp.html" %}{% block script %}{% endblock %}</script>
+</body>
+</html>

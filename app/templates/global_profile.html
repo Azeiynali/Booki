@@ -1,17 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Profile</title>
+{% extends "base.html" %}
 
-        <link href="../static/library/Vuetify.css" rel="stylesheet" />
-        <link href="../static/css/global_profile.css" rel="stylesheet" />
-        <link rel="stylesheet" href="../static/css/root.css" />
-    </head>
-    <style></style>
-    <body>
+{% block head %} <link href="../static/css/global_profile.css" rel="stylesheet" />{% endblock %}
+{% block Title %}Profile{% endblock %}
+{% block content %}
         <div id="app">
             <navbar></navbar>
             <user-header
@@ -34,19 +25,8 @@
                 ]"
             ></user-header>
         </div>
-        <!-- script -->
-
-        <script src="../static/library/vue.js"></script>
-
-        <script src="../static/library/Vutify.js"></script>
-
-        <script
-            src="https://kit.fontawesome.com/7552b865b0.js"
-            crossorigin="anonymous"
-        ></script>
-        <!-- FontAwesome -->
-        <script src="../static/js/root.js"></script>
-        <script>
+        {% endblock content %}
+        {% block script %}
             Vue.component("navbar-item", {
                 props: {
                     text: {},
@@ -179,6 +159,4 @@
             new Vue({
                 el: "#app",
             });
-        </script>
-    </body>
-</html>
+{% endblock %}

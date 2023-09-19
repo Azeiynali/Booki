@@ -37,6 +37,7 @@ body {
     width: 90%;
     color: #292929;
     position: relative;
+    background-color: white;
     column-gap: 20px;
     height: 100px;
 }
@@ -131,6 +132,37 @@ a {
     opacity: 1;
 }
 @keyframes menu {
+    20% {
+        transform: rotate(30deg);
+    }
+    35% {
+        transform: rotate(-60deg);
+    }
+    50% {
+        transform: rotate(30deg);
+    }
+    70% {
+        transform: rotate(-60deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}
+.user .delete {
+    color: #292929;
+    position: absolute;
+    font-size: 1.5rem;
+    top: 24px;
+    left: 70px;
+    cursor: pointer;
+    background-color: white;
+    padding: 5px;
+}
+.user .delete:hover {
+    color: var(--red);
+    animation: delete 0.8s;
+}
+@keyframes delete {
     20% {
         transform: rotate(30deg);
     }
@@ -540,4 +572,17 @@ header.header {
 }
 .image-model-container .model button:focus {
     box-shadow: 0 0 0 4px #005be45d;
+}
+.none{
+    display: none !important;
+}
+.delete_info{
+    background-color: #292929;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 10px;
+
 }

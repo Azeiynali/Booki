@@ -14,12 +14,16 @@ def format_age(date):
     ageD = now.day - date.day
     ageH = now.hour - date.hour
 
-    if not ageY and not ageM and not ageD and ageH < 2:
+    if not ageY and not ageM and not ageD and ageH:
         return "به تازگی"
+    elif not ageY and not ageM and ageD == 1:
+        return "دیروز"
     elif not ageY and not ageM:
         return f"{ageD} روز پیش"
+    elif not ageY and not ageM == 1 and ageD > 2:
+        return "ماه قبل"
     elif not ageY:
-        if ageD > 10:
+        if ageD > 2:
             return f"{ageM} ماه و {ageD} روز پیش"
         else:
             return f"{ageM} ماه"
@@ -44,11 +48,8 @@ def index():
             n = []
 
         posts = Post.query.all()
-        if posts:
-            posts = reversed(posts)
         comments = Comment.query.all()
-        if comments:
-            comments = reversed(comments)
+        users = User.query.all()
 
         combined_list = [
             item
@@ -56,9 +57,13 @@ def index():
             for item in sublist
             if item is not None
         ]
+        combined_list = reversed(combined_list)
+
+
         return render_template(
             "index.html",
             fAge=format_age,
+            users=users,
             all=combined_list,
             current_user=current_user,
             not_list=len(n),
@@ -249,6 +254,7 @@ def addComment():
         content = data.get("content")
         PIN = data.get("pin")
         referer = request.headers.get("Referer")
+
         if (
             content
             and referer
