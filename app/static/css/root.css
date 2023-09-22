@@ -216,6 +216,9 @@ h6 {
         left: 5.5rem;
     }
 }
+i{
+    font-family: "Font Awesome 6 Free" !important;
+}
 .comment-model-container {
     display: flex;
     width: 100vw;

@@ -65,6 +65,7 @@ body {
     /* margin-left: 36%; */
     margin-top: 30px;
     width: 250px;
+    box-sizing: content-box !important;
     height: 30px;
     transition: all 0.2s ease-out;
     box-shadow: inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #f9f9f9;

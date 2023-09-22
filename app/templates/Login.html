@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>ورود</title>
-        <link rel="stylesheet" href="./static/css/Login.css" />
-        <link rel="stylesheet" href="./static/css/root.css" />
-        <link rel="stylesheet" href="./static/library/vuetify.css" />
-    </head>
-    <body>
+{% extends "base.html" %}
+
+    
+{% block head %}
+<link rel="stylesheet" href="./static/css/Login.css" />
+<link href="../static/library/Vuetify.css" rel="stylesheet" />
+{% endblock %}
+{% block Title %}ورود{% endblock %}
+{% block content %}
         {% raw %}
         <div id="app" dir="rtl" class="Form-box">
             <h3 ref="title" class="title">خوش آمدید!</h3>
@@ -56,9 +55,10 @@
             <button ref="sub" @click="check()" id="username-sub">بعدی</button>
         </div>
 
-        <script src="./static/library/vue.js"></script>
-        <script src="./static/library/vuetify.js"></script>
-        <script>
+        {% endraw %}
+        {% endblock %}
+        {% block script %}
+        {% raw %}
             new Vue({
                 el: "#app",
                 data: {
@@ -264,7 +264,5 @@
                     },
                 },
             });
-        </script>
         {% endraw %}
-    </body>
-</html>
+        {% endblock %}

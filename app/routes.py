@@ -14,8 +14,10 @@ def format_age(date):
     ageD = now.day - date.day
     ageH = now.hour - date.hour
 
-    if not ageY and not ageM and not ageD and ageH:
+    if not ageY and not ageM and not ageD and ageH < 1:
         return "به تازگی"
+    elif not ageY and not ageM and not ageD:
+        return f"{ageH} ساعت پیش"
     elif not ageY and not ageM and ageD == 1:
         return "دیروز"
     elif not ageY and not ageM:
@@ -30,6 +32,14 @@ def format_age(date):
     else:
         return f"{ageY} سال پیش"
 
+def addScore(score):
+    with app.app_context():
+        u = User.query.get(current_user.id)
+
+
+        u.coins = u.coins + score
+        print(f"$$######{u.coins}")
+        db.session.commit()
 
 # !
 root_url = "http://127.0.0.1:1223"
@@ -70,6 +80,15 @@ def index():
         )
     else:
         return render_template("Login.html")
+
+
+@app.route("/@<username>")
+def user(username):
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return abort(404)
+
+    return render_template("profile.html", user=user)
 
 
 @app.route("/login")
@@ -241,6 +260,7 @@ def addPost():
             pos = Post(writer=User.query.get(current_user.id), content=content)
             db.session.add(pos)
             db.session.commit()
+            addScore(5)
             return jsonify({"succcess": True})
 
     return abort(403)
@@ -267,3 +287,51 @@ def addComment():
             return jsonify({"success": True})
 
     return abort(403)
+
+@app.route("/api/delPost", methods=["GET", "DELETE"])
+@login_required
+def delPost():
+    if request.method == "DELETE":
+        data = request.form
+        mess_id = data.get("id")
+        PIN = data.get("pin")
+        referer = request.headers.get("Referer")
+        if (
+            mess_id
+            and referer
+            and root_url in referer
+            and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
+        ):
+            pos = Post.query.get_or_404(mess_id)
+            if pos.writer.id == current_user.id:
+                db.session.delete(pos)
+                db.session.commit()
+                addScore(-5)
+                return {"success": 1}
+    return abort(403)
+
+
+@app.route("/api/delComment", methods=["GET", "DELETE"])
+@login_required
+def delComment():
+    if request.method == "DELETE":
+        data = request.form
+        mess_id = data.get("id")
+        PIN = data.get("pin")
+        referer = request.headers.get("Referer")
+        if (
+            mess_id
+            and referer
+            and root_url in referer
+            and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
+        ):
+            comm = Post.query.get_or_404(mess_id)
+            if comm.writer.id == current_user.id:
+                db.session.delete(comm)
+                db.session.commit()
+                addScore(-5)
+                return {"success": 1}
+    return abort(403)
+
+
+

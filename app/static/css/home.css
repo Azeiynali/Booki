@@ -586,3 +586,6 @@ header.header {
     border-radius: 10px;
 
 }
+.trash{
+    justify-content: center !important;
+}

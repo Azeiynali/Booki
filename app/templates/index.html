@@ -35,24 +35,28 @@
                             <post
                                 content="{{ post.content }}"
                                 user_detail='{
-                            "img": "{{ post.writer.avatar }}",
-                            "username": "{{ post.writer.username }}",
-                            "ckeck": true,
-                            "date": "{{ fAge(post.date) }}",
-                            "href": "/@{{ post.writer.username }}"
-                            }'
+                                    "img": "{{ post.writer.avatar }}",
+                                    "username": "{{ post.writer.username }}",
+                                    "ckeck": true,
+                                    "date": "{{ fAge(post.date) }}",
+                                    "href": "/@{{ post.writer.username }}"
+                                }'
+                                id="{{ post.id }}"
+                                {% if post.writer == current_user %}iw="1"{% endif %}
                             ></post>
                         {% else %}
                             {% if post.__class__.__name__ == "Comment" %}
                                 <comment
                                     content="{{ post.content }}"
                                     user_detail='{
-                                "img": "{{ post.writer.avatar }}",
-                                "username": "{{ post.writer.username }}",
-                                "ckeck": true,
-                                "date": "{{ fAge(post.date) }}",
-                                "href": "/@{{ post.writer.username }}"
-                                }'
+                                        "img": "{{ post.writer.avatar }}",
+                                        "username": "{{ post.writer.username }}",
+                                        "ckeck": true,
+                                        "date": "{{ fAge(post.date) }}",
+                                        "href": "/@{{ post.writer.username }}"
+                                    }'
+                                    id="{{ post.id}}"
+                                    {% if post.writer == current_user %}iw="1"{% endif %}
                                 ></comment>
                             {% endif %}
                         {% endif %}
@@ -166,6 +170,9 @@
                         likes: {
                             default: 0,
                         },
+                        iw: {
+                            default: false
+                        },
                         classes: { default: "post" },
                     },
                     data() {
@@ -173,8 +180,10 @@
                             us_content: unescape(this.content),
                             user_details: JSON.parse(this.user_detail),
                             icon: "regular",
+                            is: true
                         };
                     },
+
                     methods: {
                         like() {
                             if (
@@ -198,12 +207,41 @@
                                 this.$refs.message.style.left = "-19px";
                             }, 2000);
                         },
-                        delete(){
-                            
+                        delete_(){
+                            if (this.$refs.itrash.getAttribute("class") ===
+                            "fa-soild fa-check"){
+
+                                var myHeaders = new Headers();
+                                myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+                                var urlencoded = new URLSearchParams();
+                                urlencoded.append("id", this.id);
+                                urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
+                                var requestOptions = {
+                                    method: 'DELETE',
+                                    headers: myHeaders,
+                                    body: urlencoded,
+                                    redirect: 'follow'
+                                };
+
+                                fetch("/api/delPost", requestOptions)
+                                .then(response => response.text())
+
+                                .then(result => {
+                                    this.is = false;
+                                    }
+                                )
+                                .catch(error => console.log('error', error));
+                            }
+
+                            else{
+                                this.$refs.itrash.setAttribute("class", "fa-soild fa-check")
+                                this.$refs.trash.setAttribute("class", "like trash liked")
+                            }
                         }
                     },
                     template: `
-                        <div :class="classes">
+                        <div v-if="is" :class="classes">
                             <div dir="rtl" class="user">
                                 <a :href="user_details.href">
                                     <img :src="user_details.img" />
@@ -226,6 +264,9 @@
                                     <i :class='"fa-" + icon + " fa-heart"'></i>
                                     <small>{{ likes }}</small>
                                 </div>
+                                <div v-if="iw" @click="delete_" ref="trash" class="like trash">
+                                    <i ref="itrash" class="fa-soild fa-trash"></i>
+                                </div>
                                 </a>
                             </div>
                         </div>
@@ -240,12 +281,17 @@
                         content: {
                             default: "",
                         },
+                        id: {},
+                        iw: {
+                            default: false
+                        }
                     },
                     data() {
                         return {
                             us_content: unescape(this.content),
                             user_details: JSON.parse(this.user_detail),
                             icon: "regular",
+                            is: true
                         };
                     },
                     methods: {
@@ -262,18 +308,44 @@
                             }
                             this.$refs.like.classList.toggle("liked");
                         },
-                        exclamation(ev) {
-                            this.$refs.message.style.opacity = "1";
-                            this.$refs.message.style.left = "-19px";
-                            this.$refs.message.innerText = "گزارش داده شد!";
-                            setTimeout(() => {
-                                this.$refs.message.style = "";
-                                this.$refs.message.style.left = "-19px";
-                            }, 2000);
-                        },
+                        delete_(){
+                            if (this.$refs.itrash.getAttribute("class") ===
+                            "fa-soild fa-check"){
+                                this.is = false;
+
+                                var myHeaders = new Headers();
+                                myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+                                var urlencoded = new URLSearchParams();
+                                urlencoded.append("id", this.id);
+                                urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
+                                var requestOptions = {
+                                    method: 'DELETE',
+                                    headers: myHeaders,
+                                    body: urlencoded,
+                                    redirect: 'follow'
+                                };
+
+                                // fetch("/api/delPost", requestOptions)
+                                // .then(response => response.text())
+// 
+                                // .then(result => {
+                                //     this.is = false;
+                                //     }
+                                // )
+                                // .catch(error => console.log('error', error));
+
+
+                            }
+
+                            else{
+                                this.$refs.itrash.setAttribute("class", "fa-soild fa-check")
+                                this.$refs.trash.setAttribute("class", "like trash liked")
+                            }
+                        }
                     },
                     template: `
-                        <div class="post">
+                        <div v-if="is" class="post">
                             <div style="transform: scale(.7);margin-left: 23%;" dir="rtl" class="user">
                                 <a :href="user_details.href">
                                     <img click.double="like" :src="user_details.img" />
@@ -289,7 +361,11 @@
                                 </a>
                             </div>
                             <div dir="rtl" class="content">{{ us_content }}</div>
-
+                            <div dir="rtl" class="bottom">
+                                <div v-f="iw" @click="delete_" ref="trash" class="like trash">
+                                    <i ref="itrash" class="fa-soild fa-trash"></i>
+                                </div>
+                            </div>
                         </div>
                     `,
                 });
