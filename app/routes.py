@@ -58,17 +58,7 @@ def index():
             n = []
 
         posts = Post.query.all()
-        comments = Comment.query.all()
         users = User.query.all()
-
-        combined_list = [
-            item
-            for sublist in zip_longest(comments, posts)
-            for item in sublist
-            if item is not None
-        ]
-        combined_list = reversed(combined_list)
-
 
         return render_template(
             "index.html",

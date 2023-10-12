@@ -18,8 +18,6 @@ class User(db.Model, UserMixin):
     notifictions = db.Column(db.String, unique=False)
 
     posts = db.relationship("Post", backref='writer', lazy=True)
-    comments = db.relationship("Comment", backref='writer', lazy=True)
-    images = db.relationship("Image", backref='writer', lazy=True)
     messages = db.relationship("Message", backref='writer', lazy=True)
 
     def __repr__(self):
@@ -28,34 +26,13 @@ class User(db.Model, UserMixin):
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    date = db.Column(db.DateTime(), default=datetime.now, nullable=False, unique=False)
-    User_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.id} ---> {self.date})'
-
-
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    img = db.Column(db.String)
     date = db.Column(db.DateTime(), default=datetime.now, nullable=False, unique=False)
     content = db.Column(db.Text, nullable=False)
     User_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.id} ---> {self.date})'
-
-
-class Image(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    image = db.Column(db.String)
-    date = db.Column(db.DateTime(), default=datetime.now, nullable=False, unique=False)
-    content = db.Column(db.Text, nullable=False)
-    User_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    def __repr__(self):
-        return f'{self.__class__.__name__}({self.id} ---> {self.date})'
-
 
 class Medal(db.Model):
     id = db.Column(db.Integer, primary_key=True)

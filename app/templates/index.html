@@ -1,7 +1,7 @@
     {% extends "base.html" %}
 
     {% block head %} <link rel="stylesheet" href="../static/css/home.css" /> {% endblock %}
-    {% block Title %}خانه - مدرسه علم و فرهنگ{% endblock %}
+    {% block Title %}Soci - Home{% endblock %}
     {% block content %}
         <div id="app">
             <navbar
@@ -30,38 +30,21 @@
             <image-model ref="immd"></image-model>
             <div class="container">
                 <div class="posts">
-                    {% for post in all %}
-                        {% if post.__class__.__name__ == "Post" %}
-                            <post
-                                content="{{ post.content }}"
-                                user_detail='{
-                                    "img": "{{ post.writer.avatar }}",
-                                    "username": "{{ post.writer.username }}",
-                                    "ckeck": true,
-                                    "date": "{{ fAge(post.date) }}",
-                                    "href": "/@{{ post.writer.username }}"
+                    {% for post in posts %}
+                        <post
+                            content="<img class='img' src='{{ post.img }}'><p>{{ post.text }}</p>"
+                            user_detail='{
+                                "img": "{{ post.writer.avatar }}",
+                                "username": "{{ post.writer.username }}",
+                                "ckeck": true,
+                                "date": "2 ماه پیش",
+                                "href":"/@{{ post.writer.username }}/posts",
+                                "post_href": "#"
                                 }'
-                                id="{{ post.id }}"
-                                {% if post.writer == current_user %}iw="1"{% endif %}
-                            ></post>
-                        {% else %}
-                            {% if post.__class__.__name__ == "Comment" %}
-                                <comment
-                                    content="{{ post.content }}"
-                                    user_detail='{
-                                        "img": "{{ post.writer.avatar }}",
-                                        "username": "{{ post.writer.username }}",
-                                        "ckeck": true,
-                                        "date": "{{ fAge(post.date) }}",
-                                        "href": "/@{{ post.writer.username }}"
-                                    }'
-                                    id="{{ post.id}}"
-                                    {% if post.writer == current_user %}iw="1"{% endif %}
-                                ></comment>
-                            {% endif %}
-                        {% endif %}
+                            classes="img-container post"
+                        ></post>
                     {% endfor %}
-                    <post
+                    <!-- <post
                         content="<img class='img' src='https://cdn.dribbble.com/userupload/9583660/file/original-e27155a0df451cd4cb30db64a51883a8.jpg?resize=752x'><p>اینیک تصویر است که یک تصویر است و.... چرا 1 2 3 و..... هم اینکه من <br /> ااا</p>"
                         user_detail='{
                     "img": "https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg",
@@ -101,7 +84,7 @@
                         username="علی"
                         date="3 ماه پیش"
                         href="#"
-                    ></avatar>
+                    ></avatar> -->
                 </div>
                 <div class="left-items">
                     <div dir="rtl" class="top">
