@@ -1,5 +1,5 @@
 from app import app, db
-from flask import render_template, abort, request, jsonify
+from flask import render_template, abort, request, jsonify, redirect, url_for
 from app.models import *
 from flask_login import login_user, login_required, current_user
 from app.functions import *
@@ -64,7 +64,7 @@ def index():
             "index.html",
             fAge=format_age,
             users=users,
-            all=combined_list,
+            posts=posts,
             current_user=current_user,
             not_list=len(n),
         )
@@ -72,8 +72,23 @@ def index():
         return render_template("Login.html")
 
 
+@app.route("/")
+def register():
+    if current_user.is_authenticated:
+      return redirect(url_for("index"))
+    else:
+        return render_template("register.html")
+
+
 @app.route("/@<username>")
+@login_required
 def user(username):
+
+    return redirect(f"/@{username}/posts")
+
+@app.route("/@<username>/posts")
+@login_required
+def user_posts(username):
     user = User.query.filter_by(username=username).first()
     if not user:
         return abort(404)
@@ -256,28 +271,6 @@ def addPost():
     return abort(403)
 
 
-@app.route("/api/addComment", methods=["POST", "GET"])
-@login_required
-def addComment():
-    if request.method == "POST":
-        data = request.form
-        content = data.get("content")
-        PIN = data.get("pin")
-        referer = request.headers.get("Referer")
-
-        if (
-            content
-            and referer
-            and root_url in referer
-            and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
-        ):
-            comm = Comment(writer=User.query.get(current_user.id), content=content)
-            db.session.add(comm)
-            db.session.commit()
-            return jsonify({"success": True})
-
-    return abort(403)
-
 @app.route("/api/delPost", methods=["GET", "DELETE"])
 @login_required
 def delPost():
@@ -299,29 +292,4 @@ def delPost():
                 addScore(-5)
                 return {"success": 1}
     return abort(403)
-
-
-@app.route("/api/delComment", methods=["GET", "DELETE"])
-@login_required
-def delComment():
-    if request.method == "DELETE":
-        data = request.form
-        mess_id = data.get("id")
-        PIN = data.get("pin")
-        referer = request.headers.get("Referer")
-        if (
-            mess_id
-            and referer
-            and root_url in referer
-            and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
-        ):
-            comm = Post.query.get_or_404(mess_id)
-            if comm.writer.id == current_user.id:
-                db.session.delete(comm)
-                db.session.commit()
-                addScore(-5)
-                return {"success": 1}
-    return abort(403)
-
-
 

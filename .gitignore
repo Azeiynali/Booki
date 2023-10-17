@@ -2,3 +2,5 @@
 instance
 .idea/*
 test.py
+__pycache__
+app/__pycache__

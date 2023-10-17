@@ -130,10 +130,6 @@
                     template: `
                                 <header ref="root" class="header">
                                     <a :href="item.user_href" v-for="item in items_dict.all" class="item">
-                                        <img
-                                            src="/static/pictures/UBG.png"
-                                            alt="*"
-                                        />
                                         <div :style="'background-image: url(' + item.user_img + ');'" class="user"></div>
                                         <p>{{ item.username }}</p>
                                     </a>

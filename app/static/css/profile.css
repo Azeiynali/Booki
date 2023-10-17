@@ -1,0 +1,89 @@
+.pbackground {
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 25em;
+    width: 100vw;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 13em;
+    flex-direction: column;
+    margin-top: 50px;
+}
+.pbackground .change {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    right: 20px;
+    cursor: pointer;
+    top: 30px;
+    font-size: 1rem;
+    background-color: white;
+    color: #86a2ff;
+    border-radius: 100%;
+}
+.pbackground .avatar {
+    width: 160px;
+    height: 160px;
+    background-repeat: no-repeat;
+    position: relative;
+    border: 6px solid white;
+    border-radius: 100%;
+    margin-bottom: 30px;
+    background-size: cover;
+    margin-top: 50px;
+}
+.pbackground .avatar .change {
+    right: -2px;
+    top: -2px;
+    color: white;
+    background-color: #86a2ff;
+}
+.username {
+    font-weight: 1;
+    font-size: 2.3rem;
+}
+.address {
+    font-weight: 1;
+    font-size: 1rem;
+    color: #353535;
+}
+.infos {
+    width: 90%;
+    height: 100%;
+    background-color: white;
+    border-radius: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.tag{
+    display: flex;
+    align-items: center;
+    padding: 3px 8px;
+    color: white;
+    position: absolute;
+    left: 2em;
+    border-radius: 100px;
+    justify-content: center;
+}
+.tag svg {
+    width: 20px;
+    margin-bottom: 4px;
+    height: 20px;
+}
+.gem{
+    background-color: #3262ff;
+    top: 2em;
+    color: white;
+}
+.post{
+    background-color: #ff9532;
+    top: 5em;
+    color: white;
+}
