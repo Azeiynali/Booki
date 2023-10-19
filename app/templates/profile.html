@@ -12,22 +12,26 @@ content %}
         "
         class="pbackground"
     >
+        {% if current_user == user %}
         <div class="change"><i class="fa-solid fa-pen-to-square"></i></div>
+        {% endif %}
         <div
             style="
                 background-image: url('/{{ current_user.avatar }}');
             "
             class="avatar"
         >
-            <div class="change"><i class="fa-solid fa-pen-to-square"></i></div>
+            {% if current_user == user %}
+
+            <div class="change"><i class="fa-solid fa-camera"></i></div>
+            {% endif %}
         </div>
         <div class="infos">
             <h3 class="username">{{ current_user.username }}</h3>
             <h6 class="address">
-                <i class="fa-solid fa-location-dot"></i> {{
-                current_user.username }}
+                <i class="fa-solid fa-location-dot"></i> ایران, قم
             </h6>
-            <div class="tag gem">
+            <div dir="rtl" class="tag gem">
                 <svg
                     width="800px"
                     height="800px"
@@ -75,9 +79,9 @@ content %}
                         d="M42.6 3.6c1.4.4 2.5 1.5 2.9 2.9c0 .1.2.1.2 0c.4-1.4 1.5-2.5 2.9-2.9c.1 0 .1-.2 0-.2c-1.4-.4-2.5-1.5-2.9-2.9c0-.1-.2-.1-.2 0c-.4 1.4-1.5 2.5-2.9 2.9c-.1 0-.1.2 0 .2z"
                     ></path>
                 </svg>
-                &nbsp; 100 Gems
+                &nbsp; 100 الماس
             </div>
-            <div class="tag post">
+            <div dir="rtl" class="tag post">
                 <svg
                     fill="#000000"
                     width="800px"
@@ -91,7 +95,13 @@ content %}
                     />
                     <script xmlns="" />
                 </svg>
-                &nbsp; 39 Posts
+                &nbsp; 39 پست
+            </div>
+            <div class="buttons">
+                <div style="background-color: #ff3838;" class="button">Fallowed</div>
+                <div style="background-color: #3877ff;" class="button">Fallow</div>
+                
+                <div style="background-color: #3877ff;" class="button">Fallow</div>
             </div>
         </div>
     </div>

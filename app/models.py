@@ -12,10 +12,16 @@ def load_user(user_id):
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=False, nullable=False)
-    coins = db.Column(db.Integer, default=0)
+    gems = db.Column(db.Integer, default=0)
     password = db.Column(db.String, unique=False)
     avatar = db.Column(db.String, unique=False)
-    notifictions = db.Column(db.String, unique=False, default="[]")
+    notifications = db.Column(db.String, unique=False, default="[]")
+    country = db.Column(db.String, unique=False)
+    city = db.Column(db.String, unique=False)
+    workType = db.Column(db.String, unique=False)
+    # freelancer | team
+    humanType = db.Column(db.String, unique=False)
+    # man, woman
 
     posts = db.relationship("Post", backref='writer', lazy=True)
     messages = db.relationship("Message", backref='writer', lazy=True)

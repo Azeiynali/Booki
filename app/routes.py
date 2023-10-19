@@ -50,10 +50,10 @@ root_url = "http://127.0.0.1:1223"
 def index():
     if current_user.is_authenticated:
         if (
-            len(current_user.notifictions.replace("[", "").replace("]", "").split(","))
+            len(current_user.notifications.replace("[", "").replace("]", "").split(","))
             - 1
         ):
-            n = current_user.notifictions.replace("[", "").replace("]", "").split(",")
+            n = current_user.notifications.replace("[", "").replace("]", "").split(",")
         else:
             n = []
 
@@ -93,7 +93,7 @@ def user_posts(username):
     if not user:
         return abort(404)
 
-    return render_template("profile.html", user=user)
+    return render_template("profile.html", user=user, fallows=Fallow)
 
 
 @app.route("/login")

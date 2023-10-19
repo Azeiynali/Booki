@@ -68,7 +68,7 @@
     padding: 3px 8px;
     color: white;
     position: absolute;
-    left: 2em;
+    right: 2em;
     border-radius: 100px;
     justify-content: center;
 }
@@ -86,4 +86,28 @@
     background-color: #ff9532;
     top: 5em;
     color: white;
+}
+.buttons{
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    gap: 40px;
+}
+.button{
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 5px 5px 10px #3535356c, -5px -5px 5px #e6e6e6;
+    width: 200px;
+    font-size: 2rem;
+    transition: all .3s;
+    color: white;
+    text-align: center;
+}
+.button:hover{
+    transform: scale(.9);
+}
+.button:active{
+    box-shadow: none;
 }
