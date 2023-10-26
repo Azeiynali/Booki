@@ -22,6 +22,7 @@
     cursor: pointer;
     top: 30px;
     font-size: 1rem;
+    padding-top: 5px;
     background-color: white;
     color: #86a2ff;
     border-radius: 100%;
@@ -46,6 +47,18 @@
 .username {
     font-weight: 1;
     font-size: 2.3rem;
+    text-align: center;
+    outline: none;
+    border: none;
+    background: none;
+    box-shadow: none;
+    color: black;
+}
+.username ~ i{
+    position: absolute;
+    margin-top: 23px;
+    cursor: pointer;
+    left: 20px;
 }
 .address {
     font-weight: 1;

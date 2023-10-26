@@ -86,8 +86,13 @@ def user_posts(username):
     user = User.query.filter_by(username=username).first()
     if not user:
         return abort(404)
+    
+    if Fallow.query.filter_by(follower=current_user.id, followed=user.id).first():
+        fallow = True
+    else:
+        fallow = False
 
-    return render_template("profile.html", user=user, fallows=Fallow)
+    return render_template("profile.html", user=user, fallow=fallow)
 
 
 @app.route("/login")
@@ -354,3 +359,22 @@ def addUser():
         return jsonify({"success": False, "valid": "?", "message": "?"})
 
     return abort(400)
+
+@app.route("/api/addfallow", methods=['PUT'])
+def fallow():
+    if 'id' in request.form:
+        id = request.form['id']
+        f = Fallow(follower=current_user.id, followed=id)
+        db.session.add(f)
+        db.session.commit()
+    return "1"
+    
+
+@app.route("/api/delfallow", methods=['DELETE'])
+def notfallow():
+    if 'id' in request.form:
+        id = request.form['id']
+        f = Fallow.query.filter_by(follower=current_user.id, followed=id).first()
+        db.session.delete(f)
+        db.session.commit()
+    return "1"

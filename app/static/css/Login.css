@@ -13,6 +13,12 @@ body {
     font-family: "Baloo Bhaijaan 2";
     background-color: #e1e8e9;
 }
+.inp-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
 * {
     margin: 0;
     padding: 0;
@@ -102,9 +108,9 @@ body {
 }
 .image{
     transition: all .5s;
-    width: 250px;
+    width: 200px;
     margin-top: 20px;
-    height: 250px;
+    height: 200px;
     border-radius: 100%;
 }
 .register a{

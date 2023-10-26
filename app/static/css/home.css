@@ -467,20 +467,16 @@ header.header {
     text-decoration: none;
     position: relative;
 }
-
-.header .item img {
-    border-radius: 100%;
-    width: 150px;
-    height: 200px;
-}
 .header .item .user {
-    border-radius: 10px;
     text-decoration: none;
     text-align: center;
     width: 70px;
     height: 70px;
     background-size: cover !important;
     background-repeat: no-repeat !important;
+}
+.header .item img.user{
+    border-radius: 100%;
 }
 @media screen and (max-width: 1383px) {
     header.header {

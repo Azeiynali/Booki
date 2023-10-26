@@ -26,8 +26,6 @@
             '
             >
             </site-header>
-            <comment-model ref="comd"></comment-model>
-            <image-model ref="immd"></image-model>
             <div class="container">
                 <div class="posts">
                     {% for post in posts %}
@@ -128,12 +126,16 @@
                         };
                     },
                     template: `
-                                <header ref="root" class="header">
-                                    <a :href="item.user_href" v-for="item in items_dict.all" class="item">
-                                        <div :style="'background-image: url(' + item.user_img + ');'" class="user"></div>
-                                        <p>{{ item.username }}</p>
-                                    </a>
-                                </header>
+                        <header ref="root" class="header">
+                            <a href="/@booki" class="item">
+                                <div style="background-image: url(/static/pictures/favicon.png)" class="user"></div>
+                                <p>Booki</p>
+                            </a>
+                            <a :href="item.user_href" v-for="item in items_dict.all" class="item">
+                                <img :src="item.user_img" class="user" />
+                                <p>{{ item.username }}</p>
+                            </a>
+                        </header>
                                 `,
                 });
 
@@ -250,237 +252,6 @@
                             </div>
                         </div>
                     `,
-                });
-
-                Vue.component("comment", {
-                    props: {
-                        user_detail: {
-                            default: "{}",
-                        },
-                        content: {
-                            default: "",
-                        },
-                        id: {},
-                        iw: {
-                            default: false
-                        }
-                    },
-                    data() {
-                        return {
-                            us_content: unescape(this.content),
-                            user_details: JSON.parse(this.user_detail),
-                            icon: "regular",
-                            is: true
-                        };
-                    },
-                    methods: {
-                        like() {
-                            if (
-                                this.$refs.like.getAttribute("class") ==
-                                "like liked"
-                            ) {
-                                this.icon = "regular";
-                                this.likes--;
-                            } else {
-                                this.likes++;
-                                this.icon = "solid";
-                            }
-                            this.$refs.like.classList.toggle("liked");
-                        },
-                        delete_(){
-                            if (this.$refs.itrash.getAttribute("class") ===
-                            "fa-soild fa-check"){
-                                this.is = false;
-
-                                var myHeaders = new Headers();
-                                myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-                                var urlencoded = new URLSearchParams();
-                                urlencoded.append("id", this.id);
-                                urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
-                                var requestOptions = {
-                                    method: 'DELETE',
-                                    headers: myHeaders,
-                                    body: urlencoded,
-                                    redirect: 'follow'
-                                };
-
-                                // fetch("/api/delPost", requestOptions)
-                                // .then(response => response.text())
-// 
-                                // .then(result => {
-                                //     this.is = false;
-                                //     }
-                                // )
-                                // .catch(error => console.log('error', error));
-
-
-                            }
-
-                            else{
-                                this.$refs.itrash.setAttribute("class", "fa-soild fa-check")
-                                this.$refs.trash.setAttribute("class", "like trash liked")
-                            }
-                        }
-                    },
-                    template: `
-                        <div v-if="is" class="post">
-                            <div style="transform: scale(.7);margin-left: 23%;" dir="rtl" class="user">
-                                <a :href="user_details.href">
-                                    <img click.double="like" :src="user_details.img" />
-                                </a>
-                                <a :href="user_details.href">
-                                    <div>
-                                        <p>
-                                            {{ user_details.username }}
-
-                                        </p>
-                                        <small>{{ user_details.date }}</small>
-                                    </div>
-                                </a>
-                            </div>
-                            <div dir="rtl" class="content">{{ us_content }}</div>
-                            <div dir="rtl" class="bottom">
-                                <div v-f="iw" @click="delete_" ref="trash" class="like trash">
-                                    <i ref="itrash" class="fa-soild fa-trash"></i>
-                                </div>
-                            </div>
-                        </div>
-                    `,
-                });
-
-                Vue.component("comment-model", {
-                    data() {
-                        return {
-                        comment: "",
-                        chars: 300,
-                        error: "",
-                        max_chars: 300,
-                        };
-                    },
-                    methods: {
-                        type() {
-                        this.chars =
-                            this.max_chars - this.$refs.text.value.length;
-                        if (this.chars <= 0) {
-                            this.error = true;
-                            this.$refs.error.classList.add("e");
-                            this.$refs.button.classList.add("disable");
-                            } else {
-                            this.$refs.error.classList.remove("e");
-                            this.$refs.button.classList.remove("disable");
-                            this.error = false;
-                            }
-                        },
-                        open() {
-                        this.$refs.root.style.display = "flex";
-                        },
-                        close() {
-                        this.$refs.root.style.display = "none";
-                        },
-                        submit() {
-                            if (!this.error) {
-                            var myHeaders = new Headers();
-                            myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
-
-                            var urlencoded = new URLSearchParams();
-                            urlencoded.append("content", this.comment);
-                            console.log(this.comment);
-                            urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
-
-                            var requestOptions = {
-                                method: 'POST',
-                                headers: myHeaders,
-                                body: urlencoded,
-                                redirect: 'follow'
-                            };
-
-                            fetch("http://127.0.0.1:1223/api/addComment", requestOptions)
-                            .then(response => response.text())
-
-                            .then(result => {
-                                this.$refs.root.style.display = "none";
-                                }
-                            )
-                            .catch(error => console.log('error', error));
-                            }
-                        },
-                    },
-                    template: `
-                            <div style="display: none"  ref="root" class="comment-model-container">
-                                <div class="model">
-                                    <textarea @keyup="type" ref="text" v-model="comment" cols="40" rows="7"></textarea>
-                                    <p ref="error" class="error">{{ chars }}</p>
-                                    <button @click="close" class="close">بستن</button>
-                                    <button @click="submit" ref="button">انتشار</button>
-                                </div>
-                            </div>`,
-                });
-
-                Vue.component("image-model", {
-                    data() {
-                        return {
-                            comment: "",
-                            chars: 2000,
-                            image: null,
-                            max_chars: 2000,
-                            error: "",
-                        };
-                    },
-                    methods: {
-                        type() {
-                            this.chars =
-                                this.max_chars - this.$refs.text.value.length;
-                            if (this.chars <= 0) {
-                                this.$refs.error.classList.add("e");
-                                this.$refs.button.classList.add("disable");
-                                this.error = true;
-                            } else {
-                                this.$refs.error.classList.remove("e");
-                                this.$refs.button.classList.remove("disable");
-                                this.error = false;
-                            }
-                        },
-                        open() {
-                            this.$refs.root.style.display = "flex";
-                        },
-                        close() {
-                            this.$refs.root.style.display = "none";
-                        },
-                        submit() {
-                            const formData = new FormData();
-                            formData.append("file", this.image);
-
-                            if (!this.error && this.image) {
-                                // axios.post("آدرس-سرور", formData, {
-                                //   headers: {
-                                //     "Token": "FFFFFFFF13880",
-                                //   },
-                                // });
-                                setTimeout(() => {
-                                    this.$refs.root.style.display = "none";
-                                }, 1000);
-                                this.comment = "";
-                            }
-                        },
-                    },
-                    template: `
-                            <div style="display: none" ref="root" class="image-model-container">
-                                <div class="model">
-
-                                    <v-file-input
-                                        label="image"
-                                        truncate-length="32"
-                                        v-model="image"
-                                        ref="image"
-                                    ></v-file-input>
-
-                                    <textarea @keyup="type" ref="text" v-bind="comment" cols="40" rows="7"></textarea>
-                                    <p ref="error" class="error">{{ chars }}</p>
-                                    <button @click="close" class="close">بستن</button>
-                                    <button @click="submit" ref="button">انتشار</button>
-                                </div>
-                            </div>`,
                 });
 
                 Vue.component("user", {

@@ -22,12 +22,20 @@ content %}
             class="avatar"
         >
             {% if current_user == user %}
-
             <div class="change"><i class="fi fi-rr-camera"></i></div>
             {% endif %}
         </div>
         <div class="infos">
-            <h3 class="username">{{ current_user.username }}</h3>
+            <input
+                disabled
+                value="{{ current_user.username }}"
+                class="username"
+                ref="username"
+            /><i
+                ref="changeU"
+                @click="changeUsername"
+                class="fi fi-rr-edit"
+            ></i>
             <h6 class="address">
                 <i class="fi fi-rr-marker"></i> &nbsp; {{ current_user.country
                 }}, {{ current_user.city }}
@@ -80,7 +88,7 @@ content %}
                         d="M42.6 3.6c1.4.4 2.5 1.5 2.9 2.9c0 .1.2.1.2 0c.4-1.4 1.5-2.5 2.9-2.9c.1 0 .1-.2 0-.2c-1.4-.4-2.5-1.5-2.9-2.9c0-.1-.2-.1-.2 0c-.4 1.4-1.5 2.5-2.9 2.9c-.1 0-.1.2 0 .2z"
                     ></path>
                 </svg>
-                &nbsp; 100 الماس
+                &nbsp; {{ user.gems }} الماس
             </div>
             <div dir="rtl" class="tag post">
                 <svg
@@ -94,50 +102,89 @@ content %}
                     <path
                         d="M216,40H40A16.01833,16.01833,0,0,0,24,56V200a16.01833,16.01833,0,0,0,16,16H216a16.01833,16.01833,0,0,0,16-16V56A16.01833,16.01833,0,0,0,216,40ZM180,168H76a8,8,0,0,1,0-16H180a8,8,0,0,1,0,16Zm0-32H76a8,8,0,0,1,0-16H180a8,8,0,0,1,0,16Zm0-32H76a8,8,0,0,1,0-16H180a8,8,0,0,1,0,16Z"
                     />
-                    <script xmlns="" />
                 </svg>
-                &nbsp; 39 پست
+                &nbsp; {{ user.posts | length }} پست
             </div>
             <div class="buttons">
                 <div
                     @click="fallow"
-                    style="background-color: #3877ff"
+                    ref="fallow"
+                    style="background-color: var(--blue)"
                     class="button"
+                    v-if="!fallowed"
                 >
                     Fallow
+                </div>
+                <div
+                    @click="fallow"
+                    ref="fallow"
+                    style="background-color: var(--red)"
+                    v-if="fallowed"
+                    class="button"
+                >
+                    Fallowed
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% raw %}
 <script>
-    new Vue({
-        el: "#app",
-        data: {},
-        methods: {
-            fallow() {
-                var formData = new FormData();
-                formData.append("username", );
-
-                fetch("/api/adduser", {
-                    method: "PUT",
-                    body: formData,
-                })
-                    .then((response) => {
-                        if (response.ok) {
-                            window.location.href = "/";
-                            return response.json();
-                        }
-                    })
-                    .then((data) => {
-                        console.log(data);
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                    });
+        new Vue({
+            el: "#app",
+            data: {
+                {% if fallow %}
+                fallowed: true,
+                {% else %}
+                fallowed: false,
+                {% endif %}
             },
-        },
-    });
+
+            methods: {
+                changeUsername(){
+                    this.$refs.username.disabled = false;
+                    this.$refs.username.focus();
+                    this.$refs.changeU.setAttribute('class', 'fi fi-rr-check-circle');
+                    this.$refs.changeU.addEventListener('click', ()=>{
+                        this.$refs.changeU.setAttribute('class', 'fi fi-rr-edit');
+                        this.$refs.username.disabled = true;
+                        let data = new FormData()
+                        data.append('isername', this.$refs.username.value)
+
+                        fetch('/api/edit',
+                            {
+                                method: 'POST',
+                                body: data
+                            })
+
+                        setTimeout(() => location.reload(), 700)
+                    })
+                },
+                fallow() {
+                    var formData = new FormData();
+                    formData.append("id", {{ user.id }});
+    {% raw %}
+
+
+                    if (!this.fallowed) {
+                        fetch("/api/addfallow", {
+                            method: "PUT",
+                            body: formData,
+                        })
+                        setTimeout(()=>{
+                            this.fallowed = true;
+                        }, 500)
+                    } else {
+                        fetch("/api/delfallow", {
+                            method: "DELETE",
+                            body: formData,
+                        })
+
+                        setTimeout(()=>{
+                            this.fallowed = false;
+                        }, 500)
+                    }
+                },
+            },
+        });
 </script>
 {% endraw %} {% endblock %}
