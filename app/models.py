@@ -18,9 +18,7 @@ class User(db.Model, UserMixin):
     notifications = db.Column(db.String, unique=False, default="[]")
     country = db.Column(db.String, unique=False)
     city = db.Column(db.String, unique=False)
-    workType = db.Column(db.String, unique=False)
-    # freelancer | team
-    humanType = db.Column(db.String, unique=False)
+    gender = db.Column(db.String, unique=False)
     # man, woman
 
     posts = db.relationship("Post", backref='writer', lazy=True)

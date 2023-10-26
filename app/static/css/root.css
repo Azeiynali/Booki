@@ -84,9 +84,13 @@ nav.nav {
     font-size: 1.5rem;
     cursor: pointer;
 }
-i {
+.profile-nav i {
     transition: all 0.3s;
     position: relative;
+    margin-top: 5px
+}
+.profile-nav i:nth-child(3){
+    margin-right: 50px
 }
 .profile-nav i:hover {
     transform: scale(1.1);
@@ -94,6 +98,9 @@ i {
 @media screen and (max-width: 542px) {
     nav.nav {
         padding: 0 5px;
+    }
+    .profile-nav i:nth-child(3){
+        margin-right: 10px
     }
 }
 a,

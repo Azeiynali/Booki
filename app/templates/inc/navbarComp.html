@@ -42,7 +42,7 @@
 <nav class="nav">
     <img
         class="logo"
-        src="https://cdn-icons-png.flaticon.com/512/9537/9537724.png"
+        src="/static/pictures/favicon.png"
     />
     <div class="nav-items">
         <navbar-item
@@ -65,15 +65,15 @@
         ></navbar-item>
     </div>
     <div class="profile-nav">
-        <i class="fa-solid fa-envelope"
+        <i class="fi fi-rr-envelope"
             ><div v-if="Number(message_count)" class="note_num">
                 {{ Number(message_count) }}
             </div></i
         >
-        <i class="fa-solid fa-search"></i>
-        <i class="fa-solid fa-plus"></i>
+        <i class="fi fi-rr-search"></i>
+        <i class="fi fi-rr-square-plus"></i>
         {% endraw %}
-        <img @click="profile()" class="profile-pic" src="/{{ current_user.avatar }}" />
+        <img @click="profile()" class="profile-pic" src="{{ current_user.avatar }}" />
         {% raw %}
     </div>
     <div

@@ -50,7 +50,13 @@
 .address {
     font-weight: 1;
     font-size: 1rem;
+    position: relative;
     color: #353535;
+}
+.address i {
+    margin-top: 5px;
+    left: -15px;
+    position: absolute;
 }
 .infos {
     width: 90%;
@@ -62,7 +68,7 @@
     align-items: center;
     flex-direction: column;
 }
-.tag{
+.tag {
     display: flex;
     align-items: center;
     padding: 3px 8px;
@@ -77,17 +83,17 @@
     margin-bottom: 4px;
     height: 20px;
 }
-.gem{
+.gem {
     background-color: #3262ff;
     top: 2em;
     color: white;
 }
-.post{
+.post {
     background-color: #ff9532;
     top: 5em;
     color: white;
 }
-.buttons{
+.buttons {
     margin-top: 30px;
     display: flex;
     align-items: center;
@@ -95,19 +101,19 @@
     height: 40px;
     gap: 40px;
 }
-.button{
+.button {
     border-radius: 6px;
     cursor: pointer;
     box-shadow: 5px 5px 10px #3535356c, -5px -5px 5px #e6e6e6;
     width: 200px;
     font-size: 2rem;
-    transition: all .3s;
+    transition: all 0.3s;
     color: white;
     text-align: center;
 }
-.button:hover{
-    transform: scale(.9);
+.button:hover {
+    transform: scale(0.9);
 }
-.button:active{
+.button:active {
     box-shadow: none;
 }

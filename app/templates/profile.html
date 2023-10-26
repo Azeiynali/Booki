@@ -13,23 +13,24 @@ content %}
         class="pbackground"
     >
         {% if current_user == user %}
-        <div class="change"><i class="fa-solid fa-pen-to-square"></i></div>
+        <div class="change"><i class="fi fi-rr-edit"></i></div>
         {% endif %}
         <div
             style="
-                background-image: url('/{{ current_user.avatar }}');
+                background-image: url('{{ current_user.avatar }}');
             "
             class="avatar"
         >
             {% if current_user == user %}
 
-            <div class="change"><i class="fa-solid fa-camera"></i></div>
+            <div class="change"><i class="fi fi-rr-camera"></i></div>
             {% endif %}
         </div>
         <div class="infos">
             <h3 class="username">{{ current_user.username }}</h3>
             <h6 class="address">
-                <i class="fa-solid fa-location-dot"></i> ایران, قم
+                <i class="fi fi-rr-marker"></i> &nbsp; {{ current_user.country
+                }}, {{ current_user.city }}
             </h6>
             <div dir="rtl" class="tag gem">
                 <svg
@@ -98,13 +99,45 @@ content %}
                 &nbsp; 39 پست
             </div>
             <div class="buttons">
-                <div style="background-color: #ff3838;" class="button">Fallowed</div>
-                <div style="background-color: #3877ff;" class="button">Fallow</div>
-                
-                <div style="background-color: #3877ff;" class="button">Fallow</div>
+                <div
+                    @click="fallow"
+                    style="background-color: #3877ff"
+                    class="button"
+                >
+                    Fallow
+                </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock content %} {% block script %} {% raw %} new Vue({ el: "#app" }) {%
-endraw %} {% endblock %}
+{% raw %}
+<script>
+    new Vue({
+        el: "#app",
+        data: {},
+        methods: {
+            fallow() {
+                var formData = new FormData();
+                formData.append("username", );
+
+                fetch("/api/adduser", {
+                    method: "PUT",
+                    body: formData,
+                })
+                    .then((response) => {
+                        if (response.ok) {
+                            window.location.href = "/";
+                            return response.json();
+                        }
+                    })
+                    .then((data) => {
+                        console.log(data);
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+            },
+        },
+    });
+</script>
+{% endraw %} {% endblock %}

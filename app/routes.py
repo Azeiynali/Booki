@@ -1,11 +1,13 @@
+import os
 from app import app, db
 from flask import render_template, abort, request, jsonify, redirect, url_for
 from app.models import *
 from flask_login import login_user, login_required, current_user
+from werkzeug.utils import secure_filename
 from app.functions import *
 import re
+from datetime import datetime
 from itertools import zip_longest
-
 
 def format_age(date):
     now = datetime.now()
@@ -72,14 +74,6 @@ def index():
         return render_template("Login.html")
 
 
-@app.route("/")
-def register():
-    if current_user.is_authenticated:
-      return redirect(url_for("index"))
-    else:
-        return render_template("register.html")
-
-
 @app.route("/@<username>")
 @login_required
 def user(username):
@@ -99,6 +93,14 @@ def user_posts(username):
 @app.route("/login")
 def login():
     return render_template("login.html")
+
+
+@app.route("/register")
+def register():
+    if current_user.is_authenticated:
+      return redirect(url_for("index"))
+    else:
+        return render_template("register.html")
 
 
 @app.route("/chat")
@@ -195,6 +197,7 @@ def user_valid():
             data = request.form
             usr = data.get("username")
             pwd = data.get("password")
+            usr = usr.lower()
 
             if usr and not pwd:
                 if User.query.filter_by(username=usr).first():
@@ -266,7 +269,7 @@ def addPost():
             db.session.add(pos)
             db.session.commit()
             addScore(5)
-            return jsonify({"succcess": True})
+            return jsonify({"success": True})
 
     return abort(403)
 
@@ -293,3 +296,61 @@ def delPost():
                 return {"success": 1}
     return abort(403)
 
+@app.route('/api/uploadavatar', methods=['POST'])
+def upload():
+    if 'file' in request.files:
+        file = request.files['file']
+
+        if file.filename == '':
+            return jsonify({"success": False})
+        if file:
+            filename = str(datetime.now()).replace(":", '.') + '.' + file.filename.split('.')[-1]
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return jsonify({"success": True, "url": "/static/pictures/avatars/%s" % filename})
+
+    return jsonify({"success": False})
+
+@app.route('/api/adduser', methods=['PUT'])
+def addUser():
+    try:
+        if request.method == "PUT":
+            data = request.form
+            usr = data.get("username")
+            pwd = data.get("password")
+            gender = data.get("gender")
+            city = data.get("city")
+            country = data.get("country")
+            avatar = data.get("avatar")
+            usr = usr.lower()
+
+            if not User.query.filter_by(username=usr).first():
+                u = User(username=usr, avatar=avatar, password=pwd, gender=gender,
+                city=city, country=country)
+                db.session.add(u)
+                db.session.commit()
+                return jsonify(
+                    {
+                        "success": True,
+                        "valid": True,
+                    }
+                )
+
+            else:
+                return jsonify(
+                    {
+                        "success": True,
+                        "valid": False,
+                        "message": "username is valid",
+                    }
+                )
+        else:
+            return jsonify(
+                {"success": False, "valid": "?", "message": "args not found"}
+            )
+    except Exception as e:
+        print("#" * 10)
+        print(e)
+        print("#" * 10)
+        return jsonify({"success": False, "valid": "?", "message": "?"})
+
+    return abort(400)

@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Baloo+Bhaijaan+2&display=swap");
-div{
+div {
     box-sizing: content-box !important;
 }
 html,
@@ -37,27 +37,18 @@ body {
     text-align: center;
 }
 .Form-box .title {
-    /* margin-left: 35%; */
-    transition: all .5s;
+    transition: all 0.5s;
     margin-top: 20px;
-    font-size: 3rem;
+    font-size: 2rem;
     color: #131c44;
 }
-.Form-box .title2 {
-    transition: all .5s;
-    margin-top: 20px;
-    font-size: .8rem;
-    color: #131c44;
-}
-.Form-box .des {
-    /* margin-left: 39%; */
-    margin-top: 0;
+.Form-box .info {
     line-height: 0;
-    font-size: 1.5rem;
-    transition: all .5s;
+    font-size: 1rem;
+    transition: all 0.5s;
     color: #131c44;
 }
-.username-inp {
+.input {
     padding: 10px;
     font-size: 1.5rem;
     border-radius: 10px;
@@ -73,7 +64,7 @@ body {
     border: none;
     outline: none;
 }
-.username-inp:focus {
+.input:focus {
     box-shadow: inset 4px 4px 4px #d1d9e6, inset -4px -4px 4px #f9f9f9;
     border: none;
     outline: none;
@@ -96,26 +87,53 @@ body {
 #username-sub:active {
     transform: scale(0.97);
 }
-.error{
+.error {
     color: #c90000b2;
     float: right;
 }
-.image{
-    transition: all .5s;
-    width: 250px;
-    margin-top: 20px;
-    height: 250px;
-    border-radius: 100%;
-}
-.register a{
+.login a {
     color: #4b70e2;
     text-decoration: none;
 }
-.register a:hover{
+.login a:hover {
     text-decoration: underline;
 }
-@media screen and (max-width: 583px){
-    .Form-box{
-        width: 90vw;
-    }
+.input-detail {
+    float: right;
+    margin-top: 5px;
+}
+.profile {
+    border: 5px solid white;
+    border-radius: 100%;
+    width: 250px;
+    cursor: pointer;
+}
+.box {
+    height: 250px;
+    width: 250px;
+    border-radius: 20px;
+    border: 3px solid #cfcfcf;
+    background-color: #ffffff;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 5px 0 #cfcfcf, 10px 10px 10px #d1d9e6,
+        -10px -10px 10px #f9f9f9;
+    font-family: "Varela Round";
+    font-size: 40px;
+    color: #a8a8a8;
+}
+.box:active {
+    box-shadow: 10px 10px 10px #d1d9e6, -10px -10px 10px #f9f9f9;
+    transform: translateY(5px);
+}
+.box img {
+    width: 200px;
+    margin-top: 22px;
+    margin-left: -2px;
+}
+.genders{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
 }

@@ -1,23 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block Title %}{% endblock %}</title>
-    {% block head %}{% endblock %}
-    <link rel="stylesheet" href="/static/css/root.css">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/9537/9537724.png">
-</head>
-<body>
-    {% block content %}{% endblock %}
-    <script src="/static/library/vue.js"></script>
-    <script
-        src="https://kit.fontawesome.com/7552b865b0.js"
-        crossorigin="anonymous"
-    ></script>
-    <script src="/static/library/Vuetify.js"></script>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="../static/library/Vuetify.css" rel="stylesheet" />
+        <title>{% block Title %}{% endblock %}</title>
+        <link rel="stylesheet" href="/static/library/regular_uicons.css" />
+        {% block head %}{% endblock %}
+        <link rel="stylesheet" href="/static/css/root.css" />
+        <link
+            rel="icon"
+            href="/static/pictures/favicon.png"
+        />
+    </head>
+    <body>
+        <!-- <script src="/static/library/vue.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+        {% block content %}{% endblock %}
 
-    <script>{% include "inc/navbarComp.html" %}{% block script %}{% endblock %}</script>
-</body>
+        <script>
+            {% include "inc/navbarComp.html" %}{% block script %}{% endblock %}
+        </script>
+    </body>
 </html>
