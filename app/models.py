@@ -15,9 +15,11 @@ class User(db.Model, UserMixin):
     gems = db.Column(db.Integer, default=0)
     password = db.Column(db.String, unique=False)
     avatar = db.Column(db.String, unique=False)
-    notifications = db.Column(db.String, unique=False, default="[]")
+    seened_notis = db.Column(db.String, unique=False, default="[]")
+    not_seened_notis = db.Column(db.String, unique=False, default="[]")
     country = db.Column(db.String, unique=False)
     city = db.Column(db.String, unique=False)
+    bio = db.Column(db.String, unique=False, default="")
     gender = db.Column(db.String, unique=False)
     # man, woman
 

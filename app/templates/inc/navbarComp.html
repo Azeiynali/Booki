@@ -15,7 +15,7 @@
         props: {
             active_item: { default: false },
             {% endraw %}
-            profile_href: { default: "@{{ current_user.username }}/posts" },
+            profile_href: { default: "/@{{ current_user.username }}/posts" },
             {% raw %}
             message_count: { default: 0 },
             avatar: {},

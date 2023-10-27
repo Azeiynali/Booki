@@ -9,13 +9,12 @@
 }
 * {
     box-sizing: border-box;
-    font-family: "Baloo Bhaijaan 2";
+    font-family: "Baloo Bhaijaan 2" !important;
     padding: 0;
     flex-shrink: 0;
     margin: 0;
 }
 body {
-    font-family: "Baloo Bhaijaan 2";
     width: 100vw;
     min-height: 100vh;
 }
@@ -246,4 +245,28 @@ i{
     position: relative;
     background-color: #fefefe;
     text-align: center;
+}
+.message_error{
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    justify-content: space-between;
+    border-radius: 10px;
+    z-index: 1000;
+    transition: all .3s;
+    background-color: var(--red);
+    color: white;
+    direction: rtl;
+    position: fixed;
+    bottom: 10px;
+    right: 5px;
+}
+.message_error i{
+    font-size: 1.5rem;
+    margin-top: 5px;
+}
+.message_error:hover{
+    transform: scale(.95);
 }

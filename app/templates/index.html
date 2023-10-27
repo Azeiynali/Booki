@@ -1,37 +1,32 @@
-    {% extends "base.html" %}
-
-    {% block head %} <link rel="stylesheet" href="../static/css/home.css" /> {% endblock %}
-    {% block Title %}Booki - Home{% endblock %}
-    {% block content %}
-        <div id="app">
-            <navbar
-                @comment="open_comd"
-                @image="open_immd"
-                active_item="home"
-                avatar="{{ current_user.avatar }}"
-                message_count="{{ not_list }}"
-            ></navbar>
-            <site-header
-                items='{
-                "all": [
+{% extends "base.html" %} {% block head %}
+<link rel="stylesheet" href="../static/css/home.css" /> {% endblock %} {% block
+Title %}Booki - Home{% endblock %} {% block content %}
+<div id="app">
+    <navbar
+        @comment="open_comd"
+        @image="open_immd"
+        active_item="home"
+        avatar="{{ current_user.avatar }}"
+        message_count="{{ not_list }}"
+    ></navbar>
+    <site-header
+        items='
+                [
                     {% for user in users %}
-                        {
-                            "user_img": "{{ user.avatar }}",
-                            "user_href": "/@{{ user.username }}",
-                            "username": "{{ user.username }}"
-                        }
+                        {"user_img": "{{ user.avatar }}",
+                        "user_href": "/@{{ user.username }}",
+                        "username": "{{ user.username }}"},
                     {% endfor %}
                 ]
-            }
             '
-            >
-            </site-header>
-            <div class="container">
-                <div class="posts">
-                    {% for post in posts %}
-                        <post
-                            content="<img class='img' src='{{ post.img }}'><p>{{ post.text }}</p>"
-                            user_detail='{
+    >
+    </site-header>
+    <div class="container">
+        <div class="posts">
+            {% for post in posts %}
+            <post
+                content="<img class='img' src='{{ post.img }}'><p>{{ post.text }}</p>"
+                user_detail='{
                                 "img": "{{ post.writer.avatar }}",
                                 "username": "{{ post.writer.username }}",
                                 "ckeck": true,
@@ -39,12 +34,12 @@
                                 "href":"/@{{ post.writer.username }}/posts",
                                 "post_href": "#"
                                 }'
-                            classes="img-container post"
-                        ></post>
-                    {% endfor %}
-                    <!-- <post
-                        content="<img class='img' src='https://cdn.dribbble.com/userupload/9583660/file/original-e27155a0df451cd4cb30db64a51883a8.jpg?resize=752x'><p>اینیک تصویر است که یک تصویر است و.... چرا 1 2 3 و..... هم اینکه من <br /> ااا</p>"
-                        user_detail='{
+                classes="img-container post"
+            ></post>
+            {% endfor %}
+            <post
+                content="<img class='img' src='https://cdn.dribbble.com/userupload/9583660/file/original-e27155a0df451cd4cb30db64a51883a8.jpg?resize=752x'>این یک تصویر است که توسط یکی به نام یکی ایجاد شده و در حال نمایش دادن در نمایشگاه بزرگ نیویورک است</p>"
+                user_detail='{
                     "img": "https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg",
                     "username": "علی",
                     "ckeck": true,
@@ -52,176 +47,141 @@
                     "href":"#",
                     "post_href": "#"
                 }'
-                        classes="img-container post"
-                    ></post>
-                    <post
-                        content="<h1>welcome to this blog</h1>"
-                        user_detail='{
-                    "img": "https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg",
-                    "username": "علی",
-                    "ckeck": true,
-                    "date": "2 ماه پیش",
-                    "href":"#",
-                    "post_href": "#"
-                }'
-                    ></post>
-                    <comment
-                        content="این یک نظر کوچک است"
-                        user_detail='{
-                    "img": "https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg",
-                    "username": "علی",
-                    "ckeck": true,
-                    "date": "2 ماه پیش",
-                    "href":"#",
-                    "post_href": "#"
-                }'
-                    ></comment>
-                    <avatar
-                        old_avatar="https://cdn-icons-png.flaticon.com/512/1211/1211015.png"
-                        new_avatar="https://cdn-icons-png.flaticon.com/512/1999/1999625.png"
-                        username="علی"
-                        date="3 ماه پیش"
-                        href="#"
-                    ></avatar> -->
-                </div>
-                <div class="left-items">
-                    <div dir="rtl" class="top">
-                        <p>کاربران برتر</p>
-                        <user
-                            username="علی"
-                            score="120"
-                            href="#"
-                            img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg"
-                        ></user>
-                    </div>
-                    <div dir="rtl" class="top">
-                        <p>محل شما</p>
-                        <user
-                            username="علی"
-                            score="120"
-                            href="#"
-                            img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg"
-                        ></user>
-                    </div>
-                </div>
+                classes="img-container post"
+            ></post>
+        </div>
+        <div class="left-items">
+            <div dir="rtl" class="top">
+                <p>کاربران برتر</p>
+                <user
+                    username="علی"
+                    score="120"
+                    href="#"
+                    img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg"
+                ></user>
+            </div>
+            <div dir="rtl" class="top">
+                <p>محل شما</p>
+                <user
+                    username="علی"
+                    score="120"
+                    href="#"
+                    img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg"
+                ></user>
             </div>
         </div>
-        <!-- script -->
+    </div>
+</div>
 
-        <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
-        {% endblock %}
-        {% block script %}
-            {% raw  %}
+{% raw %}
+<script>
+    Vue.component("site-header", {
+        props: ["items"],
+        data() {
+            return {
+                items_dict: eval(this.items),
+            };
+        },
+        template: `
+            <header ref="root" class="header">
+                <a href="/@booki" class="item">
+                    <div style="background-image: url(/static/pictures/favicon.png)" class="user"></div>
+                    <p>Booki</p>
+                </a>
+                <a :href="item.user_href" v-for="item in items_dict" class="item">
+                    <img :src="item.user_img" class="user" />
+                    <p>{{ item.username }}</p>
+                </a>
+            </header>
+                    `,
+    });
 
-                Vue.component("site-header", {
-                    props: {
-                        items: {
-                            type: String,
-                            default: "{}",
-                        },
-                    },
-                    data() {
-                        return {
-                            items_dict: JSON.parse(this.items),
-                        };
-                    },
-                    template: `
-                        <header ref="root" class="header">
-                            <a href="/@booki" class="item">
-                                <div style="background-image: url(/static/pictures/favicon.png)" class="user"></div>
-                                <p>Booki</p>
-                            </a>
-                            <a :href="item.user_href" v-for="item in items_dict.all" class="item">
-                                <img :src="item.user_img" class="user" />
-                                <p>{{ item.username }}</p>
-                            </a>
-                        </header>
-                                `,
-                });
+    Vue.component("post", {
+        props: {
+            id: {},
+            user_detail: {
+                default: "{}",
+            },
+            content: {
+                default: "",
+            },
+            likes: {
+                default: 0,
+            },
+            iw: {
+                default: false,
+            },
+            classes: { default: "post" },
+        },
+        data() {
+            return {
+                us_content: unescape(this.content),
+                user_details: JSON.parse(this.user_detail),
+                is: true,
+            };
+        },
 
-                Vue.component("post", {
-                    props: {
-                        id: {},
-                        user_detail: {
-                            default: "{}",
-                        },
-                        content: {
-                            default: "",
-                        },
-                        likes: {
-                            default: 0,
-                        },
-                        iw: {
-                            default: false
-                        },
-                        classes: { default: "post" },
-                    },
-                    data() {
-                        return {
-                            us_content: unescape(this.content),
-                            user_details: JSON.parse(this.user_detail),
-                            icon: "regular",
-                            is: true
-                        };
-                    },
+        methods: {
+            like() {
+                if (this.$refs.like.getAttribute("class") == "like liked") {
+                    this.$refs.like_icon.style.color = "black"
+                    this.likes--;
+                } else {
+                    this.$refs.like_icon.style.color = "var(--red)"
+                    this.likes++;
+                }
+                this.$refs.like.classList.toggle("liked");
+            },
+            exclamation(ev) {
+                this.$refs.message.style.opacity = "1";
+                this.$refs.message.style.left = "-19px";
+                this.$refs.message.innerText = "گزارش داده شد!";
+                setTimeout(() => {
+                    this.$refs.message.style = "";
+                    this.$refs.message.style.left = "-19px";
+                }, 2000);
+            },
+            delete_() {
+                if (
+                    this.$refs.itrash.getAttribute("class") ===
+                    "fa-soild fa-check"
+                ) {
+                    var myHeaders = new Headers();
+                    myHeaders.append(
+                        "Content-Type",
+                        "application/x-www-form-urlencoded"
+                    );
 
-                    methods: {
-                        like() {
-                            if (
-                                this.$refs.like.getAttribute("class") ==
-                                "like liked"
-                            ) {
-                                this.icon = "regular";
-                                this.likes--;
-                            } else {
-                                this.likes++;
-                                this.icon = "solid";
-                            }
-                            this.$refs.like.classList.toggle("liked");
-                        },
-                        exclamation(ev) {
-                            this.$refs.message.style.opacity = "1";
-                            this.$refs.message.style.left = "-19px";
-                            this.$refs.message.innerText = "گزارش داده شد!";
-                            setTimeout(() => {
-                                this.$refs.message.style = "";
-                                this.$refs.message.style.left = "-19px";
-                            }, 2000);
-                        },
-                        delete_(){
-                            if (this.$refs.itrash.getAttribute("class") ===
-                            "fa-soild fa-check"){
+                    var urlencoded = new URLSearchParams();
+                    urlencoded.append("id", this.id);
+                    urlencoded.append(
+                        "pin",
+                        "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f"
+                    );
+                    var requestOptions = {
+                        method: "DELETE",
+                        headers: myHeaders,
+                        body: urlencoded,
+                        redirect: "follow",
+                    };
 
-                                var myHeaders = new Headers();
-                                myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+                    fetch("/api/delPost", requestOptions)
+                        .then((response) => response.text())
 
-                                var urlencoded = new URLSearchParams();
-                                urlencoded.append("id", this.id);
-                                urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
-                                var requestOptions = {
-                                    method: 'DELETE',
-                                    headers: myHeaders,
-                                    body: urlencoded,
-                                    redirect: 'follow'
-                                };
-
-                                fetch("/api/delPost", requestOptions)
-                                .then(response => response.text())
-
-                                .then(result => {
-                                    this.is = false;
-                                    }
-                                )
-                                .catch(error => console.log('error', error));
-                            }
-
-                            else{
-                                this.$refs.itrash.setAttribute("class", "fa-soild fa-check")
-                                this.$refs.trash.setAttribute("class", "like trash liked")
-                            }
-                        }
-                    },
-                    template: `
+                        .then((result) => {
+                            this.is = false;
+                        })
+                        .catch((error) => console.log("error", error));
+                } else {
+                    this.$refs.itrash.setAttribute(
+                        "class",
+                        "fa-soild fa-check"
+                    );
+                    this.$refs.trash.setAttribute("class", "like trash liked");
+                }
+            },
+        },
+        template: `
                         <div v-if="is" :class="classes">
                             <div dir="rtl" class="user">
                                 <a :href="user_details.href">
@@ -236,13 +196,12 @@
                                         <small>{{ user_details.date }}</small>
                                     </div>
                                 </a>
-                                <i class="menu fa-solid fa-exclamation" @click="exclamation"></i>
                                 <div ref="message" class="details">گزارش دادن</div>
                             </div>
                             <div v-html="us_content" dir="rtl" class="content"></div>
                             <div dir="rtl" class="bottom">
                                 <div @click="like" ref="like" class="like">
-                                    <i :class='"fa-" + icon + " fa-heart"'></i>
+                                    <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
                                     <small>{{ likes }}</small>
                                 </div>
                                 <div v-if="iw" @click="delete_" ref="trash" class="like trash">
@@ -252,11 +211,11 @@
                             </div>
                         </div>
                     `,
-                });
+    });
 
-                Vue.component("user", {
-                    props: ["img", "score", "href", "username"],
-                    template: `
+    Vue.component("user", {
+        props: ["img", "score", "href", "username"],
+        template: `
                         <div style="transform: scale(.7);margin-left: 23%;" dir="rtl" class="user">
                                 <a :href="href">
                                     <img :src="img" />
@@ -272,18 +231,18 @@
                                 </a>
                             </div>
                         `,
-                });
+    });
 
-                new Vue({
-                    el: "#app",
-                    methods: {
-                        open_comd() {
-                            this.$refs.comd.open();
-                        },
-                        open_immd() {
-                            this.$refs.immd.open();
-                        },
-                    },
-                });
-        {% endraw %}
-        {% endblock %}
+    new Vue({
+        el: "#app",
+        methods: {
+            open_comd() {
+                this.$refs.comd.open();
+            },
+            open_immd() {
+                this.$refs.immd.open();
+            },
+        },
+    });
+</script>
+{% endraw %} {% endblock %}

@@ -52,15 +52,21 @@ root_url = "http://127.0.0.1:1223"
 def index():
     if current_user.is_authenticated:
         if (
-            len(current_user.notifications.replace("[", "").replace("]", "").split(","))
+            len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
             - 1
         ):
-            n = current_user.notifications.replace("[", "").replace("]", "").split(",")
+            n = current_user.not_seened_notis.replace("[", "").replace("]", "").split(",")
         else:
             n = []
 
-        posts = Post.query.all()
-        users = User.query.all()
+        
+        falloweds = Fallow.query.filter_by(follower=current_user.id)
+        
+        users = []
+        posts = []
+        for fallow_item in falloweds:
+            users.append(User.query.get(fallow_item.followed))
+            posts.append(list(Post.query.filter_by(writter=User.query.get(fallow_item.fallowed)).all()))
 
         return render_template(
             "index.html",
@@ -253,6 +259,7 @@ def user_valid():
 
 
 @app.route("/api/addPost", methods=["POST", "GET"])
+@login_required
 def addPost():
     if request.method == "POST":
         data = request.form
@@ -302,16 +309,23 @@ def delPost():
     return abort(403)
 
 @app.route('/api/uploadavatar', methods=['POST'])
-def upload():
+def upload():        
     if 'file' in request.files:
         file = request.files['file']
 
         if file.filename == '':
             return jsonify({"success": False})
-        if file:
-            filename = str(datetime.now()).replace(":", '.') + '.' + file.filename.split('.')[-1]
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return jsonify({"success": True, "url": "/static/pictures/avatars/%s" % filename})
+        filename = str(str(datetime.now()).replace(":", '.') + '.' + file.filename.split('.')[-1])
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if current_user.is_authenticated:
+            u = User.query.get(current_user.id)
+            try:
+                os.remove(os.path.join(app.static_folder, "pictures\\avatars\\" + u.avatar.split('/')[-1]).replace("%20", " ").replace("%20", " "))
+            except Exception as e:
+                print(e)
+            u.avatar = url_for('static', filename='pictures/avatars/' + filename)
+            db.session.commit()
+        return jsonify({"success": True, "url": url_for('static', filename='pictures/avatars/' + filename)})
 
     return jsonify({"success": False})
 
@@ -324,13 +338,14 @@ def addUser():
             pwd = data.get("password")
             gender = data.get("gender")
             city = data.get("city")
+            bio = data.get("bio")
             country = data.get("country")
             avatar = data.get("avatar")
             usr = usr.lower()
 
             if not User.query.filter_by(username=usr).first():
                 u = User(username=usr, avatar=avatar, password=pwd, gender=gender,
-                city=city, country=country)
+                city=city, country=country, bio=bio)
                 db.session.add(u)
                 db.session.commit()
                 return jsonify(
@@ -367,7 +382,8 @@ def fallow():
         f = Fallow(follower=current_user.id, followed=id)
         db.session.add(f)
         db.session.commit()
-    return "1"
+        return jsonify({'success': True})
+    return jsonify({'success': False})
     
 
 @app.route("/api/delfallow", methods=['DELETE'])
@@ -377,4 +393,27 @@ def notfallow():
         f = Fallow.query.filter_by(follower=current_user.id, followed=id).first()
         db.session.delete(f)
         db.session.commit()
-    return "1"
+        return jsonify({'success': True})
+    return jsonify({'success': False})
+
+@app.route("/api/edit", methods=['POST'])
+def edit():
+    data = request.form
+    usr = data.get('username')
+    pwd = data.get('password')
+
+    if usr:        
+        u = User.query.filter_by(username=current_user.username).first()
+        u.username = usr
+        
+        db.session.commit()
+        return jsonify({'success': True})
+    elif pwd:
+        u = User.query.filter_by(username=current_user.username).first()
+        u.password = pwd
+        
+        db.session.commit()
+        return jsonify({'success': True})
+        
+    return jsonify({'success': False})
+

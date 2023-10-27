@@ -5,66 +5,36 @@
 <div id="app" dir="rtl" class="Form-box">
     <h4 ref="title" class="title">نام کاربری خود را وارد کنید</h4>
     <div class="inp-box">
-        <input
-            ref="input"
-            type="text"
-            v-model="value"
-            @keydown="typed"
-            @keydown.enter="check()"
-            :placeholder="placeholder"
-            dir="ltr"
-            id="username"
-            v-if="scene == 'username' || scene == 'password' || scene == 'address'"
-            class="input"
-        /><br v-if="scene == 'password' || scene == 'address'" />
-        <input
-            @keydown.enter="check()"
-            ref="input_2"
-            type="text"
-            v-model="value_2"
-            :placeholder="placeholder_2"
-            @keydown="typed"
-            dir="ltr"
-            id="username"
-            v-if="scene == 'password' || scene == 'address'"
-            class="input"
-        /><br v-if="error" />
-        <img
-            @click="changeProfile"
-            v-if="scene == 'profile'"
-            class="profile"
-            ref="image"
-            src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
-        />
+        <input maxlength="300" ref="input" type="text" v-model="value" @keydown="typed" @keydown.enter="check()"
+            :placeholder="placeholder" dir="ltr" id="username"
+            v-show="scene == 'username' || scene == 'password' || scene == 'address'" class="input" /><br
+            v-if="scene == 'password' || scene == 'address'" />
+
+        <textarea placeholder="من یک ..." maxlength="300" ref="text" v-model="value" v-show="scene == 'bio'"
+            class="input"></textarea><br v-if="scene == 'password' || scene == 'address'" />
+
+        <input @keydown.enter="check()" ref="input_2" type="text" v-model="value_2" :placeholder="placeholder_2"
+            @keydown="typed" dir="ltr" id="username" v-if="scene == 'password' || scene == 'address'" class="input" />
+
+        <br v-if="error" />
+        <img @click="changeProfile" v-if="scene == 'profile'" class="profile" ref="image"
+            src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" />
         <p ref="error" v-if="error" class="error">{{ error_text }}</p>
         <br />
-        <p
-            ref="characters"
-            v-if="(scene == 'username' || scene == 'password') && character"
-            class="input-detail"
-        >
+        <p ref="characters" v-if="(scene == 'username' || scene == 'password') && character" class="input-detail">
             حداقل {{ character }} کاراکتر باشد
         </p>
     </div>
 
-    <button
-        v-if="scene != 'profile' && scene != 'gender'"
-        @click="check"
-        ref="sub"
-        id="username-sub"
-    >
+    <button v-if="scene != 'profile' && scene != 'gender'" @click.stop="check" ref="sub" id="username-sub">
         {{ button_text }}
     </button>
     <div v-if="scene == 'gender'" class="genders">
         <div @click="Rgender = 'woman'; next()" class="box">
-            <img
-                src="https://cdn-icons-png.flaticon.com/512/6997/6997674.png"
-            />
+            <img src="https://cdn-icons-png.flaticon.com/512/6997/6997674.png" />
         </div>
         <div @click="Rgender = 'man'; next()" class="box">
-            <img
-                src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png"
-            />
+            <img src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png" />
         </div>
     </div>
     <p v-if="scene == 'username'" class="login">
@@ -90,6 +60,7 @@
             scene: "username",
             Rusername: "",
             Rpassword: "",
+            Rbio: "",
             Rcountry: "",
             Rcity: "",
             Rgender: "",
@@ -105,7 +76,7 @@
                         this.valid();
                     }
                 }
-                if (this.scene == "password") {
+                else if (this.scene == "password") {
                     if (this.value == this.value_2) {
                         this.error = false;
                         if (this.value.length < 8) {
@@ -119,10 +90,13 @@
                         this.error_text = "رمز عبور ها مطابقت ندارند";
                     }
                 }
-                if (this.scene == "address") {
+                else if (this.scene == "address") {
                     if (this.value && this.value_2) {
                         this.next();
                     }
+                }
+                else if (this.scene == "bio") {
+                    this.next();
                 }
             },
             typed() {
@@ -224,12 +198,24 @@
                     this.character = "8";
                     this.Rusername = this.value;
                 } else if (this.scene == "password") {
+                    this.$refs.title.innerHTML = "لطفا بیو خود را وارد کنید";
+                    this.scene = "bio";
+                    this.placeholder = "من یک ...";
+                    this.$refs.text.style.height = "100px"
+                    this.$refs.text.style.direction = "rtl"
+                    this.$refs.text.style.fontSize = ".8rem"
+                    this.$refs.text.tag = "textarea"
+                    this.$refs.text.focus()
+                    this.Rpassword = this.value;
+                    this.character = "0";
+                } else if (this.scene == "bio") {
                     this.$refs.title.innerHTML = "لطفا آدرس خود را وارد کنید";
                     this.placeholder = "Country";
                     this.placeholder_2 = "city";
                     this.scene = "address";
-                    this.Rpassword = this.value;
+                    this.Rbio = this.value;
                     this.character = "0";
+                    this.$refs.input.focus()
                 } else if (this.scene == "address") {
                     this.$refs.title.innerHTML =
                         "لطفا عکس پروفایل خود را بارگذاری کنید";
@@ -248,6 +234,7 @@
                     formData.append("city", this.Rcity);
                     formData.append("country", this.Rcountry);
                     formData.append("avatar", this.Ravatar);
+                    formData.append("bio", this.Rbio);
 
                     fetch("/api/adduser", {
                         method: "PUT",
@@ -255,11 +242,11 @@
                     })
                         .then((response) => {
                             if (response.ok) {
-                                // window.location.href = "/";
+                                window.location.href = "/";
                                 return response.json()
                             }
                         })
-                        .then((data) =>{
+                        .then((data) => {
                             console.log(data);
                         })
                         .catch((error) => {
@@ -267,7 +254,6 @@
                         });
                 }
                 this.value = "";
-                this.$refs.input.focus()
                 this.value_2 = "";
             },
         },

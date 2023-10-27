@@ -36,6 +36,8 @@
                     ref="username"
                     v-model="value"
                     name="username"
+                    placeholder="username"
+                    name="username"
                     type="text"
                     id="username"
                     class="username-inp"
@@ -168,6 +170,9 @@
                     },
                     next: function () {
                         this.this_username = this.$refs.usernameinput.value;
+                        this.$refs.usernameinput.placeholder = "password"
+                        this.$refs.usernameinput.name = "password"
+                        this.$refs.usernameinput.type = "password"
 
                         this.isInvalid = true;
                         this.next_ = true;
