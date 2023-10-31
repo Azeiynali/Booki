@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/add.css" />
+{% endblock %}
+
+
+{% block Title %}گشت و گذار{% endblock %}
+
+
+{% block content %}
+<div id="app">
+    <navbar active_item="add"></navbar>
+    <div class="container">
+        <div class="left">
+            <img @click="image" src="/static/pictures/select_post_image.png" class="select">
+        </div>
+        <div class="right"></div>
+    </div>
+</div>
+
+{% raw %}
+<script>
+    app = new Vue({
+        el: "#app",
+        data: {},
+        methods: {
+            image() {
+                var inputElement = document.createElement("input");
+                inputElement.type = "file";
+                inputElement.accept = "image/jpeg, image/png";
+
+                inputElement.addEventListener("change", (event) => {
+                    var file = event.target.files[0];
+                    var fileType = file.type;
+
+                    if (fileType === "image/jpeg" || fileType === "image/png") {
+                        var formData = new FormData();
+                        formData.append("file", file);
+
+                        fetch("/api/image", {
+                            method: "POST",
+                            body: formData,
+                        })
+                            .then((response) => {
+                                if (response.ok) {
+                                    console.log("OK");
+                                    return response.json();
+                                } else {
+                                    console.error("no OK");
+                                }
+                            })
+                            .then((data) => {
+                                console.log(data);
+                                if (data.success) {
+                                    this.Ravatar = data.url;
+                                    this.$refs.image.src = data.url;
+                                    this.next();
+                                }
+                            })
+                            .catch((error) => {
+                                console.error(error);
+                            });
+                    }
+                });
+
+                inputElement.click();
+            }
+        }
+    })
+</script>
+{% endraw %}
+{% endblock %}

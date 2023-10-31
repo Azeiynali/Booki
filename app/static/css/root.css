@@ -47,7 +47,7 @@ nav.nav {
 .navbar-item:hover {
     opacity: 0.7;
 }
-.navbar-item.active {
+.active {
     color: #1975ff;
 }
 .logo {
@@ -69,7 +69,10 @@ nav.nav {
     color: white;
     text-align: center;
     font-size: 1rem;
+    display: flex;
+    align-items: center;
     padding-top: 3px;
+    justify-content: center;
     background-color: #ff2727;
     height: 20px;
     border-radius: 100%;

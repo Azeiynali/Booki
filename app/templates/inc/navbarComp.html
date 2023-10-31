@@ -1,88 +1,68 @@
 {% raw %}
-    Vue.component("navbar-item", {
-        props: {
-            text: {},
-            href: {},
-            active: {
-                default: false,
-            },
-        },
-        template: `
+Vue.component("navbar-item", {
+props: {
+text: {},
+href: {},
+active: {
+default: false,
+},
+},
+template: `
 <a ref="a" class="navbar-item" v-html="text" :href="href"></a>
 `,
-    });
-    Vue.component("navbar", {
-        props: {
-            active_item: { default: false },
-            {% endraw %}
-            profile_href: { default: "/@{{ current_user.username }}/posts" },
-            {% raw %}
-            message_count: { default: 0 },
-            avatar: {},
-        },
-        data() {
-            return {};
-        },
-        methods: {
-            plus() {
-                this.$refs.button.classList.toggle("is-active");
-            },
-            comment() {
-                this.$emit("comment");
-            },
-            image() {
-                this.$emit("image");
-            },
-            profile() {
-                window.location.href = this.profile_href;
-                console.log(this.profile_href);
-            },
-        },
-        template: `
+});
+Vue.component("navbar", {
+props: {
+active_item: { default: false },
+{% endraw %}
+profile_href: { default: "/@{{ current_user.username }}/posts" },
+message_count: { default: {{ not_list }} },
+{% raw %}
+avatar: {},
+},
+data() {
+return {};
+},
+methods: {
+plus() {
+this.$refs.button.classList.toggle("is-active");
+},
+comment() {
+this.$emit("comment");
+},
+image() {
+this.$emit("image");
+},
+redirect(x){
+    location.href = x
+},
+profile() {
+window.location.href = this.profile_href;
+console.log(this.profile_href);
+},
+},
+template: `
 <nav class="nav">
-    <img
-        class="logo"
-        src="/static/pictures/favicon.png"
-    />
+    <img class="logo" src="/static/pictures/favicon.png" />
     <div class="nav-items">
-        <navbar-item
-            href="#"
-            ref="profile"
-            text="گشت و گذار"
-            :class="{ active: active_item === 'profile' }"
-        ></navbar-item>
-        <navbar-item
-            href="/chat"
-            ref="chatroom"
-            text="گفتگو"
-            :class="{ active: active_item === 'chat' }"
-        ></navbar-item>
-        <navbar-item
-            href="/"
-            ref="chatroom"
-            text="خانه"
-            :class="{ active: active_item === 'home' }"
-        ></navbar-item>
+        <navbar-item href="/explore" ref="profile" text="گشت و گذار"
+            :class="{ active: active_item === 'explore' }"></navbar-item>
+        <navbar-item href="/chat" ref="chatroom" text="گفتگو" :class="{ active: active_item === 'chat' }"></navbar-item>
+        <navbar-item href="/" ref="chatroom" text="خانه" :class="{ active: active_item === 'home' }"></navbar-item>
     </div>
     <div class="profile-nav">
-        <i class="fi fi-rr-envelope"
-            ><div v-if="Number(message_count)" class="note_num">
+        <i @click="redirect('/messages')" :class="'fi fi-rr-envelope ' + (active_item === 'messages' ? 'active' : '')">
+            <div v-if="Number(message_count)" class="note_num">
                 {{ Number(message_count) }}
-            </div></i
-        >
+            </div>
+        </i>
         <i class="fi fi-rr-search"></i>
-        <i class="fi fi-rr-square-plus"></i>
+        <i :class="'fi fi-rr-square-plus ' + (active_item === 'add' ? 'active' : '')"></i>
         {% endraw %}
         <img @click="profile()" class="profile-pic" src="{{ current_user.avatar }}" />
         {% raw %}
     </div>
-    <div
-        v-if="active_item == 'home'"
-        dir="rtl"
-        ref="button"
-        class="plus-button"
-    ></div>
 </nav>
 `,
-    });
+});
 {% endraw %}

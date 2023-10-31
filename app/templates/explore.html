@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/explore.css" />
+{% endblock %}
+
+
+{% block Title %}گشت و گذار{% endblock %}
+
+
+{% block content %}
+<div id="app">
+    <navbar active_item="explore"></navbar>
+    <div class="user_box_container">
+        {% for user in users %}
+        <a href="/@{{ user.username }}">
+            <div class="user_box">
+                <img src="{{ user.avatar }}">
+                <p>{{ user.username }}</p>
+                <small>{{ Fallow.query.filter_by(followed=user.id).all() | length }}</small>
+                <p>{{ user.bio[:150] }}</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+{% raw %}
+<script>
+    app = new Vue({
+        el: "#app",
+        data: {}
+    })
+</script>
+{% endraw %}
+{% endblock %}

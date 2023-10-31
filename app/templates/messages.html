@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block Title %}پیام ها{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/messages.css">
+{% endblock %}
+
+
+{% block content %}
+<div id="app">
+    <navbar active_item="messages"></navbar>
+    <div class="message-container">
+        {% for message in NSN %}
+        <div class="message not_seened"> {{ message }} </div>
+        {% endfor %}
+        {% for message in SN %}
+        <div class="message">{{ message }}</div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+    app = new Vue({
+        el: "#app",
+        data: {}
+    })
+    document.addEventListener("DOMContentLoaded", () => {
+        fetch("/api/seen")
+    })
+</script>
+{% endblock %}

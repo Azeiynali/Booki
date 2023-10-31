@@ -77,10 +77,10 @@ content %}
             {% if current_user != user %}
             <div class="buttons">
                 <div @click="fallow" ref="fallow" style="background-color: var(--blue)" class="button" v-if="!fallowed">
-                    Fallow
+                    دنبال کردن
                 </div>
                 <div @click="fallow" ref="fallow" style="background-color: var(--red)" v-if="fallowed" class="button">
-                    Fallowed
+                    دنبال نکردن
                 </div>
             </div>
             {% else %}

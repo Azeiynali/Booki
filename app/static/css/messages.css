@@ -1,0 +1,19 @@
+.message-container{
+    display: flex;
+    width: 100vw;
+    margin-top: 70px;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+.message{
+    width: 90%;
+    border-radius: 5px;
+    color: white;
+    padding: 20px;
+    direction: rtl;
+    background-color: #008cff;
+}
+.not_seened{
+    background-color: #ffbb00;
+}

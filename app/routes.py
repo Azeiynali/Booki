@@ -1,5 +1,6 @@
 import os
 from app import app, db
+import ast
 from flask import render_template, abort, request, jsonify, redirect, url_for
 from app.models import *
 from flask_login import login_user, login_required, current_user
@@ -8,6 +9,16 @@ from app.functions import *
 import re
 from datetime import datetime
 from itertools import zip_longest
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+
+def text_similarity(text1, text2):
+    vectorizer = TfidfVectorizer().fit_transform([text1, text2])
+    vectors = vectorizer.toarray()
+    csim = cosine_similarity(vectors)
+    return csim[0][1]
+
 
 def format_age(date):
     now = datetime.now()
@@ -34,14 +45,41 @@ def format_age(date):
     else:
         return f"{ageY} سال پیش"
 
+
+def add_notification(user_id, message):
+    with app.app_context():
+        u = User.query.get(user_id)
+
+        print(u.not_seened_notis)
+
+        my_list = ast.literal_eval(u.not_seened_notis)
+        my_list.append(message)
+        updated_notis = str(my_list)
+
+        u.not_seened_notis = updated_notis
+        db.session.commit()
+
+
+def seened_notification():
+    with app.app_context():
+        u = User.query.get(current_user.id)
+        NS = eval(u.not_seened_notis)
+        S = eval(u.seened_notis)
+        u.seened_notis = str(S + NS)
+
+        u.not_seened_notis = "[]"
+
+        db.session.commit()
+
+
 def addScore(score):
     with app.app_context():
         u = User.query.get(current_user.id)
 
-
-        u.coins = u.coins + score
-        print(f"$$######{u.coins}")
+        u.gems = u.gems + score
+        print(f"!!!!!!!!!{u.gems}")
         db.session.commit()
+
 
 # !
 root_url = "http://127.0.0.1:1223"
@@ -51,22 +89,22 @@ root_url = "http://127.0.0.1:1223"
 @app.route("/")
 def index():
     if current_user.is_authenticated:
-        if (
-            len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
-            - 1
-        ):
-            n = current_user.not_seened_notis.replace("[", "").replace("]", "").split(",")
-        else:
-            n = []
+        n = 0
+        if current_user.not_seened_notis != '[]':
+            n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
 
-        
         falloweds = Fallow.query.filter_by(follower=current_user.id)
-        
+
         users = []
         posts = []
         for fallow_item in falloweds:
             users.append(User.query.get(fallow_item.followed))
-            posts.append(list(Post.query.filter_by(writter=User.query.get(fallow_item.fallowed)).all()))
+            (
+                posts
+                + Post.query.filter_by(
+                    writer=User.query.get(fallow_item.followed)
+                ).all()
+            )
 
         return render_template(
             "index.html",
@@ -74,7 +112,7 @@ def index():
             users=users,
             posts=posts,
             current_user=current_user,
-            not_list=len(n),
+            not_list=n,
         )
     else:
         return render_template("Login.html")
@@ -83,22 +121,26 @@ def index():
 @app.route("/@<username>")
 @login_required
 def user(username):
-
     return redirect(f"/@{username}/posts")
+
 
 @app.route("/@<username>/posts")
 @login_required
 def user_posts(username):
+    n = 0
+    if current_user.not_seened_notis != '[]':
+        n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+
     user = User.query.filter_by(username=username).first()
     if not user:
         return abort(404)
-    
+
     if Fallow.query.filter_by(follower=current_user.id, followed=user.id).first():
         fallow = True
     else:
         fallow = False
 
-    return render_template("profile.html", user=user, fallow=fallow)
+    return render_template("profile.html", user=user, fallow=fallow, not_list=n)
 
 
 @app.route("/login")
@@ -109,7 +151,7 @@ def login():
 @app.route("/register")
 def register():
     if current_user.is_authenticated:
-      return redirect(url_for("index"))
+        return redirect(url_for("index"))
     else:
         return render_template("register.html")
 
@@ -117,17 +159,24 @@ def register():
 @app.route("/chat")
 @login_required
 def chat():
+    n = 0
+    if current_user.not_seened_notis != '[]':
+        n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+
     messages = Message.query.all()
     return render_template(
-        "chatroom.html", messages=messages, current_user=current_user
+        "chatroom.html", messages=messages, current_user=current_user, not_list=n
     )
 
 
-@app.route("/new/post")
+@app.route("/add")
 @login_required
 def newpost():
-    messages = Message.query.all()
-    return render_template("newpost.html", current_user=current_user)
+    n = 0
+    if current_user.not_seened_notis != '[]':
+        n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+
+    return render_template("add.html", current_user=current_user, not_list=n)
 
 
 @app.route("/chatContent")
@@ -147,6 +196,50 @@ def chatContent():
         messages.append(message)
 
     return jsonify({"all": messages})
+
+
+@app.route("/explore")
+@login_required
+def explore():
+    n = 0
+    if current_user.not_seened_notis != '[]':
+        n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+
+    _users = []
+    users = []
+
+    for user in User.query.filter_by(gender=current_user.gender).all():
+        print(float(text_similarity(current_user.bio, user.bio)))
+        if float(text_similarity(current_user.bio, user.bio)) > 0.4:
+            if user != current_user:
+                _users.append([user, int(text_similarity(current_user.bio, user.bio))])
+
+    _users = sorted(_users, key=lambda x: x[1])
+
+    for user in _users:
+        users.append(user[0])
+    del _users
+
+    return render_template(
+        "explore.html", current_user=current_user, users=users, Fallow=Fallow, not_list=n
+    )
+
+
+@app.route("/messages")
+@login_required
+def messages():
+    NSN = eval(current_user.not_seened_notis)
+    NSN.reverse()
+    SN = eval(current_user.seened_notis)
+    SN.reverse()
+
+    return render_template(
+        "messages.html",
+        current_user=current_user,
+        NSN=NSN,
+        SN=SN,
+        not_list = 0
+    )
 
 
 # API
@@ -231,8 +324,12 @@ def user_valid():
                         }
                     )
             elif pwd and usr:
-                if User.query.filter_by(username=usr, password=pwd).first():
-                    login_user(User.query.filter_by(username=usr, password=pwd).first())
+                user = User.query.filter_by(username=usr, password=pwd).first()
+                if user:
+                    login_user(user)
+                    ip = 0
+                    add_notification(user.id, f"وورد از دستگاه با آی پی {ip}")
+
                     return jsonify(
                         {"success": True, "valid": True, "message": "password is valid"}
                     )
@@ -263,21 +360,19 @@ def user_valid():
 def addPost():
     if request.method == "POST":
         data = request.form
+        img = data.get("img")
         content = data.get("content")
-        PIN = data.get("pin")
 
         referer = request.headers.get("Referer")
         if (
             content
             and referer
             and root_url in referer
-            and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
         ):
-            content = re.sub('"', '\\"', content)
-            content = re.sub('<a .*href="\\"\/(.*)\\"">.*<\/a>', "\1", content)
-            content = re.sub('<a .*href=\\"\/(.*)\\">.*<\/a>', "\1", content)
+            content = re.sub(r'(https://.*\s)', r'<a target="_blank" href="\1">\1</a>', content)
+            content = re.sub(r'(www\..*\s)', r'<a target="_blank" href="\1">\1</a>', content)
             print(content)
-            pos = Post(writer=User.query.get(current_user.id), content=content)
+            pos = Post(writer=User.query.get(current_user.id), img=img, content=content)
             db.session.add(pos)
             db.session.commit()
             addScore(5)
@@ -308,28 +403,44 @@ def delPost():
                 return {"success": 1}
     return abort(403)
 
-@app.route('/api/uploadavatar', methods=['POST'])
-def upload():        
-    if 'file' in request.files:
-        file = request.files['file']
 
-        if file.filename == '':
+@app.route("/api/uploadavatar", methods=["POST"])
+def upload():
+    if "file" in request.files:
+        file = request.files["file"]
+
+        if file.filename == "":
             return jsonify({"success": False})
-        filename = str(str(datetime.now()).replace(":", '.') + '.' + file.filename.split('.')[-1])
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filename = str(
+            str(datetime.now()).replace(":", ".") + "." + file.filename.split(".")[-1]
+        )
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
         if current_user.is_authenticated:
             u = User.query.get(current_user.id)
             try:
-                os.remove(os.path.join(app.static_folder, "pictures\\avatars\\" + u.avatar.split('/')[-1]).replace("%20", " ").replace("%20", " "))
+                os.remove(
+                    os.path.join(
+                        app.static_folder,
+                        "pictures\\avatars\\" + u.avatar.split("/")[-1],
+                    )
+                    .replace("%20", " ")
+                    .replace("%20", " ")
+                )
             except Exception as e:
                 print(e)
-            u.avatar = url_for('static', filename='pictures/avatars/' + filename)
+            u.avatar = url_for("static", filename="pictures/avatars/" + filename)
             db.session.commit()
-        return jsonify({"success": True, "url": url_for('static', filename='pictures/avatars/' + filename)})
+        return jsonify(
+            {
+                "success": True,
+                "url": url_for("static", filename="pictures/avatars/" + filename),
+            }
+        )
 
     return jsonify({"success": False})
 
-@app.route('/api/adduser', methods=['PUT'])
+
+@app.route("/api/adduser", methods=["PUT"])
 def addUser():
     try:
         if request.method == "PUT":
@@ -344,8 +455,15 @@ def addUser():
             usr = usr.lower()
 
             if not User.query.filter_by(username=usr).first():
-                u = User(username=usr, avatar=avatar, password=pwd, gender=gender,
-                city=city, country=country, bio=bio)
+                u = User(
+                    username=usr,
+                    avatar=avatar,
+                    password=pwd,
+                    gender=gender,
+                    city=city,
+                    country=country,
+                    bio=bio,
+                )
                 db.session.add(u)
                 db.session.commit()
                 return jsonify(
@@ -375,45 +493,63 @@ def addUser():
 
     return abort(400)
 
-@app.route("/api/addfallow", methods=['PUT'])
+
+@app.route("/api/addfallow", methods=["PUT"])
 def fallow():
-    if 'id' in request.form:
-        id = request.form['id']
+    if "id" in request.form:
+        id = request.form["id"]
+        username = User.query.get(current_user.id).username
+        add_notification(
+            id, f"<a href=\"/@{username}\">{username}</a> شما را دنبال میکند"
+        )
         f = Fallow(follower=current_user.id, followed=id)
         db.session.add(f)
         db.session.commit()
-        return jsonify({'success': True})
-    return jsonify({'success': False})
-    
+        return jsonify({"success": True})
+    return jsonify({"success": False})
 
-@app.route("/api/delfallow", methods=['DELETE'])
-def notfallow():
-    if 'id' in request.form:
-        id = request.form['id']
+
+@app.route("/api/delfallow", methods=["DELETE"])
+def not_fallow():
+    if "id" in request.form:
+        id = request.form["id"]
         f = Fallow.query.filter_by(follower=current_user.id, followed=id).first()
         db.session.delete(f)
         db.session.commit()
-        return jsonify({'success': True})
-    return jsonify({'success': False})
+        username = User.query.get(current_user.id).username
+        add_notification(
+            id, f"<a href=\"/@{username}\">{username}</a> دیگر شما را دنبال نمیکند"
+        )
 
-@app.route("/api/edit", methods=['POST'])
+        return jsonify({"success": True})
+    return jsonify({"success": False})
+
+
+@app.route("/api/edit", methods=["POST"])
 def edit():
     data = request.form
-    usr = data.get('username')
-    pwd = data.get('password')
+    usr = data.get("username")
+    pwd = data.get("password")
 
-    if usr:        
+    if usr:
         u = User.query.filter_by(username=current_user.username).first()
         u.username = usr
-        
+
         db.session.commit()
-        return jsonify({'success': True})
+        return jsonify({"success": True})
     elif pwd:
         u = User.query.filter_by(username=current_user.username).first()
         u.password = pwd
-        
+
         db.session.commit()
-        return jsonify({'success': True})
-        
-    return jsonify({'success': False})
+        return jsonify({"success": True})
+
+    return jsonify({"success": False})
+
+
+@app.route("/api/seen")
+def seen():
+    seened_notification()
+
+    return jsonify({"success": True})
 
