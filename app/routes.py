@@ -22,13 +22,18 @@ def text_similarity(text1, text2):
 
 def format_age(date):
     now = datetime.now()
+    print(now)
+    print(date)
     ageY = now.year - date.year
     ageM = now.month - date.month
     ageD = now.day - date.day
     ageH = now.hour - date.hour
+    ageMI = now.minute - date.minute
 
-    if not ageY and not ageM and not ageD and ageH < 1:
+    if not ageY and not ageM and not ageD and not ageH and ageMI < 10:
         return "به تازگی"
+    elif not ageY and not ageM and not ageD and not ageH:
+        return f"{ageMI} دقیقه پیش"
     elif not ageY and not ageM and not ageD:
         return f"{ageH} ساعت پیش"
     elif not ageY and not ageM and ageD == 1:
@@ -99,12 +104,10 @@ def index():
         posts = []
         for fallow_item in falloweds:
             users.append(User.query.get(fallow_item.followed))
-            (
-                posts
-                + Post.query.filter_by(
-                    writer=User.query.get(fallow_item.followed)
+            posts += Post.query.filter_by(
+                writer=User.query.get(fallow_item.followed)
                 ).all()
-            )
+        posts += Post.query.filter_by(writer=current_user).all()
 
         return render_template(
             "index.html",
@@ -355,12 +358,12 @@ def user_valid():
     return abort(400)
 
 
-@app.route("/api/addPost", methods=["POST", "GET"])
+@app.route("/api/add", methods=["POST", "GET"])
 @login_required
 def addPost():
     if request.method == "POST":
         data = request.form
-        img = data.get("img")
+        img = data.get("image")
         content = data.get("content")
 
         referer = request.headers.get("Referer")
@@ -381,21 +384,19 @@ def addPost():
     return abort(403)
 
 
-@app.route("/api/delPost", methods=["GET", "DELETE"])
+@app.route("/api/delete", methods=["GET", "DELETE"])
 @login_required
 def delPost():
     if request.method == "DELETE":
         data = request.form
-        mess_id = data.get("id")
-        PIN = data.get("pin")
+        id = data.get("id")
         referer = request.headers.get("Referer")
         if (
-            mess_id
+            id
             and referer
             and root_url in referer
-            and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
         ):
-            pos = Post.query.get_or_404(mess_id)
+            pos = Post.query.get_or_404(id)
             if pos.writer.id == current_user.id:
                 db.session.delete(pos)
                 db.session.commit()
@@ -414,7 +415,7 @@ def upload():
         filename = str(
             str(datetime.now()).replace(":", ".") + "." + file.filename.split(".")[-1]
         )
-        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], "avatars/" + filename))
         if current_user.is_authenticated:
             u = User.query.get(current_user.id)
             try:
@@ -552,4 +553,25 @@ def seen():
     seened_notification()
 
     return jsonify({"success": True})
+
+
+@app.route("/api/image", methods=["POST"])
+def upload_image():
+    if "file" in request.files:
+        file = request.files["file"]
+
+        if file.filename == "":
+            return jsonify({"success": False})
+        filename = str(
+            str(datetime.now()).replace(":", ".") + "." + file.filename.split(".")[-1]
+        )
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], "posts/" + filename))
+        return jsonify(
+            {
+                "success": True,
+                "url": url_for("static", filename="pictures/posts/" + filename),
+            }
+        )
+
+    return jsonify({"success": False})
 

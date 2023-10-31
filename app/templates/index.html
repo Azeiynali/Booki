@@ -2,15 +2,9 @@
 <link rel="stylesheet" href="../static/css/home.css" /> {% endblock %} {% block
 Title %}Booki - خانه{% endblock %} {% block content %}
 <div id="app">
-    <navbar
-        @comment="open_comd"
-        @image="open_immd"
-        active_item="home"
-        avatar="{{ current_user.avatar }}"
-        message_count="{{ not_list }}"
-    ></navbar>
-    <site-header
-        items='
+    <navbar @comment="open_comd" @image="open_immd" active_item="home" avatar="{{ current_user.avatar }}"
+        message_count="{{ not_list }}"></navbar>
+    <site-header items='
                 [
                     {% for user in users %}
                         {"user_img": "{{ user.avatar }}",
@@ -18,56 +12,23 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                         "username": "{{ user.username }}"},
                     {% endfor %}
                 ]
-            '
-    >
+            '>
     </site-header>
     <div class="container">
         <div class="posts">
             {% for post in posts %}
-            <post
-                content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>"
-                user_detail='{
-                                "img": "{{ post.writer.avatar }}",
-                                "username": "{{ post.writer.username }}",
-                                "ckeck": true,
-                                "date": "2 ماه پیش",
-                                "href":"/@{{ post.writer.username }}/posts",
-                                "post_href": "#"
-                                }'
-                classes="img-container post"
-            ></post>
+            <post {% if post.writter==current_user %} iw {% endif %}
+                content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
+                username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
+                classes="img-container post"></post>
             {% endfor %}
-            <post
-                content="<img class='img' src='https://cdn.dribbble.com/userupload/9583660/file/original-e27155a0df451cd4cb30db64a51883a8.jpg?resize=752x'>این یک تصویر است که توسط یکی به نام یکی ایجاد شده و در حال نمایش دادن در نمایشگاه بزرگ نیویورک است</p>"
-                user_detail='{
-                    "img": "https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg",
-                    "username": "علی",
-                    "ckeck": true,
-                    "date": "2 ماه پیش",
-                    "href":"#",
-                    "post_href": "#"
-                }'
-                classes="img-container post"
-            ></post>
         </div>
         <div class="left-items">
             <div dir="rtl" class="top">
                 <p>کاربران برتر</p>
-                <user
-                    username="علی"
-                    score="120"
-                    href="#"
-                    img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg"
-                ></user>
-            </div>
-            <div dir="rtl" class="top">
-                <p>محل شما</p>
-                <user
-                    username="علی"
-                    score="120"
-                    href="#"
-                    img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg"
-                ></user>
+                <user username="علی" score="120" href="#"
+                    img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg">
+                </user>
             </div>
         </div>
     </div>
@@ -99,12 +60,11 @@ Title %}Booki - خانه{% endblock %} {% block content %}
     Vue.component("post", {
         props: {
             id: {},
-            user_detail: {
-                default: "{}",
-            },
-            content: {
-                default: "",
-            },
+            content: {},
+            username: {},
+            img: {},
+            avatar: {},
+            date: "",
             likes: {
                 default: 0,
             },
@@ -115,9 +75,8 @@ Title %}Booki - خانه{% endblock %} {% block content %}
         },
         data() {
             return {
-                us_content: unescape(this.content),
-                user_details: JSON.parse(this.user_detail),
                 is: true,
+                delete_button: "حذف"
             };
         },
 
@@ -144,7 +103,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
             delete_() {
                 if (
                     this.$refs.itrash.getAttribute("class") ===
-                    "fa-soild fa-check"
+                    "fi fi-rr-check"
                 ) {
                     var myHeaders = new Headers();
                     myHeaders.append(
@@ -154,10 +113,6 @@ Title %}Booki - خانه{% endblock %} {% block content %}
 
                     var urlencoded = new URLSearchParams();
                     urlencoded.append("id", this.id);
-                    urlencoded.append(
-                        "pin",
-                        "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f"
-                    );
                     var requestOptions = {
                         method: "DELETE",
                         headers: myHeaders,
@@ -165,7 +120,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                         redirect: "follow",
                     };
 
-                    fetch("/api/delPost", requestOptions)
+                    fetch("/api/delete", requestOptions)
                         .then((response) => response.text())
 
                         .then((result) => {
@@ -175,37 +130,37 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                 } else {
                     this.$refs.itrash.setAttribute(
                         "class",
-                        "fa-soild fa-check"
+                        "fi fi-rr-check"
                     );
                     this.$refs.trash.setAttribute("class", "like trash liked");
+                    this.delete_button = "مطمئنید؟"
                 }
             },
         },
         template: `
                         <div v-if="is" :class="classes">
                             <div dir="rtl" class="user">
-                                <a :href="user_details.href">
-                                    <img :src="user_details.img" />
+                                <a :href="'\@' + username">
+                                    <img :src="avatar" />
                                 </a>
-                                <a :href="user_details.href">
+                                <a :href="'\@' + username">
                                     <div>
                                         <p>
-                                            {{ user_details.username }}
+                                            {{ username }}
 
                                         </p>
-                                        <small>{{ user_details.date }}</small>
+                                        <small>{{ date }}</small>
                                     </div>
                                 </a>
-                                <div ref="message" class="details">گزارش دادن</div>
                             </div>
-                            <div v-html="us_content" dir="rtl" class="content"></div>
+                            <div v-html="content" dir="rtl" class="content"></div>
                             <div dir="rtl" class="bottom">
                                 <div @click="like" ref="like" class="like">
                                     <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
                                     <small>{{ likes }}</small>
                                 </div>
-                                <div v-if="iw" @click="delete_" ref="trash" class="like trash">
-                                    <i ref="itrash" class="fa-soild fa-trash"></i>
+                                <div @click="delete_" ref="trash" class="like trash">
+                                    {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
                                 </div>
                                 </a>
                             </div>

@@ -57,7 +57,7 @@ template: `
             </div>
         </i>
         <i class="fi fi-rr-search"></i>
-        <i :class="'fi fi-rr-square-plus ' + (active_item === 'add' ? 'active' : '')"></i>
+        <i @click="redirect('/add')" :class="'fi fi-rr-square-plus ' + (active_item === 'add' ? 'active' : '')"></i>
         {% endraw %}
         <img @click="profile()" class="profile-pic" src="{{ current_user.avatar }}" />
         {% raw %}

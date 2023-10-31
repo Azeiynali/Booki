@@ -13,11 +13,18 @@
     <navbar active_item="add"></navbar>
     <div class="container">
         <div class="left">
-            <img @click="image" src="/static/pictures/select_post_image.png" class="select">
+            <img ref="image" @click="image" src="/static/pictures/select_post_image.png" class="select">
         </div>
-        <div class="right"></div>
+        <div class="right">
+            <textarea ref="content" type="text" class="input"></textarea>
+            <v-btn @click="save" color="blue" elevation="5" x-large>دخیره و انتشار</v-btn>
+        </div>
     </div>
+
 </div>
+
+<script src="/static/library/vuetify.js"></script>
+<!-- Vuetify -->
 
 {% raw %}
 <script>
@@ -55,7 +62,6 @@
                                 if (data.success) {
                                     this.Ravatar = data.url;
                                     this.$refs.image.src = data.url;
-                                    this.next();
                                 }
                             })
                             .catch((error) => {
@@ -65,6 +71,16 @@
                 });
 
                 inputElement.click();
+            },
+            save() {
+                var formData = new FormData();
+                formData.append("image", this.$refs.image.src);
+                formData.append("content", this.$refs.content.value);
+
+                fetch("/api/add", {
+                    method: "POST",
+                    body: formData,
+                }).then((respone) => {window.location.href="/"})
             }
         }
     })
