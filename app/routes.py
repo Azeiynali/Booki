@@ -4,7 +4,6 @@ import ast
 from flask import render_template, abort, request, jsonify, redirect, url_for
 from app.models import *
 from flask_login import login_user, login_required, current_user
-from werkzeug.utils import secure_filename
 from app.functions import *
 import re
 from datetime import datetime
@@ -19,43 +18,47 @@ def text_similarity(text1, text2):
     csim = cosine_similarity(vectors)
     return csim[0][1]
 
-
 def format_age(date):
     now = datetime.now()
-    print(now)
-    print(date)
-    ageY = now.year - date.year
-    ageM = now.month - date.month
-    ageD = now.day - date.day
-    ageH = now.hour - date.hour
-    ageMI = now.minute - date.minute
+    age = now - date
 
-    if not ageY and not ageM and not ageD and not ageH and ageMI < 10:
-        return "به تازگی"
-    elif not ageY and not ageM and not ageD and not ageH:
-        return f"{ageMI} دقیقه پیش"
-    elif not ageY and not ageM and not ageD:
-        return f"{ageH} ساعت پیش"
-    elif not ageY and not ageM and ageD == 1:
-        return "دیروز"
-    elif not ageY and not ageM:
-        return f"{ageD} روز پیش"
-    elif not ageY and not ageM == 1 and ageD > 2:
-        return "ماه قبل"
-    elif not ageY:
-        if ageD > 2:
-            return f"{ageM} ماه و {ageD} روز پیش"
+    if age.days < 0:
+        return "تازه تولد شده"
+    elif age.days == 0:
+        if age.seconds < 60:
+            return "به تازگی"
+        elif age.seconds < 3600:
+            minutes = age.seconds // 60
+            return f"{minutes} دقیقه پیش"
         else:
-            return f"{ageM} ماه"
+            hours = age.seconds // 3600
+            return f"{hours} ساعت پیش"
+    elif age.days == 1:
+        return "دیروز"
+    elif age.days < 30:
+        return f"{age.days} روز پیش"
+    elif age.days < 365:
+        months = age.days // 30
+        days = age.days % 30
+        return f"{months} ماه و {days} روز پیش"
     else:
-        return f"{ageY} سال پیش"
+        years = age.days // 365
+        return f"{years} سال پیش"
+
+def add_not_for_all(_not):
+    with app.app_context():
+        for u in User.query.all():
+            my_list = ast.literal_eval(u.not_seened_notis)
+            my_list.append(message)
+            updated_notis = str(my_list)
+
+            u.not_seened_notis = updated_notis
+            db.session.commit()
 
 
 def add_notification(user_id, message):
     with app.app_context():
         u = User.query.get(user_id)
-
-        print(u.not_seened_notis)
 
         my_list = ast.literal_eval(u.not_seened_notis)
         my_list.append(message)
@@ -77,12 +80,11 @@ def seened_notification():
         db.session.commit()
 
 
-def addScore(score):
+def chnageScore(score):
     with app.app_context():
         u = User.query.get(current_user.id)
 
         u.gems = u.gems + score
-        print(f"!!!!!!!!!{u.gems}")
         db.session.commit()
 
 
@@ -115,7 +117,8 @@ def index():
             users=users,
             posts=posts,
             current_user=current_user,
-            not_list=n,
+            not_list=n / 2,
+            Like=Like
         )
     else:
         return render_template("Login.html")
@@ -124,7 +127,7 @@ def index():
 @app.route("/@<username>")
 @login_required
 def user(username):
-    return redirect(f"/@{username}/posts")
+    return redirect(url_for('user_posts'))
 
 
 @app.route("/@<username>/posts")
@@ -143,7 +146,13 @@ def user_posts(username):
     else:
         fallow = False
 
-    return render_template("profile.html", user=user, fallow=fallow, not_list=n)
+    return render_template("profile.html", user=user, fallow=fallow,
+    fallows=len(Fallow.query.filter_by(followed=user.id).all()), not_list=n)
+
+
+# @app.route("/search")
+# def search():
+    # 
 
 
 @app.route("/login")
@@ -212,7 +221,6 @@ def explore():
     users = []
 
     for user in User.query.filter_by(gender=current_user.gender).all():
-        print(float(text_similarity(current_user.bio, user.bio)))
         if float(text_similarity(current_user.bio, user.bio)) > 0.4:
             if user != current_user:
                 _users.append([user, int(text_similarity(current_user.bio, user.bio))])
@@ -330,8 +338,9 @@ def user_valid():
                 user = User.query.filter_by(username=usr, password=pwd).first()
                 if user:
                     login_user(user)
-                    ip = 0
-                    add_notification(user.id, f"وورد از دستگاه با آی پی {ip}")
+                    device_name = request.headers.get("User-Agent").split("/")[0]
+                    device_type = request.headers.get("User-Agent").split("/")[1]
+                    add_notification(user.id, f"وورد از دستگاه ({device_type}, {device_name})")
 
                     return jsonify(
                         {"success": True, "valid": True, "message": "password is valid"}
@@ -374,11 +383,10 @@ def addPost():
         ):
             content = re.sub(r'(https://.*\s)', r'<a target="_blank" href="\1">\1</a>', content)
             content = re.sub(r'(www\..*\s)', r'<a target="_blank" href="\1">\1</a>', content)
-            print(content)
             pos = Post(writer=User.query.get(current_user.id), img=img, content=content)
             db.session.add(pos)
             db.session.commit()
-            addScore(5)
+            chnageScore(5)
             return jsonify({"success": True})
 
     return abort(403)
@@ -400,7 +408,7 @@ def delPost():
             if pos.writer.id == current_user.id:
                 db.session.delete(pos)
                 db.session.commit()
-                addScore(-5)
+                chnageScore(-5)
                 return {"success": 1}
     return abort(403)
 
@@ -428,7 +436,9 @@ def upload():
                     .replace("%20", " ")
                 )
             except Exception as e:
+                print('#'*10)
                 print(e)
+                print("#" * 10)
             u.avatar = url_for("static", filename="pictures/avatars/" + filename)
             db.session.commit()
         return jsonify(
@@ -575,3 +585,53 @@ def upload_image():
 
     return jsonify({"success": False})
 
+
+@app.route("/api/messClear", methods=["GET"])
+def messages_clearer():
+    try:
+        current_user.not_seened_notis = "[]"
+        current_user.seened_notis = "[]"
+
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False})
+
+@app.route("/api/like", methods=["POST"])
+@login_required
+def like():
+    try:
+        data = request.form
+        if data:
+            if not Like.query.filter_by(liker=current_user.id, liked=data.get('postId')).all():
+                l = Like(liker=current_user.id, liked=data.get('postId'))
+                db.session.add(l)
+                db.session.commit()
+
+                return jsonify({'success': True})   
+    except Exception as e:
+        print("#" * 10)
+        print(e)
+        print("#" * 10)
+
+    return jsonify({'success': False})
+
+
+@app.route("/api/unlike", methods=["POST"])
+@login_required
+def unlike():
+    try:
+        data = request.form
+        if data:
+            l = Like.query.filter_by(liker=current_user.id, liked=data.get('postId')).first()
+            db.session.delete(l)
+            db.session.commit()
+
+            return jsonify({'success': True})   
+    except Exception as e:
+        print("#" * 10)
+        print(e)
+        print("#" * 10)
+
+
+    return jsonify({'success': False})

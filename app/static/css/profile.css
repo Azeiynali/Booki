@@ -148,10 +148,13 @@
 }
 .wraper{
     width: 70%;
+    text-align: center;
+}
+.fallows{
+    margin-bottom: 60px;
 }
 .bio{
     color: #353535;
-    margin-bottom: 60px;
     direction: rtl;
     word-wrap: break-word;
     text-align: center;

@@ -73,16 +73,19 @@ content %}
                 <p class="bio">
                     {{ user.bio }}
                 </p>
+                <p class="fallows">{{ fallows }} دنبال کننده</p>
             </div>
             {% if current_user != user %}
-            <div class="buttons">
-                <div @click="fallow" ref="fallow" style="background-color: var(--blue)" class="button" v-if="!fallowed">
-                    دنبال کردن
-                </div>
-                <div @click="fallow" ref="fallow" style="background-color: var(--red)" v-if="fallowed" class="button">
-                    دنبال نکردن
-                </div>
-            </div>
+                {% if user.username != 'booki' %}
+                    <div class="buttons">
+                        <div @click="fallow" ref="fallow" style="background-color: var(--blue)" class="button" v-if="!fallowed">
+                            دنبال کردن
+                        </div>
+                        <div @click="fallow" ref="fallow" style="background-color: var(--red)" v-if="fallowed" class="button">
+                            دنبال نکردن
+                        </div>
+                    </div>
+                {% endif %}
             {% else %}
             <div class="pass_box">
                 <i @click="changeP" class="fi fi-rr-edit"></i>

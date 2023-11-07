@@ -20,17 +20,19 @@ Title %}Booki - خانه{% endblock %} {% block content %}
             <post {% if post.writter==current_user %} iw {% endif %}
                 content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
                 username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
-                classes="img-container post"></post>
+                classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}">
+            </post>
             {% endfor %}
         </div>
-        <div class="left-items">
+        <!-- <div class="left-items">
             <div dir="rtl" class="top">
                 <p>کاربران برتر</p>
                 <user username="علی" score="120" href="#"
                     img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg">
                 </user>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -65,6 +67,9 @@ Title %}Booki - خانه{% endblock %} {% block content %}
             img: {},
             avatar: {},
             date: "",
+            like_classes: {
+                default: ""
+            },
             likes: {
                 default: 0,
             },
@@ -82,14 +87,35 @@ Title %}Booki - خانه{% endblock %} {% block content %}
 
         methods: {
             like() {
-                if (this.$refs.like.getAttribute("class") == "like liked") {
-                    this.$refs.like_icon.style.color = "black"
-                    this.likes--;
+                if (this.like_classes) {
+                    var data = new FormData();
+                    data.append('postId', this.id)
+                    fetch('/api/unlike', {
+                        method: "POST",
+                        body: data,
+                    }).then((response) => { return response.json() }).then(
+                        (data) => {
+                            if (data.success) {
+                                this.$refs.like_icon.style.color = "black"
+                                this.like_classes = "";
+                                this.likes--;
+                            }
+                        })
                 } else {
-                    this.$refs.like_icon.style.color = "var(--red)"
-                    this.likes++;
+                    var data = new FormData();
+                    data.append('postId', this.id)
+                    fetch('/api/like', {
+                        method: "POST",
+                        body: data,
+                    }).then((response) => { return response.json() }).then(
+                        (data) => {
+                            if (data.success) {
+                                this.$refs.like_icon.style.color = "var(--red)"
+                                this.like_classes = "liked";
+                                this.likes++;
+                            }
+                        })
                 }
-                this.$refs.like.classList.toggle("liked");
             },
             exclamation(ev) {
                 this.$refs.message.style.opacity = "1";
@@ -155,7 +181,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                             </div>
                             <div v-html="content" dir="rtl" class="content"></div>
                             <div dir="rtl" class="bottom">
-                                <div @click="like" ref="like" class="like">
+                                <div @click="like" ref="like" :class="'like ' + like_classes">
                                     <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
                                     <small>{{ likes }}</small>
                                 </div>

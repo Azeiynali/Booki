@@ -10,6 +10,11 @@
 <div id="app">
     <navbar active_item="messages"></navbar>
     <div class="message-container">
+        {% if NSN or SN %}
+        <div @click="clear" class="clear">پاک کردن همه</div>
+        {% else %}
+        <p>empty!</p>
+        {% endif %}
         {% for message in NSN %}
         <div class="message not_seened"> {{ message }} </div>
         {% endfor %}
@@ -23,7 +28,14 @@
 <script>
     app = new Vue({
         el: "#app",
-        data: {}
+        data: {},
+        methods: {
+            clear() {
+                fetch("/api/messClear").then((response) => {
+                    window.location.href = "/messages"
+                })
+            }
+        }
     })
     document.addEventListener("DOMContentLoaded", () => {
         fetch("/api/seen")

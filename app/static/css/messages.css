@@ -17,3 +17,17 @@
 .not_seened{
     background-color: #ffbb00;
 }
+.clear{
+    padding: 10px 30px;
+    background-color: #008cff;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all .3s;
+}
+.clear:hover{
+    transform: scale(1.09);
+}
+p{
+    color: #384957;
+}
