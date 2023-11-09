@@ -125,9 +125,34 @@ def user_posts(username):
                     Like=Like)
 
 
-# @app.route("/search")
-# def search():
-    #
+@app.route("/search", methods=["GET", "POST"])
+@login_required
+def search():
+    n = 0
+    if current_user.not_seened_notis != '[]':
+        n = len(current_user.not_seened_notis.replace(
+            "[", "").replace("]", "").split(","))
+    if not request.form:
+        return render_template("search.html", current_user=current_user, not_list=n/2, search=False)
+    else:
+        result = set()
+        list_result = list()
+        for post in Post.query.all():
+            score = search_score(post.content, request.form.get("value"))
+            print(post.id)
+            print(score)
+            if score > 1:
+                list_result.append([post, score])
+        
+        list_result.sort(key=lambda x: x[1], reverse=True)
+        list_result = list_result[:15]
+
+        for post in list_result:
+            result.add(post[0])
+
+        return render_template("search.html", current_user=current_user, not_list=n/2, search=True,
+            result=result, fAge=format_age, Like=Like)
+
 
 
 @app.route("/login")

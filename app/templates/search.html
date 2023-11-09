@@ -1,117 +1,214 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>search</title>
+{% extends "base.html" %}
 
-        <link rel="stylesheet" href="../static/css/root.css" />
-        <link rel="stylesheet" href="../static/css/search.css" />
-        <link rel="stylesheet" href="../static/library/Vuetify.css" />
-    </head>
-    <body>
-        <div id="app">
-            <navbar active_item="search"></navbar>
-            <search></search>
-        </div>
+{% block head %}
+<link rel="stylesheet" href="/static/css/search.css" />
+<link rel="stylesheet" href="/static/css/home.css" />
+{% endblock %}
 
-        <script src="../static/library/vue.js"></script>
-        <script src="../static/library/vuetify.js"></script>
 
-        <script>
-            Vue.component("navbar-item", {
-                props: {
-                    text: {},
-                    href: {},
-                    active: {
-                        default: false,
-                    },
-                },
-                template: `
-                          <a ref="a" class="navbar-item" v-html="text" :href="href"></a>
-                          `,
-            });
+{% block Title %}جستجو{% endblock %}
 
-            Vue.component("navbar", {
-                props: {
-                    active_item: {
-                        default: false,
-                    },
-                    message_count: {
-                        default: 0,
-                    },
-                },
-                data() {
-                    return {};
-                },
-                methods: {
-                    plus() {
-                        this.$refs.button.classList.toggle("is-active");
-                    },
-                    comment() {
-                        this.$emit("comment");
-                    },
-                },
-                template: `
-                        <nav class="nav">
-                              <img class="logo" src="https://cdn-icons-png.flaticon.com/512/4096/4096358.png" />
-                              <div class="nav-items">
-                                <navbar-item href="#" ref="profile" text="پروفایل" :class="{ active: active_item === 'profile' }"></navbar-item>
-                                <navbar-item href="#" ref="dasboard" text="جستجو" :class="{ active: active_item === 'search' }"></navbar-item>
-                                <navbar-item href="#" ref="chatroom" text="گفتگو" :class="{ active: active_item === 'chat' }"></navbar-item>
-                                <navbar-item href="#" ref="chatroom" text="خانه" :class="{ active: active_item === 'home' }"></navbar-item>
-                              </div>
-                              <div class="profile-nav">
-                                  <i class="fa-solid fa-envelope"><div v-if="message_count" class="note_num">3</div></i>
-                                  <img class="profile-pic" src="https://cdn-icons-png.flaticon.com/512/4096/4096358.png" />
-                              </div>
-                              <div v-if="active_item == 'home'" dir="rtl" ref="button" class="plus-button">
-                                <a @click="plus" href="#" class="button">
-                                    <svg class="arrow arrow-left" viewBox="0 0 448 448">
-                                        <path
-                                            d="M272 176H32c-18 0-32 14-32 32v32c0 18 14 32 32 32h144v144c0 18 14 32 32 32h32c18 0 32-14 32-32V176z"
-                                        />
-                                    </svg>
-                                    <svg class="arrow arrow-right" viewBox="0 0 448 448">
-                                        <path
-                                            d="M176 272h240c18 0 32-14 32-32v-32c0-18-14-32-32-32H272V32c0-18-14-32-32-32h-32c-18 0-32 14-32 32v240z"
-                                        />
-                                    </svg>
-                                </a>
-                                <div class="menu">
-                                    <a href="#">مقاله</a><br />
-                                    <a href="#">عکس</a><br />
-                                    <a @click="comment" href="#">نظر</a><br />
-                                </div>
-                            </div>
-                        </nav>`,
-            });
 
-            Vue.component("search", {
-                data() {},
-                methods: {
-                    submit() {
-                        if (
-                            this.$refs.search_input.value.replace(/\s/g, "") != ""
-                        ) {
-                            setTimeout(() => {
-                                this.$refs.root.submit();
-                            }, 500);
-                        }
-                    },
-                },
-                template: `
-                    <form ref='root' action="">
-                        <input ref="search_input" required type="search" name="search">
+{% block content %}
+<div id="app">
+    <navbar active_item="search"></navbar>
+    <search></search>
+    <div class="posts">
+        {% if search %}
+            {% for post in result %}
+            <post
+                {% if post.writer==current_user %} iw="True" {% endif %}
+                content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
+                username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
+                classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}">
+            </post>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+<script src="/static/library/vuetify.js"></script>
+
+{% raw %}
+<script>
+    Vue.component("search", {
+        data() { },
+        methods: {
+            submit() {
+                if (
+                    this.$refs.search_input.value.replace(/\s/g, "") != ""
+                ) {
+                    setTimeout(() => {
+                        this.$refs.root.submit();
+                    }, 500);
+                }
+            },
+        },
+        template: `
+                    <form ref='root' method="POST" action="">
+                        <input ref="search_input" required type="search" name="value">
                         <v-btn @click="submit" x-large color="blue">جستجو</v-btn>
                     </form>
                 `,
-            });
+    });
 
-            new Vue({
-                el: "#app",
-            });
-        </script>
-    </body>
-</html>
+    new Vue({
+        el: "#app",
+    });
+    Vue.component("post", {
+        props: {
+            id: {},
+            content: {},
+            username: {},
+            img: {},
+            avatar: {},
+            date: "",
+            like_classes: {
+                default: ""
+            },
+            likes: {
+                default: 0,
+            },
+            iw: {
+                default: false,
+            },
+            classes: { default: "post" },
+        },
+        data() {
+            return {
+                is: true,
+                delete_button: "حذف"
+            };
+        },
+
+        methods: {
+            like() {
+                if (this.like_classes) {
+                    var data = new FormData();
+                    data.append('postId', this.id)
+                    fetch('/api/unlike', {
+                        method: "POST",
+                        body: data,
+                    }).then((response) => { return response.json() }).then(
+                        (data) => {
+                            if (data.success) {
+                                this.$refs.like_icon.style.color = "black"
+                                this.like_classes = "";
+                                this.likes--;
+                            }
+                        })
+                } else {
+                    var data = new FormData();
+                    data.append('postId', this.id)
+                    fetch('/api/like', {
+                        method: "POST",
+                        body: data,
+                    }).then((response) => { return response.json() }).then(
+                        (data) => {
+                            if (data.success) {
+                                this.$refs.like_icon.style.color = "var(--red)"
+                                this.like_classes = "liked";
+                                this.likes++;
+                            }
+                        })
+                }
+            },
+            exclamation(ev) {
+                this.$refs.message.style.opacity = "1";
+                this.$refs.message.style.left = "-19px";
+                this.$refs.message.innerText = "گزارش داده شد!";
+                setTimeout(() => {
+                    this.$refs.message.style = "";
+                    this.$refs.message.style.left = "-19px";
+                }, 2000);
+            },
+            delete_() {
+                if (
+                    this.$refs.itrash.getAttribute("class") ===
+                    "fi fi-rr-check"
+                ) {
+                    var myHeaders = new Headers();
+                    myHeaders.append(
+                        "Content-Type",
+                        "application/x-www-form-urlencoded"
+                    );
+
+                    var urlencoded = new URLSearchParams();
+                    urlencoded.append("id", this.id);
+                    var requestOptions = {
+                        method: "DELETE",
+                        headers: myHeaders,
+                        body: urlencoded,
+                        redirect: "follow",
+                    };
+
+                    fetch("/api/delete", requestOptions)
+                        .then((response) => response.text())
+
+                        .then((result) => {
+                            this.is = false;
+                        })
+                        .catch((error) => console.log("error", error));
+                } else {
+                    this.$refs.itrash.setAttribute(
+                        "class",
+                        "fi fi-rr-check"
+                    );
+                    this.$refs.trash.setAttribute("class", "like trash liked");
+                    this.delete_button = "مطمئنید؟"
+                }
+            },
+        },
+        template: `
+                        <div v-if="is" :class="classes">
+                            <div dir="rtl" class="user">
+                                <a :href="'\@' + username">
+                                    <img :src="avatar" />
+                                </a>
+                                <a :href="'\@' + username">
+                                    <div>
+                                        <p>
+                                            {{ username }}
+
+                                        </p>
+                                        <small>{{ date }}</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div v-html="content" dir="rtl" class="content"></div>
+                            <div dir="rtl" class="bottom">
+                                <div @click="like" ref="like" :class="'like ' + like_classes">
+                                    <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
+                                    <small>{{ likes }}</small>
+                                </div>
+                                <div v-if="iw" @click="delete_" ref="trash" class="like trash">
+                                    {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
+                                </div>
+                                </a>
+                            </div>
+                        </div>
+                    `,
+    });
+
+    Vue.component("user", {
+        props: ["img", "score", "href", "username"],
+        template: `
+                        <div style="transform: scale(.7);margin-left: 23%;" dir="rtl" class="user">
+                                <a :href="href">
+                                    <img :src="img" />
+                                </a>
+                                <a :href="href">
+                                    <div>
+                                        <p>
+                                            {{ username }}
+
+                                        </p>
+                                        <small>🪙{{ score }}</small>
+                                    </div>
+                                </a>
+                            </div>
+                        `,
+    });
+</script>
+{% endraw %}
+{% endblock %}

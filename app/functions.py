@@ -1,3 +1,4 @@
+import re
 import hashlib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -45,7 +46,7 @@ def format_age(date):
         return f"{years} سال پیش"
 
 def normalize(text):
-    normalized = text
+    cleaned_string = text
     cleaned_string = (str(cleaned_string).replace(b'\xdb\x96'.decode("utf-8"), ''))
     cleaned_string = re.sub("ي", "ی", cleaned_string)
     cleaned_string = re.sub("أ", "ا", cleaned_string)
@@ -70,21 +71,23 @@ def normalize(text):
     cleaned_string = (cleaned_string.replace(b'\xd9\xb0'.decode("utf-8"), ''))
     cleaned_string = (cleaned_string.replace(b'\xd9\xb0'.decode("utf-8"), ''))
     cleaned_string = (cleaned_string.replace('\n', ' '))
-    normalized = re.sub("،", "", normalized)
-    normalized = re.sub(".", "", normalized)
-    normalized = re.sub(",", "", normalized)
-    normalized = re.sub("\"", "", normalized)
-    normalized = re.sub("'", "", normalized)
-    normalized = re.sub("-", "", normalized)
-    normalized = re.sub("+", "", normalized)
-    normalized = re.sub(")", "", normalized)
-    normalized = re.sub("(", "", normalized)
-    normalized = re.sub("<.*>?.*<\/.*>?", "", normalized)
-    normalized = re.sub("&", "", normalized)
-    normalized = re.sub("\*", "", normalized)
+    cleaned_string = re.sub("،", "", cleaned_string)
+    cleaned_string = re.sub(".", "", cleaned_string)
+    cleaned_string = re.sub(",", "", cleaned_string)
+    cleaned_string = re.sub("\"", "", cleaned_string)
+    cleaned_string = re.sub("'", "", cleaned_string)
+    cleaned_string = re.sub("-", "", cleaned_string)
+    cleaned_string = re.sub("\+", "", cleaned_string)
+    cleaned_string = re.sub("\)", "", cleaned_string)
+    cleaned_string = re.sub("\(", "", cleaned_string)
+    cleaned_string = re.sub("\s\s", " ", cleaned_string)
+    cleaned_string = re.sub("<.*>?.*<\/.*>?", "", cleaned_string)
+    cleaned_string = re.sub("&", "", cleaned_string)
+    cleaned_string = re.sub("\*", "", cleaned_string)
 
+    return cleaned_string
 
-def search(content, search_value):
+def search_score(content, search_value):
     score = 0
 
     content_normalized = normalize(content)
@@ -93,8 +96,9 @@ def search(content, search_value):
         score += content_normalized.count(token)
     
     for token in normalize(content_normalized).split(" "):
-        for search_token in normalize(search_value).split(" "):
-            if text_similarity(token, search_token):
-                score += .01
+        if token:
+            for search_token in normalize(search_value).split(" "):
+                if search_token:
+                    score += text_similarity(token, search_token) * 1.5
 
     return score
