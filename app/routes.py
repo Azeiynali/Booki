@@ -18,6 +18,7 @@ def text_similarity(text1, text2):
     csim = cosine_similarity(vectors)
     return csim[0][1]
 
+
 def format_age(date):
     now = datetime.now()
     age = now - date
@@ -44,6 +45,7 @@ def format_age(date):
     else:
         years = age.days // 365
         return f"{years} سال پیش"
+
 
 def add_not_for_all(_not):
     with app.app_context():
@@ -89,7 +91,7 @@ def chnageScore(score):
 
 
 # !
-root_url = "http://127.0.0.1:1223"
+root_url = "127"
 # !
 
 
@@ -98,7 +100,8 @@ def index():
     if current_user.is_authenticated:
         n = 0
         if current_user.not_seened_notis != '[]':
-            n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+            n = len(current_user.not_seened_notis.replace(
+                "[", "").replace("]", "").split(","))
 
         falloweds = Fallow.query.filter_by(follower=current_user.id)
 
@@ -108,9 +111,12 @@ def index():
             users.append(User.query.get(fallow_item.followed))
             posts += Post.query.filter_by(
                 writer=User.query.get(fallow_item.followed)
-                ).all()
+            ).all()
         posts += Post.query.filter_by(writer=current_user).all()
 
+        posts = list(set(posts))
+        posts.sort(key=lambda x: x.date)
+        posts.reverse()
         return render_template(
             "index.html",
             fAge=format_age,
@@ -127,7 +133,7 @@ def index():
 @app.route("/@<username>")
 @login_required
 def user(username):
-    return redirect(url_for('user_posts'))
+    return redirect(f"/@{username}/posts")
 
 
 @app.route("/@<username>/posts")
@@ -135,7 +141,8 @@ def user(username):
 def user_posts(username):
     n = 0
     if current_user.not_seened_notis != '[]':
-        n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+        n = len(current_user.not_seened_notis.replace(
+            "[", "").replace("]", "").split(","))
 
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -147,12 +154,12 @@ def user_posts(username):
         fallow = False
 
     return render_template("profile.html", user=user, fallow=fallow,
-    fallows=len(Fallow.query.filter_by(followed=user.id).all()), not_list=n)
+                           fallows=len(Fallow.query.filter_by(followed=user.id).all()), not_list=n / 2)
 
 
 # @app.route("/search")
 # def search():
-    # 
+    #
 
 
 @app.route("/login")
@@ -173,11 +180,12 @@ def register():
 def chat():
     n = 0
     if current_user.not_seened_notis != '[]':
-        n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+        n = len(current_user.not_seened_notis.replace(
+            "[", "").replace("]", "").split(","))
 
     messages = Message.query.all()
     return render_template(
-        "chatroom.html", messages=messages, current_user=current_user, not_list=n
+        "chatroom.html", messages=messages, current_user=current_user, not_list=n / 2
     )
 
 
@@ -186,9 +194,10 @@ def chat():
 def newpost():
     n = 0
     if current_user.not_seened_notis != '[]':
-        n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+        n = len(current_user.not_seened_notis.replace(
+            "[", "").replace("]", "").split(","))
 
-    return render_template("add.html", current_user=current_user, not_list=n)
+    return render_template("add.html", current_user=current_user, not_list=n / 2)
 
 
 @app.route("/chatContent")
@@ -215,7 +224,8 @@ def chatContent():
 def explore():
     n = 0
     if current_user.not_seened_notis != '[]':
-        n = len(current_user.not_seened_notis.replace("[", "").replace("]", "").split(","))
+        n = len(current_user.not_seened_notis.replace(
+            "[", "").replace("]", "").split(","))
 
     _users = []
     users = []
@@ -223,7 +233,8 @@ def explore():
     for user in User.query.filter_by(gender=current_user.gender).all():
         if float(text_similarity(current_user.bio, user.bio)) > 0.4:
             if user != current_user:
-                _users.append([user, int(text_similarity(current_user.bio, user.bio))])
+                _users.append(
+                    [user, int(text_similarity(current_user.bio, user.bio))])
 
     _users = sorted(_users, key=lambda x: x[1])
 
@@ -232,7 +243,7 @@ def explore():
     del _users
 
     return render_template(
-        "explore.html", current_user=current_user, users=users, Fallow=Fallow, not_list=n
+        "explore.html", current_user=current_user, users=users, Fallow=Fallow, not_list=n/2
     )
 
 
@@ -249,7 +260,7 @@ def messages():
         current_user=current_user,
         NSN=NSN,
         SN=SN,
-        not_list = 0
+        not_list=0
     )
 
 
@@ -274,7 +285,8 @@ def addMessage():
             and root_url in referer
             and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
         ):
-            mess = Message(writer=User.query.get(current_user.id), content=content)
+            mess = Message(writer=User.query.get(
+                current_user.id), content=content)
             db.session.add(mess)
             db.session.commit()
             return jsonify({"id": mess.id, "date": str(mess.date)})
@@ -338,12 +350,15 @@ def user_valid():
                 user = User.query.filter_by(username=usr, password=pwd).first()
                 if user:
                     login_user(user)
-                    device_name = request.headers.get("User-Agent").split("/")[0]
-                    device_type = request.headers.get("User-Agent").split("/")[1]
+                    device_name = request.headers.get(
+                        "User-Agent").split("/")[0]
+                    device_type = request.headers.get(
+                        "User-Agent").split("/")[1]
                     add_notification(user.id, f"وورد از دستگاه ({device_type}, {device_name})")
 
                     return jsonify(
-                        {"success": True, "valid": True, "message": "password is valid"}
+                        {"success": True, "valid": True,
+                            "message": "password is valid"}
                     )
 
                 else:
@@ -381,9 +396,9 @@ def addPost():
             and referer
             and root_url in referer
         ):
-            content = re.sub(r'(https://.*\s)', r'<a target="_blank" href="\1">\1</a>', content)
-            content = re.sub(r'(www\..*\s)', r'<a target="_blank" href="\1">\1</a>', content)
-            pos = Post(writer=User.query.get(current_user.id), img=img, content=content)
+            content = re.sub(r'([www\.|https:\/\/].*\..*?)([\s|\.|،|\,|])', r'<a target="_blank" href="https:\/\/\1">\1</a>\2', content)
+            pos = Post(writer=User.query.get(
+                current_user.id), img=img, content=content)
             db.session.add(pos)
             db.session.commit()
             chnageScore(5)
@@ -421,9 +436,11 @@ def upload():
         if file.filename == "":
             return jsonify({"success": False})
         filename = str(
-            str(datetime.now()).replace(":", ".") + "." + file.filename.split(".")[-1]
+            str(datetime.now()).replace(":", ".") +
+            "." + file.filename.split(".")[-1]
         )
-        file.save(os.path.join(app.config["UPLOAD_FOLDER"], "avatars/" + filename))
+        file.save(os.path.join(
+            app.config["UPLOAD_FOLDER"], "avatars/" + filename))
         if current_user.is_authenticated:
             u = User.query.get(current_user.id)
             try:
@@ -439,7 +456,8 @@ def upload():
                 print('#'*10)
                 print(e)
                 print("#" * 10)
-            u.avatar = url_for("static", filename="pictures/avatars/" + filename)
+            u.avatar = url_for(
+                "static", filename="pictures/avatars/" + filename)
             db.session.commit()
         return jsonify(
             {
@@ -477,13 +495,11 @@ def addUser():
                 )
                 db.session.add(u)
                 db.session.commit()
-                return jsonify(
-                    {
-                        "success": True,
-                        "valid": True,
-                    }
-                )
 
+                f = Fallow(follower=u.id, followed=1)
+                db.session.add(f)
+                db.session.commit()
+                return jsonify({"success": True})
             else:
                 return jsonify(
                     {
@@ -524,7 +540,8 @@ def fallow():
 def not_fallow():
     if "id" in request.form:
         id = request.form["id"]
-        f = Fallow.query.filter_by(follower=current_user.id, followed=id).first()
+        f = Fallow.query.filter_by(
+            follower=current_user.id, followed=id).first()
         db.session.delete(f)
         db.session.commit()
         username = User.query.get(current_user.id).username
@@ -573,9 +590,11 @@ def upload_image():
         if file.filename == "":
             return jsonify({"success": False})
         filename = str(
-            str(datetime.now()).replace(":", ".") + "." + file.filename.split(".")[-1]
+            str(datetime.now()).replace(":", ".") +
+            "." + file.filename.split(".")[-1]
         )
-        file.save(os.path.join(app.config["UPLOAD_FOLDER"], "posts/" + filename))
+        file.save(os.path.join(
+            app.config["UPLOAD_FOLDER"], "posts/" + filename))
         return jsonify(
             {
                 "success": True,
@@ -597,6 +616,7 @@ def messages_clearer():
     except Exception as e:
         return jsonify({'success': False})
 
+
 @app.route("/api/like", methods=["POST"])
 @login_required
 def like():
@@ -608,7 +628,7 @@ def like():
                 db.session.add(l)
                 db.session.commit()
 
-                return jsonify({'success': True})   
+                return jsonify({'success': True})
     except Exception as e:
         print("#" * 10)
         print(e)
@@ -623,15 +643,15 @@ def unlike():
     try:
         data = request.form
         if data:
-            l = Like.query.filter_by(liker=current_user.id, liked=data.get('postId')).first()
+            l = Like.query.filter_by(
+                liker=current_user.id, liked=data.get('postId')).first()
             db.session.delete(l)
             db.session.commit()
 
-            return jsonify({'success': True})   
+            return jsonify({'success': True})
     except Exception as e:
         print("#" * 10)
         print(e)
         print("#" * 10)
-
 
     return jsonify({'success': False})

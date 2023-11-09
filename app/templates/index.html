@@ -47,10 +47,6 @@ Title %}Booki - خانه{% endblock %} {% block content %}
         },
         template: `
             <header ref="root" class="header">
-                <a href="/@booki" class="item">
-                    <div style="background-image: url(/static/pictures/favicon.png)" class="user"></div>
-                    <p>Booki</p>
-                </a>
                 <a :href="item.user_href" v-for="item in items_dict" class="item">
                     <img :src="item.user_img" class="user" />
                     <p>{{ item.username }}</p>
