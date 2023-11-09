@@ -20,6 +20,27 @@ def text_similarity(text1, text2):
 
 def format_age(date):
     now = datetime.now()
+    ageY = now.year - date.year
+    ageM = now.month - date.month
+    ageD = now.day - date.day
+    ageH = now.hour - date.hour
+    ageMI = now.minute - date.minute
+
+    if not ageY and not ageM and not ageD and not ageH and ageMI < 10:
+        return "به تازگی"
+    elif not ageY and not ageM and not ageD and not ageH:
+        return f"{ageMI} دقیقه پیش"
+    elif not ageY and not ageM and not ageD:
+        return f"{ageH} ساعت پیش"
+    elif not ageY and not ageM and ageD == 1:
+        return "دیروز"
+    elif not ageY and not ageM:
+        return f"{ageD} روز پیش"
+    elif not ageY and not ageM == 1 and ageD > 2:
+        return "ماه قبل"
+    elif not ageY:
+        if ageD > 2:
+            return f"{ageM} ماه و {ageD} روز پیش"
     age = now - date
 
     if age.days < 0:
@@ -31,6 +52,7 @@ def format_age(date):
             minutes = age.seconds // 60
             return f"{minutes} دقیقه پیش"
         else:
+            return f"{ageM} ماه"
             hours = age.seconds // 3600
             return f"{hours} ساعت پیش"
     elif age.days == 1:
@@ -42,6 +64,7 @@ def format_age(date):
         days = age.days % 30
         return f"{months} ماه و {days} روز پیش"
     else:
+        return f"{ageY} سال پیش"
         years = age.days // 365
         return f"{years} سال پیش"
 

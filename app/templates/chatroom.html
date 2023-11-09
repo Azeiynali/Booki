@@ -241,7 +241,7 @@
                         redirect: 'follow'
                     };
 
-                    fetch("http://127.0.0.1:1223/api/addMessage", requestOptions)
+                    fetch("/api/addMessage", requestOptions)
                     .then(response => response.text())
 
                     .then(result => {
