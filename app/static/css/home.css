@@ -437,10 +437,9 @@ td {
     border-radius: 5px;
 }
 .post .content a {
-    color: #0000a5;
+    color: #2c5dff;
 }
 .post .content a:hover {
-    color: #1f1ff0;
     text-decoration: underline;
 }
 blockquote {

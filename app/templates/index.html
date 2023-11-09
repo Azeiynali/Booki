@@ -17,7 +17,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
     <div class="container">
         <div class="posts">
             {% for post in posts %}
-            <post {% if post.writter==current_user %} iw {% endif %}
+            <post {% if post.writer==current_user %} iw="True" {% endif %}
                 content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
                 username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
                 classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
@@ -181,7 +181,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                                     <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
                                     <small>{{ likes }}</small>
                                 </div>
-                                <div @click="delete_" ref="trash" class="like trash">
+                                <div v-if="iw" @click="delete_" ref="trash" class="like trash">
                                     {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
                                 </div>
                                 </a>

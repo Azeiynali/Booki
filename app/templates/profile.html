@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block head %}
 <link href="../static/css/profile.css" rel="stylesheet" />
+<link href="../static/css/home.css" rel="stylesheet" />
 <link href="../static/library/Vuetify.css" rel="stylesheet" />
 
 {% endblock %} {% block Title %}{{ user.username }}{% endblock %} {% block
@@ -28,7 +29,7 @@ content %}
 
             <h6 class="address">
                 <i class="fi fi-rr-marker"></i>{{ user.country }}, {{
-                user.city }} &nbsp; 
+                user.city }} &nbsp;
             </h6>
             <div dir="rtl" class="tag gem">
                 <svg width="800px" height="800px" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +62,7 @@ content %}
                 </svg>
                 &nbsp; {{ user.gems }} الماس
             </div>
-            <div dir="rtl" class="tag post">
+            <div dir="rtl" class="tag post_tag">
                 <svg fill="#000000" width="800px" height="800px" viewBox="0 0 256 256" id="Flat"
                     xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -73,19 +74,19 @@ content %}
                 <p class="bio">
                     {{ user.bio }}
                 </p>
-                <p class="fallows">{{ fallows }} دنبال کننده</p>
+                <p dir="rtl" class="fallows">{{ fallows }} دنبال کننده</p>
             </div>
             {% if current_user != user %}
-                {% if user.username != 'booki' %}
-                    <div class="buttons">
-                        <div @click="fallow" ref="fallow" style="background-color: var(--blue)" class="button" v-if="!fallowed">
-                            دنبال کردن
-                        </div>
-                        <div @click="fallow" ref="fallow" style="background-color: var(--red)" v-if="fallowed" class="button">
-                            دنبال نکردن
-                        </div>
-                    </div>
-                {% endif %}
+            {% if user.username != 'booki' %}
+            <div class="buttons">
+                <div @click="fallow" ref="fallow" style="background-color: var(--blue)" class="button" v-if="!fallowed">
+                    دنبال کردن
+                </div>
+                <div @click="fallow" ref="fallow" style="background-color: var(--red)" v-if="fallowed" class="button">
+                    دنبال نکردن
+                </div>
+            </div>
+            {% endif %}
             {% else %}
             <div class="pass_box">
                 <i @click="changeP" class="fi fi-rr-edit"></i>
@@ -97,8 +98,166 @@ content %}
             {% endif %}
         </div>
     </div>
+    <div class="posts">
+        {% for post in posts %}
+            <post
+                {% if post.writer==current_user %} iw="True" {% endif %}
+                content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
+                username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
+                classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}">
+            </post>
+        {% endfor %}
+    </div>
 </div>
+{% raw %}
 <script>
+    Vue.component("user", {
+        props: ["img", "score", "href", "username"],
+        template: `
+                        <div style="transform: scale(.7);margin-left: 23%;" dir="rtl" class="user">
+                                <a :href="href">
+                                    <img :src="img" />
+                                </a>
+                                <a :href="href">
+                                    <div>
+                                        <p>
+                                            {{ username }}
+
+                                        </p>
+                                        <small>🪙{{ score }}</small>
+                                    </div>
+                                </a>
+                            </div>
+                        `,
+    });
+
+    Vue.component("post", {
+        props: {
+            id: {},
+            content: {},
+            username: {},
+            img: {},
+            avatar: {},
+            date: "",
+            like_classes: {
+                default: ""
+            },
+            likes: {
+                default: 0,
+            },
+            iw: {
+                default: false,
+            },
+            classes: { default: "post" },
+        },
+        data() {
+            return {
+                is: true,
+                delete_button: "حذف"
+            };
+        },
+
+        methods: {
+            like() {
+                if (this.like_classes) {
+                    var data = new FormData();
+                    data.append('postId', this.id)
+                    fetch('/api/unlike', {
+                        method: "POST",
+                        body: data,
+                    }).then((response) => { return response.json() }).then(
+                        (data) => {
+                            if (data.success) {
+                                this.$refs.like_icon.style.color = "black"
+                                this.like_classes = "";
+                                this.likes--;
+                            }
+                        })
+                } else {
+                    var data = new FormData();
+                    data.append('postId', this.id)
+                    fetch('/api/like', {
+                        method: "POST",
+                        body: data,
+                    }).then((response) => { return response.json() }).then(
+                        (data) => {
+                            if (data.success) {
+                                this.$refs.like_icon.style.color = "var(--red)"
+                                this.like_classes = "liked";
+                                this.likes++;
+                            }
+                        })
+                }
+            },
+            delete_() {
+                if (
+                    this.$refs.itrash.getAttribute("class") ===
+                    "fi fi-rr-check"
+                ) {
+                    var myHeaders = new Headers();
+                    myHeaders.append(
+                        "Content-Type",
+                        "application/x-www-form-urlencoded"
+                    );
+
+                    var urlencoded = new URLSearchParams();
+                    urlencoded.append("id", this.id);
+                    var requestOptions = {
+                        method: "DELETE",
+                        headers: myHeaders,
+                        body: urlencoded,
+                        redirect: "follow",
+                    };
+
+                    fetch("/api/delete", requestOptions)
+                        .then((response) => response.text())
+
+                        .then((result) => {
+                            this.is = false;
+                        })
+                        .catch((error) => console.log("error", error));
+                } else {
+                    this.$refs.itrash.setAttribute(
+                        "class",
+                        "fi fi-rr-check"
+                    );
+                    this.$refs.trash.setAttribute("class", "like trash liked");
+                    this.delete_button = "مطمئنید؟"
+                }
+            },
+        },
+        template: `
+                        <div v-if="is" :class="classes">
+                            <div dir="rtl" class="user">
+                                <a :href="'\@' + username">
+                                    <img :src="avatar" />
+                                </a>
+                                <a :href="'\@' + username">
+                                    <div>
+                                        <p>
+                                            {{ username }}
+
+                                        </p>
+                                        <small>{{ date }}</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div v-html="content" dir="rtl" class="content"></div>
+                            <div dir="rtl" class="bottom">
+                                <div @click="like" ref="like" :class="'like ' + like_classes">
+                                    <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
+                                    <small>{{ likes }}</small>
+                                </div>
+                                <div v-if="iw" @click="delete_" ref="trash" class="like trash">
+                                    {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
+                                </div>
+                                </a>
+                            </div>
+                        </div>
+                    `,
+    });
+    {% endraw %}
     new Vue({
         el: "#app",
         data: {
@@ -190,7 +349,7 @@ content %}
                 body: formData,
             })
                 .then((response) => {
-                    if (response.ok){
+                    if (response.ok) {
                         return response.json();
                     }
                 })
@@ -242,5 +401,6 @@ content %}
     },
         },
     });
+
 </script>
 {% endraw %} {% endblock %}

@@ -8,43 +8,6 @@ from app.functions import *
 import re
 from datetime import datetime
 from itertools import zip_longest
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-
-def text_similarity(text1, text2):
-    vectorizer = TfidfVectorizer().fit_transform([text1, text2])
-    vectors = vectorizer.toarray()
-    csim = cosine_similarity(vectors)
-    return csim[0][1]
-
-
-def format_age(date):
-    now = datetime.now()
-    age = now - date
-
-    if age.days < 0:
-        return "تازه تولد شده"
-    elif age.days == 0:
-        if age.seconds < 60:
-            return "به تازگی"
-        elif age.seconds < 3600:
-            minutes = age.seconds // 60
-            return f"{minutes} دقیقه پیش"
-        else:
-            hours = age.seconds // 3600
-            return f"{hours} ساعت پیش"
-    elif age.days == 1:
-        return "دیروز"
-    elif age.days < 30:
-        return f"{age.days} روز پیش"
-    elif age.days < 365:
-        months = age.days // 30
-        days = age.days % 30
-        return f"{months} ماه و {days} روز پیش"
-    else:
-        years = age.days // 365
-        return f"{years} سال پیش"
 
 
 def add_not_for_all(_not):
@@ -148,13 +111,18 @@ def user_posts(username):
     if not user:
         return abort(404)
 
+    posts = []
+    posts += Post.query.filter_by(writer=user).all()
+
     if Fallow.query.filter_by(follower=current_user.id, followed=user.id).first():
         fallow = True
     else:
         fallow = False
 
     return render_template("profile.html", user=user, fallow=fallow,
-                           fallows=len(Fallow.query.filter_by(followed=user.id).all()), not_list=n / 2)
+                    fallows=len(Fallow.query.filter_by(followed=user.id).all()),
+                    not_list=n / 2, posts=posts, fAge=format_age,
+                    Like=Like)
 
 
 # @app.route("/search")
@@ -396,7 +364,8 @@ def addPost():
             and referer
             and root_url in referer
         ):
-            content = re.sub(r'([www\.|https:\/\/].*\..*?)([\s|\.|،|\,|])', r'<a target="_blank" href="https:\/\/\1">\1</a>\2', content)
+        # TODO: add $ in the regex
+            content = re.sub(r'([www\.|https:\/\/].*\..*?)([\s|\.|،|\,|$])', r'<a target="_blank" href="https:\/\/\1">\1</a>\2', content)
             pos = Post(writer=User.query.get(
                 current_user.id), img=img, content=content)
             db.session.add(pos)
