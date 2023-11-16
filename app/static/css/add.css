@@ -18,6 +18,10 @@ body{
     flex-direction: column;
     justify-content: center;
 }
+.container .left img{
+    max-width: 410px;
+    max-height: 400px;
+}
 .container .left {
     width: 50%;
     display: flex;

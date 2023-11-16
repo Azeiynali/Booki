@@ -15,21 +15,23 @@
     <search></search>
     <div class="posts">
         {% if search %}
-            {% for post in result %}
-            <post
-                {% if post.writer==current_user %} iw="True" {% endif %}
-                content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
-                username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
-                classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
-                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}">
-            </post>
-            {% endfor %}
+        {% if not result %}
+        <p dir="rtl">نتیجه ای یافت نشد!</p>
+        {% endif %}
+        {% for post in result %}
+        <post {% if post.writer==current_user %} iw="True" {% endif %}
+            content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
+            username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
+            classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+            like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}">
+        </post>
+        {% endfor %}
+
         {% endif %}
     </div>
 </div>
 <script src="/static/library/vuetify.js"></script>
 
-{% raw %}
 <script>
     Vue.component("search", {
         data() { },
@@ -46,15 +48,14 @@
         },
         template: `
                     <form ref='root' method="POST" action="">
-                        <input ref="search_input" required type="search" name="value">
+                        <input value="{{ search_value }}" ref="search_input" required type="search" name="search_value">
                         <v-btn @click="submit" x-large color="blue">جستجو</v-btn>
                     </form>
                 `,
     });
-
-    new Vue({
-        el: "#app",
-    });
+</script>
+{% raw %}
+<script>
     Vue.component("post", {
         props: {
             id: {},
@@ -208,6 +209,9 @@
                                 </a>
                             </div>
                         `,
+    });
+    new Vue({
+        el: "#app",
     });
 </script>
 {% endraw %}

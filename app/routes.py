@@ -132,16 +132,16 @@ def search():
     if current_user.not_seened_notis != '[]':
         n = len(current_user.not_seened_notis.replace(
             "[", "").replace("]", "").split(","))
-    if not request.form:
-        return render_template("search.html", current_user=current_user, not_list=n/2, search=False)
+    print(request.form.get('search_value'))
+    if not request.form.get('search_value'):
+        return render_template("search.html", current_user=current_user, not_list=n/2, search=False,
+        search_value="")
     else:
         result = set()
         list_result = list()
         for post in Post.query.all():
-            score = search_score(post.content, request.form.get("value"))
-            print(post.id)
-            print(score)
-            if score > 1:
+            score = search_score(post.content, request.form.get("search_value")) * 10
+            if score > 2:
                 list_result.append([post, score])
         
         list_result.sort(key=lambda x: x[1], reverse=True)
@@ -151,7 +151,7 @@ def search():
             result.add(post[0])
 
         return render_template("search.html", current_user=current_user, not_list=n/2, search=True,
-            result=result, fAge=format_age, Like=Like)
+            result=list(result), fAge=format_age, Like=Like, search_value=request.form.get("search_value"))
 
 
 
