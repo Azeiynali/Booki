@@ -61,3 +61,11 @@ body{
     border: none;
     outline: none;
 }
+@media screen and (max-width: 800px) {
+    .container{
+        flex-direction: column;
+    }
+    .container .right, .container .left{
+        width: 95%;
+    }
+}

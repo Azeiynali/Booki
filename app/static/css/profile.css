@@ -74,7 +74,7 @@
 }
 .infos {
     width: 90%;
-    height: 100%;
+    height: 400px;
     background-color: white;
     border-radius: 20px;
     position: relative;
@@ -88,7 +88,7 @@
     padding: 3px 8px;
     color: white;
     position: absolute;
-    right: 2em;
+    right: 1em;
     border-radius: 100px;
     justify-content: center;
 }
@@ -149,6 +149,7 @@
 .wraper{
     width: 70%;
     text-align: center;
+    margin-top: 20px;
 }
 .fallows{
     margin-bottom: 60px;

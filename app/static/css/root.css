@@ -89,10 +89,10 @@ nav.nav {
 .profile-nav i {
     transition: all 0.3s;
     position: relative;
-    margin-top: 5px
+    margin-top: 5px;
 }
-.profile-nav i:nth-child(3){
-    margin-right: 50px
+.profile-nav i:nth-child(3) {
+    margin-right: 50px;
 }
 .profile-nav i:hover {
     transform: scale(1.1);
@@ -101,8 +101,8 @@ nav.nav {
     nav.nav {
         padding: 0 5px;
     }
-    .profile-nav i:nth-child(3){
-        margin-right: 10px
+    .profile-nav i:nth-child(3) {
+        margin-right: 10px;
     }
 }
 a,
@@ -225,7 +225,7 @@ h6 {
         left: 5.5rem;
     }
 }
-i{
+i {
     font-family: "uicons-regular-rounded" !important;
 }
 .comment-model-container {
@@ -249,7 +249,7 @@ i{
     background-color: #fefefe;
     text-align: center;
 }
-.message_error{
+.message_error {
     padding: 20px;
     display: flex;
     align-items: center;
@@ -258,7 +258,7 @@ i{
     justify-content: space-between;
     border-radius: 10px;
     z-index: 1000;
-    transition: all .3s;
+    transition: all 0.3s;
     background-color: var(--red);
     color: white;
     direction: rtl;
@@ -266,10 +266,22 @@ i{
     bottom: 10px;
     right: 5px;
 }
-.message_error i{
+.message_error i {
     font-size: 1.5rem;
     margin-top: 5px;
 }
-.message_error:hover{
-    transform: scale(.95);
+.message_error:hover {
+    transform: scale(0.95);
+}
+@media screen and (max-width: 500px) {
+    .logo {
+        display: none;
+    }
+    .profile-nav i:nth-child(3){
+        margin-right: 0;
+    }
+}
+.white{
+    width: 100vw;
+    height: 50px;
 }
