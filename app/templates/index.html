@@ -34,6 +34,20 @@ Title %}Booki - خانه{% endblock %} {% block content %}
             </div>
         </div> -->
     </div>
+    <script
+        src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"
+        type="module"
+    ></script>
+
+    {% if first %}
+        <dotlottie-player
+            src="https://lottie.host/9578ddeb-06b9-41ce-b85d-f6f06c0110ec/B30VdmwE4y.json"
+            background="transparent"
+            speed="1"
+            style="width: 10px; height: 10px; position: fixed; bottom: 10px; right: 10px"
+            autoplay
+        ></dotlottie-player>
+    {% endif %}
 </div>
 
 {% raw %}

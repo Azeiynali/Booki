@@ -20,8 +20,8 @@ class User(db.Model, UserMixin):
     country = db.Column(db.String, unique=False)
     city = db.Column(db.String, unique=False)
     bio = db.Column(db.String, unique=False, default="")
-    gender = db.Column(db.String, unique=False)
     # man, woman
+    gender = db.Column(db.String, unique=False)
 
     posts = db.relationship("Post", backref='writer', lazy=True)
     messages = db.relationship("Message", backref='writer', lazy=True)

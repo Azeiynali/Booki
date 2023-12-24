@@ -1,30 +1,43 @@
-{% extends "base.html" %}
-
-
-{% block head %}
+{% extends "base.html" %} {% block head %}
 <link rel="stylesheet" href="./static/css/Login.css" />
 <link href="../static/library/Vuetify.css" rel="stylesheet" />
-{% endblock %}
-{% block Title %}ورود{% endblock %}
-{% block content %}
-{% raw %}
+{% endblock %} {% block Title %}ورود{% endblock %} {% block content %} {% raw %}
 <div id="app" dir="rtl" class="Form-box">
     <h3 ref="title" class="title">خوش آمدید!</h3>
     <h4 ref="des" class="des">نام کاربری خود را وارد کنید</h4>
-    <img ref="image" style="margin-right: 90%" class="image" v-show="next_" :src="image" alt="user-picture" />
+    <img
+        ref="image"
+        style="margin-right: 90%"
+        class="image"
+        v-show="next_"
+        :src="image"
+        alt="user-picture"
+    />
     <div class="inp-box">
-        <h3 style="margin-right: 100%; transition: all 0.5s" v-show="next_" ref="title2" class="title2">
+        <h3
+            style="margin-right: 100%; transition: all 0.5s"
+            v-show="next_"
+            ref="title2"
+            class="title2"
+        >
             لطفا پسورد خود را وارد کنید
         </h3>
-        <input ref="usernameinput" @keydown="check_E($event)" dir="ltr" :style="style" ref="username" v-model="value"
-            name="username" placeholder="username" name="username" type="text" id="username"
-            class="username-inp" /><br />
-        <p ref="nval" v-if="isEmpty" class="error">
-            {{ input }} خالی است
-        </p>
-        <p ref="empt" v-if="isInvalid" class="error i">
-            {{ input }} غلط است
-        </p>
+        <input
+            ref="usernameinput"
+            @keydown="check_E($event)"
+            dir="ltr"
+            :style="style"
+            ref="username"
+            v-model="value"
+            name="username"
+            placeholder="username"
+            name="username"
+            type="text"
+            id="username"
+            class="username-inp"
+        /><br />
+        <p ref="nval" v-if="isEmpty" class="error">{{ input }} خالی است</p>
+        <p ref="empt" v-if="isInvalid" class="error i">{{ input }} غلط است</p>
         <p ref="empt" v-if="isError" class="error i">
             مشکلی پیش آمد، لطفا بعدا تلاش کنید
         </p>
@@ -126,20 +139,34 @@
                                 if (JSON.parse(data).valid) {
                                     var response_json = data;
                                     this.no_username("clear");
-                                    let href = "/"
-                                    const regex = /(http:\/\/|https:\/\/)(.*)\/\?next=(.*)(\?|$)/gm;
-                                    const str = window.location.href
+                                    let href = "/";
+                                    const regex =
+                                        /(http:\/\/|https:\/\/)(.*)\/\?next=(.*)(\?|$)/gm;
+                                    const str = window.location.href;
                                     let m;
                                     while ((m = regex.exec(str)) !== null) {
                                         if (m.index === regex.lastIndex) {
                                             regex.lastIndex++;
                                         }
-                                        href = m[3].replace("%2F", "/").replace("%40", "@")
-                                        while (href.includes("%2F")||href.includes("%40")) {
-                                            href = href.replace("%2F", "/").replace("%40", "@")
+                                        href = m[3]
+                                            .replace("%2F", "/")
+                                            .replace("%40", "@");
+                                        while (
+                                            href.includes("%2F") ||
+                                            href.includes("%40")
+                                        ) {
+                                            href = href
+                                                .replace("%2F", "/")
+                                                .replace("%40", "@");
                                         }
                                     }
-                                    window.location.href = href
+                                    fetch("https://api.ipify.org?format=json")
+                                        .then((response) => response.json())
+                                        .then(
+                                            (data) =>
+                                                (window.location.href =
+                                                    href + "?login=" + data.ip)
+                                        );
                                 } else {
                                     this.no_username(2);
                                 }
@@ -157,9 +184,9 @@
             },
             next: function () {
                 this.this_username = this.$refs.usernameinput.value;
-                this.$refs.usernameinput.placeholder = "password"
-                this.$refs.usernameinput.name = "password"
-                this.$refs.usernameinput.type = "password"
+                this.$refs.usernameinput.placeholder = "password";
+                this.$refs.usernameinput.name = "password";
+                this.$refs.usernameinput.type = "password";
 
                 this.isInvalid = true;
                 this.next_ = true;
@@ -188,10 +215,7 @@
 
                 this.$refs.sub.textContent = "ورود";
                 this.$refs.sub.removeEventListener("click", this.check);
-                this.$refs.sub.addEventListener(
-                    "click",
-                    this.new_check
-                );
+                this.$refs.sub.addEventListener("click", this.new_check);
                 this.input = "رمز ورود";
                 this.value = "";
                 this.no_username("clear");
@@ -220,8 +244,7 @@
                             console.log(JSON.parse(data));
                             if (JSON.parse(data).success) {
                                 if (JSON.parse(data).valid) {
-                                    this.image =
-                                        JSON.parse(data).avatar;
+                                    this.image = JSON.parse(data).avatar;
                                     var response_json = data;
                                     this.no_username("clear");
                                     this.next();
@@ -256,5 +279,4 @@
         },
     });
 </script>
-{% endraw %}
-{% endblock %}
+{% endraw %} {% endblock %}

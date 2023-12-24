@@ -45,7 +45,7 @@ def seened_notification():
         db.session.commit()
 
 
-def chnageScore(score):
+def changeScore(score):
     with app.app_context():
         u = User.query.get(current_user.id)
 
@@ -60,7 +60,21 @@ root_url = "127"
 
 @app.route("/")
 def index():
-    if current_user.is_authenticated:
+    if request.args.get("login"):
+        from_route = request.referrer
+        if "/register" not in from_route and request.args.get("login") and not current_user.is_authenticated:
+                return redirect(url_for('index'))
+        elif "/register" in from_route and request.args.get("login") and not current_user.is_authenticated:
+            
+        if "/register" in from_route and request.args.get("login") == 'Register':
+            add_notification(current_user.id, "ثبت نام شما را تبریک می گوییم!")
+        else:
+            add_notification(current_user.id, "ورود با" + request.args.get("login"))
+            if current_user.is_authenticated:
+                current_user.registered = 1
+                db.session.commit()
+            return redirect(url_for("index"))
+    elif current_user.is_authenticated:
         n = 0
         if current_user.not_seened_notis != '[]':
             n = len(current_user.not_seened_notis.replace(
@@ -86,8 +100,9 @@ def index():
             users=users,
             posts=posts,
             current_user=current_user,
-            not_list=n / 2,
-            Like=Like
+            not_list=n,
+            Like=Like,
+            first=bool(request.form.get("login") == "register")
         )
     else:
         return render_template("Login.html")
@@ -121,7 +136,7 @@ def user_posts(username):
 
     return render_template("profile.html", user=user, fallow=fallow,
                     fallows=len(Fallow.query.filter_by(followed=user.id).all()),
-                    not_list=n / 2, posts=posts, fAge=format_age,
+                    not_list=n, posts=posts, fAge=format_age,
                     Like=Like)
 
 
@@ -178,7 +193,7 @@ def chat():
 
     messages = Message.query.all()
     return render_template(
-        "chatroom.html", messages=messages, current_user=current_user, not_list=n / 2
+        "chatroom.html", messages=messages, current_user=current_user, not_list=n
     )
 
 
@@ -190,7 +205,7 @@ def newpost():
         n = len(current_user.not_seened_notis.replace(
             "[", "").replace("]", "").split(","))
 
-    return render_template("add.html", current_user=current_user, not_list=n / 2)
+    return render_template("add.html", current_user=current_user, not_list=n)
 
 
 @app.route("/chatContent")
@@ -347,7 +362,6 @@ def user_valid():
                         "User-Agent").split("/")[0]
                     device_type = request.headers.get(
                         "User-Agent").split("/")[1]
-                    add_notification(user.id, f"وورد از دستگاه ({device_type}, {device_name})")
 
                     return jsonify(
                         {"success": True, "valid": True,
@@ -395,7 +409,7 @@ def addPost():
                 current_user.id), img=img, content=content)
             db.session.add(pos)
             db.session.commit()
-            chnageScore(5)
+            changeScore(5)
             return jsonify({"success": True})
 
     return abort(403)
@@ -417,7 +431,7 @@ def delPost():
             if pos.writer.id == current_user.id:
                 db.session.delete(pos)
                 db.session.commit()
-                chnageScore(-5)
+                changeScore(-5)
                 return {"success": 1}
     return abort(403)
 

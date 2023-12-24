@@ -5,5 +5,3 @@ test.py
 __pycache__
 app/__pycache__
 commits.log
-app/static/pictures/avatars/*
-app/static/posts/*

@@ -13,11 +13,10 @@
         <textarea placeholder="من یک ..." maxlength="300" ref="text" v-model="value" v-show="scene == 'bio'"
             class="input"></textarea><br v-if="scene == 'password' || scene == 'address'" />
 
-        <input @keydown.enter="check()" ref="input_2" type="text" v-model="value_2" :placeholder="placeholder_2"
-            @keydown="typed" dir="ltr" id="username" v-if="scene == 'password' || scene == 'address'" class="input" />
+        <input @keydown.enter="check()" ref="input_2" type="text" v-model="value_2" :placeholder="placeholder_2" @keydown="typed" dir="ltr" id="username" v-if="scene == 'password' || scene == 'address'" class="input" />
 
         <br v-if="error" />
-        <img @click="changeProfile" v-if="scene == 'profile'" class="profile" ref="image"
+        <img alt="profile" @click="changeProfile" v-if="scene == 'profile'" class="profile" ref="image"
             src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" />
         <p ref="error" v-if="error" class="error">{{ error_text }}</p>
         <br />
@@ -242,7 +241,7 @@
                     })
                         .then((response) => {
                             if (response.ok) {
-                                window.location.href = "/";
+                                window.location.href = '/?login="Register"';
                                 return response.json()
                             }
                         })
