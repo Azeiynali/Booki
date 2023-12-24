@@ -17,6 +17,7 @@ class User(db.Model, UserMixin):
     avatar = db.Column(db.String, unique=False)
     seened_notis = db.Column(db.String, unique=False, default="[]")
     not_seened_notis = db.Column(db.String, unique=False, default="[]")
+    registered = db.Column(db.String, unique=False, default="")
     country = db.Column(db.String, unique=False)
     city = db.Column(db.String, unique=False)
     bio = db.Column(db.String, unique=False, default="")
