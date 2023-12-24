@@ -21,13 +21,22 @@
     padding-bottom: 10px;
     word-wrap: break-word;
     position: relative;
+    transition: all .5s ease-out;
 }
 .user_box img {
+    transition: all .5s ease-out;
     width: 50px;
     position: absolute;
     border-radius: 100%;
     right: 20px;
     top: -10px;
+    box-shadow: 4px 4px 10px #00000031;
+}
+.user_box:hover img{
+    transform: scale(1.1);
+}
+.user_box:hover{
+    transform: translateY(-5px);
 }
 a {
     text-decoration: none;

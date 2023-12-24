@@ -162,11 +162,21 @@
                                     }
                                     fetch("https://api.ipify.org?format=json")
                                         .then((response) => response.json())
-                                        .then(
-                                            (data) =>
-                                                (window.location.href =
-                                                    href + "?login=" + data.ip)
-                                        );
+                                        .then((data) => {
+                                            if (data.ip) {
+                                                window.location.href =
+                                                    href + "?login=" + data.ip;
+                                            } else {
+                                                window.location.href =
+                                                    href +
+                                                    "?login=" +
+                                                    "0.0.0.0";
+                                            }
+                                        })
+                                        .catch((error) => {
+                                            window.location.href =
+                                                href + "?login=" + "0.0.0.0";
+                                        });
                                 } else {
                                     this.no_username(2);
                                 }

@@ -60,21 +60,23 @@ root_url = "127"
 
 @app.route("/")
 def index():
+    RegisteredNow = False
     if request.args.get("login"):
         from_route = request.referrer
-        if "/register" not in from_route and request.args.get("login") and not current_user.is_authenticated:
+        if request.args.get("login") and not current_user.is_authenticated:
                 return redirect(url_for('index'))
-        elif "/register" in from_route and request.args.get("login") and not current_user.is_authenticated:
-            
-        if "/register" in from_route and request.args.get("login") == 'Register':
+
+        print(request.args.get("login"))
+        print(from_route)
+        if not current_user.registered and "/register" in from_route and request.args.get("login") and request.args.get("login") == 'Register':
             add_notification(current_user.id, "ثبت نام شما را تبریک می گوییم!")
+            current_user.registered = "1"
+            RegisteredNow = True
+            db.session.commit()
         else:
-            add_notification(current_user.id, "ورود با" + request.args.get("login"))
-            if current_user.is_authenticated:
-                current_user.registered = 1
-                db.session.commit()
+            add_notification(current_user.id, " ورود با " + request.args.get("login"))
             return redirect(url_for("index"))
-    elif current_user.is_authenticated:
+    if current_user.is_authenticated:
         n = 0
         if current_user.not_seened_notis != '[]':
             n = len(current_user.not_seened_notis.replace(
@@ -102,7 +104,7 @@ def index():
             current_user=current_user,
             not_list=n,
             Like=Like,
-            first=bool(request.form.get("login") == "register")
+            first=RegisteredNow
         )
     else:
         return render_template("Login.html")
@@ -239,10 +241,7 @@ def explore():
     users = []
 
     for user in User.query.filter_by(gender=current_user.gender).all():
-        if float(text_similarity(current_user.bio, user.bio)) > 0.4:
-            if user != current_user:
-                _users.append(
-                    [user, int(text_similarity(current_user.bio, user.bio))])
+        _users.append([user, float(text_similarity(current_user.bio, user.bio)) > 0.4])
 
     _users = sorted(_users, key=lambda x: x[1])
 
