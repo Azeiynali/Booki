@@ -119,7 +119,7 @@ def index():
         )
     else:
         # if not logged in, display login page
-        return render_template("Login.html")
+        return render_template("login.html")
 
 
 @app.route("/@<username>")
