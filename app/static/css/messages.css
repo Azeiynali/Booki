@@ -8,9 +8,11 @@
 }
 .message{
     width: 90%;
+    position: relative;
     border-radius: 5px;
     color: white;
     padding: 20px;
+    padding-bottom: 30px;
     direction: rtl;
     background-color: #008cff;
 }
@@ -28,6 +30,29 @@
 .clear:hover{
     transform: scale(1.09);
 }
+.date{
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+}
 p{
     color: #384957;
+}
+.delete{
+    position: absolute;
+    left: 20px;
+    top: 25%;
+    cursor: pointer;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all .3s;
+    border-radius: 10px;
+}
+.delete:hover{
+    background-color: #0000003d;
 }

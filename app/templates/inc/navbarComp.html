@@ -51,7 +51,7 @@ template: `
         <navbar-item href="/" ref="chatroom" text="خانه" :class="{ active: active_item === 'home' }"></navbar-item>
     </div>
     <div class="profile-nav">
-        <i @click="redirect('/messages')" :class="'fi fi-rr-envelope ' + (active_item === 'messages' ? 'active' : '')">
+        <i @click="redirect('/notifications')" :class="'fi fi-rr-envelope ' + (active_item === 'messages' ? 'active' : '')">
             <div v-if="Number(message_count)" class="note_num">
                 {{ Number(message_count) }}
             </div>
