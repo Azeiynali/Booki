@@ -11,12 +11,10 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, unique=False, nullable=False)
+    username = db.Column(db.String, unique=True, nullable=False)
     gems = db.Column(db.Integer, default=0)
     password = db.Column(db.String, unique=False)
     avatar = db.Column(db.String, unique=False)
-    seened_notis = db.Column(db.String, unique=False, default="[]")
-    not_seened_notis = db.Column(db.String, unique=False, default="[]")
     registered = db.Column(db.String, unique=False, default="")
     country = db.Column(db.String, unique=False)
     city = db.Column(db.String, unique=False)
@@ -26,17 +24,29 @@ class User(db.Model, UserMixin):
 
     posts = db.relationship("Post", backref='writer', lazy=True)
     messages = db.relationship("Message", backref='writer', lazy=True)
+    notifications = db.relationship("Notification", backref='user', lazy=True)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.id} ---> {self.username})'
 
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String, unique=False, nullable=False)
+    date = db.Column(db.DateTime(), default=datetime.now, nullable=False, unique=False)
+    seened = db.Column(db.Boolean, default=False, nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.id} ---> {self.content[:20]})'
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     img = db.Column(db.String)
     date = db.Column(db.DateTime(), default=datetime.now, nullable=False, unique=False)
     content = db.Column(db.Text, nullable=False)
-    User_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.id} ---> {self.date})'
