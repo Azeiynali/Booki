@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Baloo+Bhaijaan+2&display=swap");
-div{
+div {
     box-sizing: content-box !important;
 }
 html,
@@ -13,7 +13,7 @@ body {
     font-family: "Baloo Bhaijaan 2";
     background-color: #e1e8e9;
 }
-.inp-box{
+.inp-box {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -44,15 +44,17 @@ body {
 }
 .Form-box .title {
     /* margin-left: 35%; */
-    transition: all .5s;
+    transition: all 0.5s;
     margin-top: 20px;
     font-size: 3rem;
     color: #131c44;
 }
 .Form-box .title2 {
-    transition: all .5s;
+    transition: all 0.5s;
     margin-top: 20px;
-    font-size: .8rem;
+    margin-right: 100%;
+    transition: all 0.5s;
+    font-size: 0.8rem;
     color: #131c44;
 }
 .Form-box .des {
@@ -60,7 +62,7 @@ body {
     margin-top: 0;
     line-height: 0;
     font-size: 1.5rem;
-    transition: all .5s;
+    transition: all 0.5s;
     color: #131c44;
 }
 .username-inp {
@@ -102,26 +104,27 @@ body {
 #username-sub:active {
     transform: scale(0.97);
 }
-.error{
+.error {
     color: #c90000b2;
     float: right;
 }
-.image{
-    transition: all .5s;
+.image {
+    transition: all 0.5s;
     width: 200px;
     margin-top: 20px;
+    margin-right: 90%;
     height: 200px;
     border-radius: 100%;
 }
-.register a{
+.register a {
     color: #4b70e2;
     text-decoration: none;
 }
-.register a:hover{
+.register a:hover {
     text-decoration: underline;
 }
-@media screen and (max-width: 583px){
-    .Form-box{
+@media screen and (max-width: 583px) {
+    .Form-box {
         width: 90vw;
     }
 }
