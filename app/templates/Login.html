@@ -140,26 +140,6 @@
                                     var response_json = data;
                                     this.no_username("clear");
                                     let href = "/";
-                                    const regex =
-                                        /(http:\/\/|https:\/\/)(.*)\/\?next=(.*)(\?|$)/gm;
-                                    const str = window.location.href;
-                                    let m;
-                                    while ((m = regex.exec(str)) !== null) {
-                                        if (m.index === regex.lastIndex) {
-                                            regex.lastIndex++;
-                                        }
-                                        href = m[3]
-                                            .replace("%2F", "/")
-                                            .replace("%40", "@");
-                                        while (
-                                            href.includes("%2F") ||
-                                            href.includes("%40")
-                                        ) {
-                                            href = href
-                                                .replace("%2F", "/")
-                                                .replace("%40", "@");
-                                        }
-                                    }
                                     fetch("https://api.ipify.org?format=json")
                                         .then((response) => response.json())
                                         .then((data) => {
