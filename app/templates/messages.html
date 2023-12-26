@@ -1,44 +1,55 @@
-{% extends "base.html" %}
-{% block Title %}پیام ها{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="/static/css/messages.css">
-{% endblock %}
-
-
-{% block content %}
+{% extends "base.html" %} {% block Title %}پیام ها{% endblock %} {% block head%}
+<link rel="stylesheet" href="/static/css/messages.css" />
+{% endblock %} {% block content %}
 <div id="app">
     <navbar active_item="messages"></navbar>
     <div class="message-container">
-        {% if NSN or SN %}
-        <div @click="clear" class="clear">پاک کردن همه</div>
-        {% else %}
+        {% if notifications %} {% else %}
         <p>empty!</p>
-        {% endif %}
-        {% for message in NSN %}
-        <div class="message not_seened"> {{ message }} </div>
-        {% endfor %}
-        {% for message in SN %}
-        <div class="message">{{ message }}</div>
-        {% endfor %}
+        {% endif %} {% for notification in notifications %} {% if
+        notification.seened %}
+        <div class="message">
+            {{ notification.content }} {% else %}
+            <div class="message not_seened">
+                {{ notification.content }} {% endif %}
+                <small class="date">{{ fAge(notification.date) }}</small>
+                <div
+                    onclick="delete_notification({{ notification.id }})"
+                    class="delete"
+                >
+                    <i class="fi fi-rr-trash-xmark"></i>
+                </div>
+                <!-- TODO: change class on hover to fi-rr-trash-can-check -->
+            </div>
+            {% endfor %}
+        </div>
     </div>
-</div>
 
+    <script>
+        function delete_notification(id) {
+            var urlencoded = new URLSearchParams();
+            urlencoded.append("id", id);
 
-<script>
-    app = new Vue({
-        el: "#app",
-        data: {},
-        methods: {
-            clear() {
-                fetch("/api/messClear").then((response) => {
-                    window.location.href = "/messages"
-                })
-            }
+            fetch("/api/notifdelete", {
+                method: "POST",
+                body: urlencoded,
+            }).then((response) => window.location.href = "/notifications");
         }
-    })
-    document.addEventListener("DOMContentLoaded", () => {
-        fetch("/api/seen")
-    })
-</script>
-{% endblock %}
+
+        app = new Vue({
+            el: "#app",
+            data: {},
+            methods: {
+                clear() {
+                    fetch("/api/messClear").then((response) => {
+                        window.location.href = "/messages";
+                    });
+                },
+            },
+        });
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("/api/seen");
+        });
+    </script>
+    {% endblock %}
+</div>
