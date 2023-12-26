@@ -4,5 +4,6 @@ instance
 test.py
 __pycache__
 app/__pycache__
+app/__pycache__/*
 commits.log
 base.db
