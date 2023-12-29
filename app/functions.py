@@ -110,7 +110,7 @@ def normalize(text):
 
     return cleaned_string
 
-def search_score(content, search_value):
+def search_score(tags, content, search_value):
     score = 0
 
     content_normalized = normalize(content)
@@ -123,5 +123,16 @@ def search_score(content, search_value):
             for search_token in normalize(search_value).split(" "):
                 if search_token:
                     score += text_similarity(token, search_token) * 1.5
+                    if search_token in tags:
+                        score += 1
+
 
     return score
+
+def find_keywords(text):
+    vectorizer = TfidfVectorizer()
+    vectorizer.fit_transform([text])
+
+    words = vectorizer.get_feature_names_out()
+
+    return words[:25]
