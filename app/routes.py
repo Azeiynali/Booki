@@ -8,9 +8,35 @@ from app.functions import *
 import re
 from datetime import datetime
 from itertools import zip_longest
+import hashlib
+import random
 
 # library imports
 
+# functions
+def verify_password(password, _hashed_password, salt):
+    if hash_password(password, salt) == _hashed_password:
+        return True
+    else:
+        return False
+
+def hash_password(password, salt):
+    hash_object = hashlib.sha256()
+    hash_object.update(password.encode())
+    hashed_text = hash_object.hexdigest()
+    hashed_text = hashed_text + salt
+    return hashed_text
+
+def salt_generator():
+    salt = ""
+    chars = "abcdefghijklmnopqrstuvwxyz+_-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
+    numbers = "3456789"
+    len = random.choice(numbers)
+    for i in range(len):
+        salt += random.choice(chars)
+    salt = salt + str(datetime.now())[1]
+    
+    return salt
 
 def add_not_for_all(message):
     """this function for sending a notification for all users"""
@@ -24,7 +50,6 @@ def add_not_for_all(message):
             # add to this session and commit changes
             db.session.add(n)
             db.session.commit()
-
 
 def add_notification(user_id, message):
     """this function for sending a notification for a user
@@ -496,27 +521,29 @@ def user_valid():
             # if to register the user
             elif pwd and usr:
                 # getting user
-                user = User.query.filter_by(username=usr, password=pwd).first()
+                user = User.query.filter_by(username=usr).first()
                 if user:
-                    # login user
-                    login_user(user)
+                    if verify_password(pwd, user.password, user.salt):
+                        pass
+                        # login user
+                        login_user(user)
 
-                    # create a log
-                    app.logger.warning("password validation")
-                    return jsonify(
-                        {"success": True, "valid": True, "message": "password is valid"}
-                    )
+                        # create a log
+                        app.logger.warning("password validation")
+                        return jsonify(
+                            {"success": True, "valid": True, "message": "password is valid"}
+                        )
 
-                else:
-                    # create a log
-                    app.logger.warning("password validation")
-                    return jsonify(
-                        {
-                            "success": True,
-                            "valid": False,
-                            "message": "password is not valid",
-                        }
-                    )
+                    else:
+                        # create a log
+                        app.logger.warning("password validation")
+                        return jsonify(
+                            {
+                                "success": True,
+                                "valid": False,
+                                "message": "password is not valid",
+                            }
+                        )
             else:
                 return jsonify(
                     {"success": False, "valid": "?", "message": "args not found"}
@@ -525,9 +552,8 @@ def user_valid():
         print("#" * 10)
         print(e)
         print("#" * 10)
-        return jsonify({"success": False, "valid": "?", "message": "?"})
 
-        return abort(404)
+    return abort(404)
 
 
 @app.route("/api/add", methods=["POST", "GET"])
@@ -661,7 +687,7 @@ def upload():
 @app.route("/api/adduser", methods=["PUT"])
 # @limiter.limit("2 per minute")
 def addUser():
-    # this api for adding users
+    ''' this api for adding users '''
     try:
         if request.method == "PUT":
             # getting user data
@@ -673,6 +699,7 @@ def addUser():
             country = data.get("country")
             email = data.get("country")
             avatar = data.get("avatar")
+            salt = salt_generator()
 
             bio = re.sub(r"\n", "<br />", data.get("bio"))
             bio = re.sub(r"\"", "\\\"", bio)
@@ -685,10 +712,11 @@ def addUser():
                 u = User(
                     username=usr,
                     avatar=avatar,
-                    password=pwd,
+                    password=hash_password(pwd, salt),
                     tags=tags,
                     gender=gender,
                     city=city,
+                    salt=salt,
                     country=country,
                     bio=bio,
                 )
@@ -785,7 +813,7 @@ def edit():
     # changing the password
     elif pwd:
         u = User.query.filter_by(username=current_user.username).first()
-        u.password = pwd
+        u.password = bcrypt.generate_password_hash(pwd).decode()
 
         db.session.commit()
         # create a log

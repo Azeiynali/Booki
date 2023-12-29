@@ -33,10 +33,10 @@
             type="text"
             id="username"
             class="username-inp"
-        /><br />
+        />
         <p ref="nval" v-if="isEmpty" class="error">{{ input }} خالی است</p>
-        <p ref="empt" v-if="isInvalid" class="error i">{{ input }} غلط است</p>
-        <p ref="empt" v-if="isError" class="error i">
+        <p ref="empt" v-if="isInvalid" class="error">{{ input }} غلط است</p>
+        <p ref="empt" v-if="isError" class="error">
             مشکلی پیش آمد، لطفا بعدا تلاش کنید
         </p>
     </div>

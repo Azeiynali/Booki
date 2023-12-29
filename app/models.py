@@ -23,6 +23,7 @@ class User(db.Model, UserMixin):
     country = db.Column(db.String, unique=False)
     city = db.Column(db.String, unique=False)
     tags = db.Column(db.String, unique=False)
+    salt = db.Column(db.String, unique=False)
     bio = db.Column(db.String, unique=False, default="")
     # man, woman
     gender = db.Column(db.String, unique=False)

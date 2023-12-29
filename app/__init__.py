@@ -15,7 +15,6 @@ limiter = Limiter(
     get_remote_address,
     app=app,
 )
-bcrypt = Bcrypt(app)
 app.logger = logging.getLogger(__name__)
 
 file_handler = logging.FileHandler("app.log")
