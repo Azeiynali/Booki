@@ -35,7 +35,7 @@ body{
     cursor: pointer;
     border-radius: 10px;
 }
-.blue{
+button.blue{
     background-color: var(--blue) !important;
     color: white !important;
 }

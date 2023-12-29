@@ -450,7 +450,7 @@ blockquote {
 }
 header.header {
     display: flex;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: hidden;
     justify-content: center;
     margin-left: auto;
@@ -479,7 +479,6 @@ header.header {
 @media screen and (max-width: 1383px) {
     header.header {
         justify-content: start;
-        overflow-x: scroll;
     }
 }
 .header .item p {

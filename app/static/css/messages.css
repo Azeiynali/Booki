@@ -49,9 +49,9 @@ p{
     justify-content: center;
     height: 30px;
     text-align: center;
-    box-sizing: border-box;
     transition: all .3s;
-    border-radius: 10px;
+    padding-top: 7px;
+    border-radius: 5px;
 }
 .delete:hover{
     background-color: #0000003d;

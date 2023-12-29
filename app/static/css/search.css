@@ -12,8 +12,8 @@
 input{
     background-color: #fff;
     border-radius: 100px;
-    box-shadow: 2px 2px 5px #2424244f, inset 4px 4px 5px #3b3b3b57;
-    width: 400px;
+    box-shadow: 2px 2px 5px #2424244f, inset 3px 3px 5px #3b3b3b34;
+    width: 80vw;
     outline: none;
     direction: rtl;
     padding: 10px;

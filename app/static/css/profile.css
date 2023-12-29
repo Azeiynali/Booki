@@ -5,6 +5,7 @@
     width: 100vw;
     position: relative;
     display: flex;
+    background-image: url("https://wordpress.iqonic.design/product/wp/socialv/wp-content/themes/socialv-themes/assets/images/redux/default-cover.jpg");
     align-items: center;
     justify-content: center;
     padding-top: 13em;
@@ -54,7 +55,7 @@
     box-shadow: none;
     color: black;
 }
-.username ~ i{
+.username ~ i {
     position: absolute;
     margin-top: 23px;
     cursor: pointer;
@@ -131,48 +132,24 @@
 .button:active {
     box-shadow: none;
 }
-.pass_box{
-    width: 80%;
-    padding: 20px;
-    display: flex;
-    gap: 30px;
-    margin-bottom: 130px;
-    color: #353535;
-    align-items: center;
-    justify-content: center;
-    border-radius: 20px;
-    background-color: #ff9532a2;
-}
-.pass_box i {
-    cursor: pointer;
-}
-.wraper{
+.wraper {
     width: 70%;
     text-align: center;
     margin-top: 20px;
 }
-.fallows{
+.fallows {
     margin-bottom: 60px;
 }
-.bio{
+.bio {
     color: #353535;
     direction: rtl;
     word-wrap: break-word;
     text-align: center;
 }
-.pass_box input{
-    background: #ff3232;
-    border-radius: 10px;
-    padding: 3px 20px;
-    color: white;
-    outline: none;
-    border: none;
-    opacity: 1;
-}
-span.white{
+span.white {
     height: 50px;
     width: 100vw;
 }
 .posts {
-	margin-top: 230px !important;
+    margin-top: 230px !important;
 }

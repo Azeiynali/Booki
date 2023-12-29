@@ -117,7 +117,7 @@
 .ck-balloon-panel.ck-balloon-panel_position_border-side_left {
     display: none !important;
 }
-.blue {
+button.blue {
     background-color: var(--blue) !important;
     color: white !important;
     position: fixed !important;

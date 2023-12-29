@@ -1,0 +1,33 @@
+#app {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100vw;
+    margin-top: 100px;
+    gap: 30px;
+}
+img.avatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 100%;
+    cursor: pointer;
+}
+img.avatar:hover {
+    filter: grayscale(1);
+}
+.input {
+    border-radius: 5px;
+    resize: none;
+    padding: 5px;
+    color: var(--blue);
+    width: 200px;
+    font-size: 1.2rem;
+    border: 2px solid var(--blue);
+    text-align: center;
+}
+textarea.input{
+    font-size: .7rem;
+}
+.input:focus {
+    color: black;
+}

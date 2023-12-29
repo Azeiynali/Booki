@@ -1,0 +1,48 @@
+*,
+*::after,
+*::before {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: url("/static/pictures/error_pages_background.jpg");
+    background-size: cover;
+}
+
+.center {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    text-align: center;
+    flex-direction: column;
+    color: white;
+}
+.code {
+    font-size: 20vw;
+    line-height: 1;
+}
+.link {
+    color: white;
+    padding: 0.2rem 0.5rem;
+    margin: 4px;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: all .3s;
+}
+.link:hover{
+    transform: scale(.95);
+}
+.link.purple {
+    background-color: #a430c7;
+}
+.link.blue {
+    background-color: #3032c7;
+}
