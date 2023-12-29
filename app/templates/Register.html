@@ -6,7 +6,8 @@
     <h4 ref="title" class="title">نام کاربری خود را وارد کنید</h4>
     <div class="inp-box">
         <input
-            maxlength="300"
+            placeholder="none"
+            maxlength="30"
             ref="input"
             type="text"
             v-model="value"
@@ -14,7 +15,6 @@
             @keydown.enter="check()"
             :placeholder="placeholder"
             dir="rtl"
-            id="username"
             v-show="scene == 'username' || scene == 'password' || scene == 'address'"
             class="input"
         /><br v-if="scene == 'password' || scene == 'address'" />
@@ -30,14 +30,15 @@
         ><br v-if="scene == 'password' || scene == 'address'" />
 
         <input
+            placeholder="none"
             @keydown.enter="check()"
             ref="input_2"
+            maxlength="30"
             type="text"
             v-model="value_2"
             :placeholder="placeholder_2"
             @keydown="typed"
             dir="rtl"
-            id="username"
             v-if="scene == 'password' || scene == 'address'"
             class="input"
         />
@@ -71,13 +72,15 @@
         {{ button_text }}
     </button>
     <div v-if="scene == 'gender'" class="genders">
-        <div @click="Rgender = 'woman'; next()" class="box">
+        <div @click="Rgender = 'man'; next()" class="box">
             <img
+                alt="man"
                 src="https://cdn-icons-png.flaticon.com/512/6997/6997674.png"
             />
         </div>
-        <div @click="Rgender = 'man'; next()" class="box">
+        <div @click="Rgender = 'woman'; next()" class="box">
             <img
+                alt="woman"
                 src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png"
             />
         </div>
@@ -117,6 +120,9 @@
                     if (this.value.length < 3) {
                         this.$refs.characters.style.color = "red";
                         this.info_error = true;
+                    } else if (!/^[a-zA-Z0-9_]+$/gm.test(this.value)) {
+                        this.error = true;
+                        this.error_text = "فقط حروف انگلیسی، اعداد و زیر خط"
                     } else {
                         this.valid();
                     }
@@ -146,11 +152,13 @@
                     if (this.value.length > 1) {
                         this.$refs.characters.style.color = "green";
                         this.info_error = false;
+                        this.persian_username = false;
                     }
                 }
                 if (this.scene == "password") {
                     if (this.value.length > 8) {
                         this.$refs.characters.style.color = "green";
+                        this.persian_username = false;
                         this.info_error = false;
                     }
                 }
@@ -294,7 +302,7 @@
                                 }).then((response) => {
                                     if (response.ok) {
                                         window.location.href =
-                                            '/?login=Register';
+                                            "/?login=Register";
                                     }
                                 });
                                 return response.json();

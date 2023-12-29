@@ -1,8 +1,12 @@
 {% extends "base.html" %} {% block head %}
-<link rel="stylesheet" href="../static/css/home.css" /> {% endblock %} {% block
+<link rel="stylesheet" href="../static/css/home.css" />
+<meta name="description" content="شبکه اجتماعی، شبکه اجتماعی ایرانی، ایرانی، بومی، سالم، مانند اینستاگرام، ثبت نام، وب سایت ایرانی، انتشار مطلب" />
+<meta name="description" content="وب سایت بوکی یک شبکه اجتماعی امن و و سالم است که با رویکرد جایگزینی اینستاگرام ایجاد شده است، این وبسایت شباهت زیادی به پیام رسان های خارجی دارد و کاملا ایرانی و بومی سازی شده است." />
+
+{% endblock %} {% block
 Title %}Booki - خانه{% endblock %} {% block content %}
 <div id="app">
-    <navbar @comment="open_comd" @image="open_immd" active_item="home" avatar="{{ current_user.avatar }}"
+    <navbar active_item="home" avatar="{{ current_user.avatar }}"
         message_count="{{ not_list }}"></navbar>
     <site-header items='
                 [
@@ -25,14 +29,6 @@ Title %}Booki - خانه{% endblock %} {% block content %}
             </post>
             {% endfor %}
         </div>
-        <!-- <div class="left-items">
-            <div dir="rtl" class="top">
-                <p>کاربران برتر</p>
-                <user username="علی" score="120" href="#"
-                    img="https://wordpress.iqonic.design/product/wp/socialv/wp-content/uploads/avatars/18/1656590512-bpfull.jpg">
-                </user>
-            </div>
-        </div> -->
     </div>
 
     {% if first %}
@@ -116,15 +112,6 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                             }
                         })
                 }
-            },
-            exclamation(ev) {
-                this.$refs.message.style.opacity = "1";
-                this.$refs.message.style.left = "-19px";
-                this.$refs.message.innerText = "گزارش داده شد!";
-                setTimeout(() => {
-                    this.$refs.message.style = "";
-                    this.$refs.message.style.left = "-19px";
-                }, 2000);
             },
             delete_() {
                 if (

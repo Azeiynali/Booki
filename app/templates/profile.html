@@ -2,6 +2,8 @@
 <link href="../static/css/profile.css" rel="stylesheet" />
 <link href="../static/css/home.css" rel="stylesheet" />
 <link href="../static/library/Vuetify.css" rel="stylesheet" />
+<meta name="keywords" content="{{ user.tags }}">
+<meta name="description" content="{{ user.bio }}">
 
 {% endblock %} {% block Title %}{{ user.username }}{% endblock %} {% block
 content %}
@@ -10,9 +12,7 @@ content %}
         <i class="fi fi-rr-exclamation"></i>این نام کاربری موجود است!
     </div>
     <navbar></navbar>
-    <div style="
-            background-image: url('https://wordpress.iqonic.design/product/wp/socialv/wp-content/themes/socialv-themes/assets/images/redux/default-cover.jpg');
-        " class="pbackground">
+    <div class="pbackground">
         <div ref="avatar" style="
                 background-image: url('{{ user.avatar }}');
             " class="avatar">
@@ -21,7 +21,7 @@ content %}
             {% endif %}
         </div>
         <div class="infos">
-            <input disabled value="{{ user.username }}" class="username" ref="username" name="username" type="text"
+            <input placeholder="username" disabled value="{{ user.username }}" class="username" ref="username" name="username" type="text"
                 @keydown.enter="updateUsername" />
             {% if current_user == user %}
             <i ref="changeU" @click="changeUsername" class="fi fi-rr-edit"></i>
@@ -71,13 +71,10 @@ content %}
                 &nbsp; {{ user.posts | length }} پست
             </div>
             <div class="wraper">
-                <p class="bio">
-                    {{ user.bio }}
-                </p>
-                <p dir="rtl" class="fallows">{{ fallows }} دنبال کننده</p>
+                <small dir="rtl" class="fallows">{{ fallows }} دنبال کننده</small>
+                <p v-html="`{{ user.bio }}`" class="bio"></p>
             </div>
-            {% if current_user != user %}
-            {% if user.username != 'booki' %}
+            {% if user.username != 'booki' and current_user != user %}
             <div class="buttons">
                 <div @click="fallow" ref="fallow" style="background-color: var(--blue)" class="button" v-if="!fallowed">
                     دنبال کردن
@@ -85,14 +82,6 @@ content %}
                 <div @click="fallow" ref="fallow" style="background-color: var(--red)" v-if="fallowed" class="button">
                     دنبال نکردن
                 </div>
-            </div>
-            {% endif %}
-            {% else %}
-            <div class="pass_box">
-                <i @click="changeP" class="fi fi-rr-edit"></i>
-                <input ref="password" class="password" :type="type" name="password"
-                    value="{{ current_user.password }}" />
-                <i @click="type = (type === 'password') ? 'text' : 'password'" class="fi fi-rr-eye"></i>
             </div>
             <span class="white"></span>
             {% endif %}
@@ -344,7 +333,7 @@ content %}
             let formData = new FormData();
             formData.append("username", this.$refs.username.value);
 
-            fetch("/api/uploadavatar", {
+            fetch("/api/userValid", {
                 method: "POST",
                 body: formData,
             })
@@ -368,14 +357,18 @@ content %}
                 fetch("/api/edit", {
                     method: "POST",
                     body: data,
+                }).then((response)=>response.json()).then((data)=>{
+                    if (data.success){
+                        if (response.ok){
+                            setTimeout(
+                                    () =>
+                                    (window.location.href =
+                                        "/@" + this.$refs.username.value),
+                                    700
+                                );
+                            }
+                    }
                 });
-
-                setTimeout(
-                    () =>
-                    (window.location.href =
-                        "/@" + this.$refs.username.value),
-                    700
-                );
             }
         },
         fallow() {

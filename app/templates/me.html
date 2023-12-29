@@ -1,0 +1,167 @@
+{% extends 'base.html' %} {% block head %}
+<link rel="stylesheet" href="static/css/me.css" />
+{% endblock %} {% block Title %}تنظیمات{% endblock %} {% block content %}
+<div id="app">
+    <navbar
+        avatar="{{ current_user.avatar }}"
+        message_count="{{ not_list }}"
+    ></navbar>
+
+    <div
+        @click="close_error"
+        v-if="error_show"
+        ref="error"
+        style="transform: translateX(200px)"
+        class="message_error"
+    >
+        <i class="fi fi-rr-exclamation"></i>
+        {% raw %}
+        {{ error_text }}
+        {% endraw %}
+    </div>
+
+    <img
+        @click="change_avatar"
+        class="avatar"
+        src="{{ current_user.avatar }}"
+        alt="avatar"
+    />
+    <input
+        type="text"
+        placeholder="username"
+        class="input"
+        @blur="change_username"
+        @keydown.enter="change_username"
+        v-model="username"
+    />
+    <textarea
+        placeholder="bio"
+        class="input"
+        @blur="change_bio"
+        @keydown.enter="change_bio"
+        v-model="bio"
+        dir="rtl"
+        rows="4"
+    ></textarea>
+    <input
+        type="password"
+        placeholder="password"
+        class="input"
+        ref="password"
+        @focus="password_focus"
+        @blur="change_password"
+        @keydown.enter="change_password"
+        v-model="password"
+    />
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            username: "{{ current_user.username }}",
+            user_username: "{{ current_user.username }}",
+            user_password: "{{ current_user.password }}",
+            password: "{{ current_user.password }}",
+            user_bio: `{{ current_user.bio.replace("<br />", "") }}`,
+            bio: `{{ current_user.bio.replace("<br />", "") }}`,
+            error_text: "",
+            error_show: false,
+        },
+        methods: {
+            password_focus() {
+                this.$refs.password.type = "text";
+            },
+            close_error() {
+                this.$refs.error.style.transform = "translateX(200px)";
+                setTimeout(() => {
+                    this.error_show = false;
+                    this.error_text = "";
+                }, 250);
+            },
+            error(text) {
+                this.error_text = text;
+                this.error_show = true;
+                setTimeout(() => {
+                    this.$refs.error.removeAttribute("style");
+                }, 10);
+            },
+            change_bio() {
+                this.$refs.password.type = "password";
+                formData = new FormData();
+                formData.append("bio", this.bio);
+
+                if (this.bio != this.user_bio) {
+                    fetch("/api/edit", {
+                        method: "POST",
+                        body: formData,
+                    }).then((response) => (window.location.href = "/me"));
+                }
+            },
+            change_avatar() {
+                var inputElement = document.createElement("input");
+                inputElement.type = "file";
+                inputElement.accept = "image/jpeg, image/png";
+
+                inputElement.addEventListener("change", (event) => {
+                    var file = event.target.files[0];
+                    var fileType = file.type;
+
+                    if (fileType === "image/jpeg" || fileType === "image/png") {
+                        var formData = new FormData();
+                        formData.append("file", file);
+
+                        fetch("/api/uploadavatar", {
+                            method: "POST",
+                            body: formData,
+                        }).then((response) => (window.location.href = "/me"));
+                    }
+                });
+
+                inputElement.click();
+            },
+            change_password() {
+                this.$refs.password.type = "password";
+                formData = new FormData();
+                formData.append("password", this.password);
+
+                if (this.password != this.user_password) {
+                    fetch("/api/edit", {
+                        method: "POST",
+                        body: formData,
+                    }).then((response) => (window.location.href = "/me"));
+                }
+            },
+            change_username() {
+                formData = new FormData();
+                formData.append("username", this.username);
+
+                if (this.username != this.user_username) {
+                    fetch("/api/userValid", {
+                        method: "POST",
+                        body: formData,
+                    })
+                        .then((response) => {
+                            if (response.ok) {
+                                return response.json();
+                            }
+                        })
+                        .then((data) => {
+                            if (data.valid) {
+                                this.error("این نام کاربری موجود است");
+                                this.username = this.user_username
+                            } else {
+                                fetch("/api/edit", {
+                                    method: "POST",
+                                    body: formData,
+                                }).then(
+                                    (response) => (window.location.href = "/me")
+                                );
+                            }
+                        });
+                }
+            },
+        },
+    });
+</script>
+{% endblock %}

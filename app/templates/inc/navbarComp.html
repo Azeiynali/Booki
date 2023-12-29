@@ -1,49 +1,53 @@
 {% raw %}
-Vue.component("navbar-item", {
-props: {
-text: {},
-href: {},
-active: {
-default: false,
-},
-},
-template: `
+    Vue.component("navbar-item", {
+        props: {
+            text: {},
+            href: {},
+            active: {
+                default: false,
+            },
+        },
+        template: `
 <a ref="a" class="navbar-item" v-html="text" :href="href"></a>
 `,
-});
-Vue.component("navbar", {
-props: {
-active_item: { default: false },
-{% endraw %}
-profile_href: { default: "/@{{ current_user.username }}/posts" },
-message_count: { default: {{ not_list }} },
-{% raw %}
-avatar: {},
-},
-data() {
-return {};
-},
-methods: {
-plus() {
-this.$refs.button.classList.toggle("is-active");
-},
-comment() {
-this.$emit("comment");
-},
-image() {
-this.$emit("image");
-},
-redirect(x){
-location.href = x
-},
-profile() {
-window.location.href = this.profile_href;
-console.log(this.profile_href);
-},
-},
-template: `
+    });
+    Vue.component("navbar", {
+        mounted() {
+            document.addEventListener('click', ()=>{
+                if (this.menu){
+                    this.$refs.menu.removeAttribute('style')
+                    this.menu = false;
+                }
+            });
+        },
+
+        props: {
+            active_item: { default: false },
+            avatar: {},
+            {% endraw %}
+                message_count: { default: {{ not_list }} },
+            {% raw %}
+
+        },
+        data() {
+            return {
+                menu: false
+            };
+        },
+        methods: {
+            redirect(x) {
+                location.href = x;
+            },
+            menu_() {
+                this.menu = true;
+                setTimeout(()=>{
+                    this.$refs.menu.style.transform = "translateY(20px)";
+                }, 20)
+            }
+        },
+        template: `
 <nav class="nav">
-    <img class="logo" src="/static/pictures/favicon.png" />
+    <img alt="logo" class="logo" src="/static/pictures/favicon.png" />
     <div class="nav-items">
         <navbar-item href="/explore" ref="profile" text="گشت و گذار"
             :class="{ active: active_item === 'explore' }"></navbar-item>
@@ -59,10 +63,14 @@ template: `
         <i @click="redirect('/search')" :class="'fi fi-rr-search ' + (active_item === 'search' ? 'active' : '')"></i>
         <i @click="redirect('/add')" :class="'fi fi-rr-square-plus ' + (active_item === 'add' ? 'active' : '')"></i>
         {% endraw %}
-        <img @click="profile()" class="profile-pic" src="{{ current_user.avatar }}" />
-        {% raw %}
+        <img alt="avatar" @click.stop="menu_()" class="profile-pic" src="{{ current_user.avatar }}" />
+        <div ref="menu" class='menu' v-show="menu">
+            <div @click="redirect('/@{{ current_user.username }}/posts')" class="item">صفحه پروفایل</div>
+            <div @click="redirect('/add')" class="item blue">افزودن پست</div>
+            <div @click="redirect('/me')" class="item">تنظیمات حساب کاربری</div>
+            <div @click="redirect('/logout')" class="item red">خروج از حساب</div>
+        </div>
     </div>
 </nav>
 `,
-});
-{% endraw %}
+    });
