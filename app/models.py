@@ -2,8 +2,7 @@ from app import db, Login_mg
 from datetime import datetime
 from flask_login import UserMixin
 import re
-import secrets
-import string
+import random
 
 @Login_mg.user_loader
 def load_user(user_id):
@@ -55,6 +54,7 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     tags = db.Column(db.String, unique=False)
     description = db.Column(db.String, unique=False)
+    group = db.Column(db.String, unique=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
