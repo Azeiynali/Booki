@@ -8,3 +8,4 @@ app\__pycache__\*
 commits.log
 base.db
 app.log
+todos.txt

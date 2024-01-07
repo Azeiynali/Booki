@@ -32,6 +32,7 @@
         <input
             placeholder="none"
             @keydown.enter="check()"
+            @paste.prevent
             ref="input_2"
             maxlength="30"
             type="text"
@@ -43,7 +44,6 @@
             class="input"
         />
 
-        <br v-if="error" />
         <img
             alt="profile"
             @click="changeProfile"
@@ -52,6 +52,7 @@
             ref="image"
             src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
         />
+        <br v-if="error" />
         <p ref="error" v-if="error" class="error">{{ error_text }}</p>
         <br />
         <p
@@ -122,7 +123,7 @@
                         this.info_error = true;
                     } else if (!/^[a-zA-Z0-9_]+$/gm.test(this.value)) {
                         this.error = true;
-                        this.error_text = "فقط حروف انگلیسی، اعداد و زیر خط"
+                        this.error_text = "فقط حروف انگلیسی، اعداد و زیر خط";
                     } else {
                         this.valid();
                     }
@@ -183,11 +184,17 @@
 
                 if (!this.error && !this.info_error) {
                     fetch("/api/userValid", requestOptions)
-                        .then((response) => response.text())
+                        .then((response) => {
+                            if (response.status == 429) {
+                                console.log(11);
+                                throw new Error("429");
+                            }
+                            return response.json();
+                        })
                         .then((data) => {
-                            if (JSON.parse(data).success) {
-                                console.log(JSON.parse(data));
-                                if (JSON.parse(data).valid) {
+                            if (data.success) {
+                                console.log(data);
+                                if (data.valid) {
                                     this.error = true;
                                     this.error_text =
                                         "این نام کاربری موجود است!";
@@ -195,6 +202,11 @@
                                     this.next();
                                 }
                             }
+                        })
+                        .catch((error) => {
+                            this.error = true;
+                            this.error_text =
+                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                         });
                 }
             },
@@ -216,6 +228,9 @@
                             body: formData,
                         })
                             .then((response) => {
+                                if (response.status == 429) {
+                                    throw new Error("429");
+                                }
                                 if (response.ok) {
                                     console.log("OK");
                                     return response.json();
@@ -232,7 +247,9 @@
                                 }
                             })
                             .catch((error) => {
-                                console.error(error);
+                                this.error = true;
+                                this.error_text =
+                                    "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                             });
                     }
                 });
@@ -306,12 +323,26 @@
                                     }
                                 });
                                 return response.json();
+                            } else if (response.status == 429) {
+                                throw new Error("429");
                             }
                         })
                         .then((data) => {
                             console.log(data);
                         })
                         .catch((error) => {
+                            if (error == "Error: 429") {
+                                this.error = true;
+                                this.error_text =
+                                    "درخواست های بیش از حد، کمی بعد امتحان کنید";
+                            } else {
+                                this.error = true;
+                                this.error_text =
+                                    "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
+                            }
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
                             console.error(error);
                         });
                 }

@@ -10,14 +10,12 @@
     <div
         @click="close_error"
         v-if="error_show"
+        v-show="error_display"
         ref="error"
-        style="transform: translateX(200px)"
         class="message_error"
     >
         <i class="fi fi-rr-exclamation"></i>
-        {% raw %}
-        {{ error_text }}
-        {% endraw %}
+        {% raw %} {{ error_text }} {% endraw %}
     </div>
 
     <img
@@ -28,31 +26,60 @@
     />
     <input
         type="text"
-        placeholder="username"
+        placeholder="نام کاربری"
         class="input"
         @blur="change_username"
         @keydown.enter="change_username"
         v-model="username"
     />
     <textarea
-        placeholder="bio"
+        placeholder="من یک..."
         class="input"
         @blur="change_bio"
-        @keydown.enter="change_bio"
         v-model="bio"
         dir="rtl"
         rows="4"
     ></textarea>
+    <hr>
+    <input
+        type="text"
+        placeholder="کشور"
+        class="input"
+        dir="rtl"
+        @blur="change_country"
+        @keydown.enter="change_country"
+        v-model="country"
+    />
+    <input
+        type="text"
+        placeholder="شهر"
+        class="input"
+        dir="rtl"
+        @blur="change_city"
+        @keydown.enter="change_city"
+        v-model="city"
+    />
+    <hr>
     <input
         type="password"
-        placeholder="password"
+        placeholder="پسورد قدیمی"
+        dir="rtl"
+        class="input"
+        ref="old_password"
+        @focus="old_password_focus"
+        v-model="old_password"
+    />
+    <input
+        type="password"
+        placeholder="پسورد جدید"
         class="input"
         ref="password"
-        @focus="password_focus"
         @blur="change_password"
+        @focus="password_focus"
         @keydown.enter="change_password"
         v-model="password"
     />
+    <span class="white"></span>
 </div>
 
 <script>
@@ -61,34 +88,74 @@
         data: {
             username: "{{ current_user.username }}",
             user_username: "{{ current_user.username }}",
-            user_password: "{{ current_user.password }}",
-            password: "{{ current_user.password }}",
+            country: "{{ current_user.country }}",
+            user_country: "{{ current_user.country }}",
+            city: "{{ current_user.city }}",
+            user_city: "{{ current_user.city }}",
+            password: "",
+            // {% if current_user.bio.replace("<br />", "") %}
             user_bio: `{{ current_user.bio.replace("<br />", "") }}`,
+            // {% else %}
+            user_bio: ``,
+            // {% endif %}
             bio: `{{ current_user.bio.replace("<br />", "") }}`,
             error_text: "",
+            error_display: false,
             error_show: false,
+            old_password: "",
         },
         methods: {
             password_focus() {
                 this.$refs.password.type = "text";
             },
+            old_password_focus() {
+                this.$refs.old_password.type = "text";
+            },
             close_error() {
                 this.$refs.error.style.transform = "translateX(200px)";
                 setTimeout(() => {
                     this.error_show = false;
+                    this.error_display = false;
                     this.error_text = "";
                 }, 250);
+            },
+            change_country(){
+                let formData = new FormData();
+                formData.append("country", this.country);
+
+                if (this.country != this.user_country && this.country) {
+                    fetch("/api/edit", {
+                        method: "POST",
+                        body: formData,
+                    }).then((response) => (window.location.href = "/me"));
+                }
+            },
+            change_city(){
+                let formData = new FormData();
+                formData.append("city", this.city);
+
+                if (this.city != this.user_city && this.city) {
+                    fetch("/api/edit", {
+                        method: "POST",
+                        body: formData,
+                    }).then((response) => (window.location.href = "/me"));
+                }
             },
             error(text) {
                 this.error_text = text;
                 this.error_show = true;
                 setTimeout(() => {
+                    this.$refs.error.style.transform = "translateX(200px)";
+                }, 5);
+                setTimeout(() => {
+                    this.error_display = true;
+                }, 5);
+                setTimeout(() => {
                     this.$refs.error.removeAttribute("style");
                 }, 10);
             },
             change_bio() {
-                this.$refs.password.type = "password";
-                formData = new FormData();
+                let formData = new FormData();
                 formData.append("bio", this.bio);
 
                 if (this.bio != this.user_bio) {
@@ -104,11 +171,11 @@
                 inputElement.accept = "image/jpeg, image/png";
 
                 inputElement.addEventListener("change", (event) => {
-                    var file = event.target.files[0];
-                    var fileType = file.type;
+                    let file = event.target.files[0];
+                    let fileType = file.type;
 
                     if (fileType === "image/jpeg" || fileType === "image/png") {
-                        var formData = new FormData();
+                        let formData = new FormData();
                         formData.append("file", file);
 
                         fetch("/api/uploadavatar", {
@@ -122,21 +189,52 @@
             },
             change_password() {
                 this.$refs.password.type = "password";
-                formData = new FormData();
+                let formData = new FormData();
                 formData.append("password", this.password);
 
-                if (this.password != this.user_password) {
-                    fetch("/api/edit", {
+                let old_formData = new FormData();
+                old_formData.append("username", this.user_username);
+                old_formData.append("password", this.old_password);
+
+                if (this.password && this.old_password) {
+                    if (this.password.length < 8) {
+                        this.error("رمز عبور جدید باید حداقل 8 کاراکتر باشد")
+                        this.password = ""
+                        return null
+                    }
+                    fetch("/api/userValid", {
                         method: "POST",
-                        body: formData,
-                    }).then((response) => (window.location.href = "/me"));
+                        body: old_formData,
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.valid) {
+                                fetch("/api/edit", {
+                                    method: "POST",
+                                    body: formData,
+                                }).then(
+                                    (response) => (window.location.href = "/me")
+                                );
+                            } else {
+                                this.error("رمز عبور قدیمی غلط است");
+                            }
+                        });
                 }
             },
             change_username() {
-                formData = new FormData();
+                let formData = new FormData();
                 formData.append("username", this.username);
 
                 if (this.username != this.user_username) {
+                    if (this.username.length < 4) {
+                        this.error("نام کاربری باید حداقل 4 کاراکتر باشد");
+                        this.username = this.user_username;
+                        return null;
+                    } else if (!/^[a-zA-Z0-9_]+$/gm.test(this.username)) {
+                        this.error("فقط اعداد، حروف انگلیسی و زیر خط");
+                        this.username = this.user_username;
+                        return null;
+                    }
                     fetch("/api/userValid", {
                         method: "POST",
                         body: formData,
@@ -149,7 +247,7 @@
                         .then((data) => {
                             if (data.valid) {
                                 this.error("این نام کاربری موجود است");
-                                this.username = this.user_username
+                                this.username = this.user_username;
                             } else {
                                 fetch("/api/edit", {
                                     method: "POST",

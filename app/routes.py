@@ -31,7 +31,7 @@ def salt_generator():
     salt = ""
     chars = "abcdefghijklmnopqrstuvwxyz+_-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
     numbers = "3456789"
-    len = random.choice(numbers)
+    len = int(random.choice(numbers))
     for i in range(len):
         salt += random.choice(chars)
     salt = salt + str(datetime.now())[1]
@@ -294,14 +294,13 @@ def search():
 
 
 @app.route("/login")
-# @limiter.limit("5 per minute")
 def login():
     """this is a function for display login page"""
     return redirect(url_for("index"))
 
 
 @app.route("/register")
-# @limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 def register():
     """this is a function for display register page"""
     if current_user.is_authenticated:
@@ -339,7 +338,7 @@ def logout():
 
 @app.route("/add")
 @login_required
-# @limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 def newpost():
     """this is a function for display add new post page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
@@ -349,7 +348,7 @@ def newpost():
 
 @app.route("/chatContent")
 @login_required
-# @limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 def chatContent():
     """this function for display all messages for reload the chat page"""
     classMessages = Message.query.all()
@@ -479,7 +478,7 @@ def delMessage():
 
 
 @app.route("/api/userValid", methods=["POST", "GET"])
-# @limiter.limit("5 per minute")
+@limiter.limit("4 per minute")
 def user_valid():
     """this function for check and login the users"""
     try:
@@ -489,6 +488,8 @@ def user_valid():
             pwd = data.get("password")
             # lower the username
             usr = usr.lower()
+
+            referer = request.headers.get("Referer")
 
             # if to check the existence of the user
             if usr and not pwd:
@@ -524,10 +525,13 @@ def user_valid():
                 user = User.query.filter_by(username=usr).first()
                 if user:
                     if verify_password(pwd, user.password, user.salt):
-                        pass
                         # login user
-                        login_user(user)
-
+                        if not current_user.is_authenticated:
+                            login_user(user)
+                        elif 'me' in referer:
+                            pass
+                        else:
+                            return abort(400)
                         # create a log
                         app.logger.warning("password validation")
                         return jsonify(
@@ -558,7 +562,7 @@ def user_valid():
 
 @app.route("/api/add", methods=["POST", "GET"])
 @login_required
-# @limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 def addPost():
     """this function for add a post"""
     if request.method == "POST":
@@ -566,6 +570,7 @@ def addPost():
         # getting the image and content
         img = data.get("image")
         content = data.get("content")
+        group = data.get("group")
 
         # getting the Referer
         referer = request.headers.get("Referer")
@@ -591,6 +596,7 @@ def addPost():
                 img=img,
                 content=content,
                 tags=tags,
+                group=group,
                 description=content[:50],
             )
             # adding post
@@ -632,7 +638,7 @@ def delPost():
 
 
 @app.route("/api/uploadavatar", methods=["POST"])
-# @limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 def upload():
     """this function for upload avatars"""
     if "file" in request.files:
@@ -685,29 +691,32 @@ def upload():
 
 
 @app.route("/api/adduser", methods=["PUT"])
-# @limiter.limit("2 per minute")
+@limiter.limit("1 per minute")
 def addUser():
-    ''' this api for adding users '''
-    try:
+        ''' this api for adding users '''
+    # try:
         if request.method == "PUT":
             # getting user data
             data = request.form
-            usr = data.get("username")
-            pwd = data.get("password")
-            gender = data.get("gender")
-            city = data.get("city")
-            country = data.get("country")
-            email = data.get("country")
-            avatar = data.get("avatar")
+            usr = str(data.get("username"))
+            pwd = str(data.get("password"))
+            gender = str(data.get("gender"))
+            city = str(data.get("city"))
+            country = str(data.get("country"))
+            avatar = str(data.get("avatar"))
+            bio = str(data.get("bio"))
+            
             salt = salt_generator()
 
-            bio = re.sub(r"\n", "<br />", data.get("bio"))
-            bio = re.sub(r"\"", "\\\"", bio)
+            if bio:
+                bio = re.sub(r"\n", "<br />", data.get("bio"))
+                bio = re.sub(r"\"", "\\\"", bio)
 
             tags =  '، '.join(find_keywords(bio))
             usr = usr.lower()
 
             # if username is not exists
+            print(salt)
             if not User.query.filter_by(username=usr).first():
                 u = User(
                     username=usr,
@@ -741,13 +750,13 @@ def addUser():
             return jsonify(
                 {"success": False, "valid": "?", "message": "args not found"}
             )
-    except Exception as e:
-        print("#" * 10)
-        print(e)
-        print("#" * 10)
-        return jsonify({"success": False, "valid": "?", "message": "?"})
+    # except Exception as e:
+    #     print("#" * 10)
+    #     print(e)
+    #     print("#" * 10)
+    #     return abort(500)
 
-    return abort(404)
+        return abort(404)
 
 
 @app.route("/api/addfallow", methods=["PUT"])
@@ -795,9 +804,12 @@ def edit():
     usr = data.get("username")
     bio = data.get("bio")
     pwd = data.get("password")
+    cnty = data.get("country")
+    city = data.get("city")
 
-    bio = re.sub(r"\n", "<br />", data.get("bio"))
-    bio = re.sub(r"\"", "\\\"", bio)
+    if bio:
+        bio = re.sub(r"\n", "<br />", str(data.get("bio")))
+        bio = re.sub(r"\"", "\\\"", str(bio))
     usr = data.get("username")
 
     # changing the username
@@ -825,6 +837,16 @@ def edit():
 
         db.session.commit()
         return jsonify({"success": True})
+    elif cnty:
+        current_user.country = cnty
+        db.session.commit()
+
+        return jsonify({"success": True, "message": 'country changed'})
+    elif city:
+        current_user.city = city
+        db.session.commit()
+
+        return jsonify({"success": True, "message": 'city changed'})
 
     return jsonify({"success": False})
 
@@ -885,7 +907,7 @@ def like():
         print(e)
         print("#" * 10)
 
-    return jsonify({"success": False})
+    return abort(500)
 
 
 @app.route("/api/notifdelete", methods=["POST"])
@@ -924,4 +946,4 @@ def unlike():
         print(e)
         print("#" * 10)
 
-    return jsonify({"success": False})
+    return abort(500)

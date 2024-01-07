@@ -13,11 +13,7 @@
         alt="user-picture"
     />
     <div class="inp-box">
-        <h3
-            v-show="next_"
-            ref="title2"
-            class="title2"
-        >
+        <h3 v-show="next_" ref="title2" class="title2">
             لطفا پسورد خود را وارد کنید
         </h3>
         <input
@@ -34,11 +30,7 @@
             id="username"
             class="username-inp"
         />
-        <p ref="nval" v-if="isEmpty" class="error">{{ input }} خالی است</p>
-        <p ref="empt" v-if="isInvalid" class="error">{{ input }} غلط است</p>
-        <p ref="empt" v-if="isError" class="error">
-            مشکلی پیش آمد، لطفا بعدا تلاش کنید
-        </p>
+        <p ref="empt" v-if="error" class="error">{{ error_text }}</p>
     </div>
     <button ref="sub" @click="check()" id="username-sub">بعدی</button>
     <p class="register">حسابی ندارید؟ <a href="/register">یکی بسازید!</a></p>
@@ -49,36 +41,24 @@
         el: "#app",
         data: {
             value: "",
-            isEmpty: false,
+            error_text: "",
             next_: false,
-            isInvalid: false,
             this_username: "",
             style: "",
             image: "",
             input: "نام کاربری",
             Login_: false,
-            isError: false,
+            error: false,
         },
         methods: {
-            no_username: function (x) {
+            error_show: function (x) {
                 this.style = "border: #c90000b2 solid 1px !important;";
-                if (x == 1) {
-                    this.isEmpty = true;
-                    this.isInvalid = false;
-                    this.isError = false;
-                } else if (x == 2) {
-                    this.isInvalid = true;
-                    this.isEmpty = false;
-                    this.isError = false;
-                } else if (x == 3) {
-                    this.isInvalid = false;
-                    this.isEmpty = false;
-                    this.isError = true;
-                } else {
-                    this.isInvalid = false;
-                    this.isEmpty = false;
+                this.error = true;
+                this.error_text = x;
+                if (!x) {
+                    this.error = false;
+                    this.error_text = "";
                     this.style = "";
-                    this.isError = false;
                 }
             },
             Login: function () {
@@ -130,13 +110,18 @@
 
                 if (this.value != "") {
                     fetch("/api/userValid", requestOptions)
-                        .then((response) => response.text())
+                        .then((response) => {
+                            if (response.status == 429) {
+                                throw new Error("429");
+                            }
+                            return response.text();
+                        })
                         .then((data) => {
                             console.log(JSON.parse(data));
                             if (JSON.parse(data).success) {
                                 if (JSON.parse(data).valid) {
                                     var response_json = data;
-                                    this.no_username("clear");
+                                    this.error_show(false);
                                     let href = "/";
                                     fetch("https://api.ipify.org?format=json")
                                         .then((response) => response.json())
@@ -156,18 +141,30 @@
                                                 href + "?login=" + "0.0.0.0";
                                         });
                                 } else {
-                                    this.no_username(2);
+                                    this.error_show(
+                                        "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                    );
                                 }
                             } else {
-                                this.no_username(3);
+                                this.error_show(
+                                    "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                );
                             }
                         })
                         .catch((error) => {
+                            if (error == "Error: 429") {
+                                this.error_show(
+                                    "درخواست های بیش از حد، کمی بعد دوباره تلاش کنید"
+                                );
+                            } else {
+                                this.error_show(
+                                    "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                );
+                            }
                             console.log("error", error);
-                            this.no_username(3);
                         });
                 } else {
-                    this.no_username(1);
+                    this.error_show("رمز عبور خالی است");
                 }
             },
             next: function () {
@@ -206,7 +203,7 @@
                 this.$refs.sub.addEventListener("click", this.new_check);
                 this.input = "رمز ورود";
                 this.value = "";
-                this.no_username("clear");
+                this.error_show(false);
             },
             check: function () {
                 var myHeaders = new Headers();
@@ -227,29 +224,46 @@
 
                 if (this.value != "") {
                     fetch("/api/userValid", requestOptions)
-                        .then((response) => response.text())
+                        .then((response) => {
+                            if (response.status == 429) {
+                                console.log(response.status) 
+                                throw new Error("429");
+                            }
+                            return response.text();
+                        })
                         .then((data) => {
                             console.log(JSON.parse(data));
                             if (JSON.parse(data).success) {
                                 if (JSON.parse(data).valid) {
+                                    this.this_username = this.value
                                     this.image = JSON.parse(data).avatar;
                                     var response_json = data;
-                                    this.no_username("clear");
+                                    this.error_show(false);
                                     this.next();
                                 } else {
-                                    this.no_username(2);
+                                    this.error_show("نام کاربری غلط است");
                                     this.image = null;
                                 }
                             } else {
-                                this.no_username(3);
+                                this.error_show(
+                                    "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                );
                             }
                         })
                         .catch((error) => {
+                            if (error == "Error: 429") {
+                                this.error_show(
+                                    "درخواست های بیش از حد، کمی بعد دوباره امتحان کنید"
+                                );
+                            } else {
+                                this.error_show(
+                                    "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                );
+                            }
                             console.log("error", error);
-                            this.no_username(3);
                         });
                 } else {
-                    this.no_username(1);
+                    this.error_show("نام کاربری را وارد کنید");
                 }
             },
             check_E: function ($event) {
