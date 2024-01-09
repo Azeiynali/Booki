@@ -40,7 +40,7 @@
         dir="rtl"
         rows="4"
     ></textarea>
-    <hr>
+    <hr />
     <input
         type="text"
         placeholder="کشور"
@@ -59,7 +59,7 @@
         @keydown.enter="change_city"
         v-model="city"
     />
-    <hr>
+    <hr />
     <input
         type="password"
         placeholder="پسورد قدیمی"
@@ -119,7 +119,7 @@
                     this.error_text = "";
                 }, 250);
             },
-            change_country(){
+            change_country() {
                 let formData = new FormData();
                 formData.append("country", this.country);
 
@@ -130,7 +130,7 @@
                     }).then((response) => (window.location.href = "/me"));
                 }
             },
-            change_city(){
+            change_city() {
                 let formData = new FormData();
                 formData.append("city", this.city);
 
@@ -162,7 +162,18 @@
                     fetch("/api/edit", {
                         method: "POST",
                         body: formData,
-                    }).then((response) => (window.location.href = "/me"));
+                    })
+                        .then((response) => {
+                            if (response.status == 429) {
+                                throw new Error("429");
+                            }
+                            window.location.href = "/me";
+                        })
+                        .catch((error) => {
+                            this.error(
+                                "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
+                            );
+                        });
                 }
             },
             change_avatar() {
@@ -181,7 +192,18 @@
                         fetch("/api/uploadavatar", {
                             method: "POST",
                             body: formData,
-                        }).then((response) => (window.location.href = "/me"));
+                        })
+                            .then((response) => {
+                                if (response.status == 429) {
+                                    throw new Error("429");
+                                }
+                                window.location.href = "/me";
+                            })
+                            .catch((error) => {
+                                this.error(
+                                    "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
+                                );
+                            });
                     }
                 });
 
@@ -198,26 +220,45 @@
 
                 if (this.password && this.old_password) {
                     if (this.password.length < 8) {
-                        this.error("رمز عبور جدید باید حداقل 8 کاراکتر باشد")
-                        this.password = ""
-                        return null
+                        this.error("رمز عبور جدید باید حداقل 8 کاراکتر باشد");
+                        this.password = "";
+                        return null;
                     }
                     fetch("/api/userValid", {
                         method: "POST",
                         body: old_formData,
                     })
-                        .then((response) => response.json())
+                        .then((response) => {
+                            if (response.status == 429) {
+                                throw new Error("429");
+                            }
+                            response.json();
+                        })
                         .then((data) => {
                             if (data.valid) {
                                 fetch("/api/edit", {
                                     method: "POST",
                                     body: formData,
-                                }).then(
-                                    (response) => (window.location.href = "/me")
-                                );
+                                })
+                                    .then((response) => {
+                                        if (response.status == 429) {
+                                            throw new Error("429");
+                                        }
+                                        response.json();
+                                    })
+                                    .catch((error) => {
+                                        this.error(
+                                            "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
+                                        );
+                                    });
                             } else {
                                 this.error("رمز عبور قدیمی غلط است");
                             }
+                        })
+                        .catch((error) => {
+                            this.error(
+                                "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
+                            );
                         });
                 }
             },
@@ -252,10 +293,18 @@
                                 fetch("/api/edit", {
                                     method: "POST",
                                     body: formData,
-                                }).then(
-                                    (response) => (window.location.href = "/me")
-                                );
+                                }).then((response) => {
+                                    if (response.status == 429) {
+                                        throw new Error("429");
+                                    }
+                                    window.location.href = "/me";
+                                });
                             }
+                        })
+                        .catch((error) => {
+                            this.error(
+                                "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
+                            );
                         });
                 }
             },

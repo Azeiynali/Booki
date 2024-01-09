@@ -798,6 +798,7 @@ def not_fallow():
 
 
 @app.route("/api/edit", methods=["POST"])
+@limiter.limit("4 per minute")
 def edit():
     """this API for edit a user"""
     data = request.form

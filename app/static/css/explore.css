@@ -26,11 +26,11 @@
 }
 .user_box img {
     transition: all .5s ease-out;
-    width: 50px;
-    height: 50px;
+    width: 63px;
+    height: 62px;
     position: absolute;
     border-radius: 100%;
-    right: 20px;
+    right: -10px;
     top: -10px;
     box-shadow: 4px 4px 10px #00000031;
 }

@@ -16,7 +16,7 @@
         <a href="/@{{ user.username }}">
             <div class="user_box">
                 <img alt="" src="{{ user.avatar }}" />
-                <p><i class="fi fi-rr-{{ user.gender }}-head"></i> {{ user.username }}</p>
+                <p><i class="fi fi-rr-{{ user.gender }}-head"></i> {{ user.username[:10] }}</p>
                 <small>{{ Fallow.query.filter_by(followed=user.id).all() | length }}</small>
                 <p v-html="`{{ user.bio[:150] }}`"></p>
             </div>

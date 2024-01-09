@@ -464,6 +464,11 @@ header.header {
 .header .item {
     text-decoration: none;
     position: relative;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 .header .item .user {
     text-decoration: none;
@@ -473,7 +478,7 @@ header.header {
     background-size: cover !important;
     background-repeat: no-repeat !important;
 }
-.header .item img.user{
+.header .item img.user {
     border-radius: 100%;
 }
 @media screen and (max-width: 1383px) {

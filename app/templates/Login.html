@@ -141,9 +141,7 @@
                                                 href + "?login=" + "0.0.0.0";
                                         });
                                 } else {
-                                    this.error_show(
-                                        "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
-                                    );
+                                    this.error_show("رمزعبور غلط است");
                                 }
                             } else {
                                 this.error_show(
@@ -164,7 +162,9 @@
                             console.log("error", error);
                         });
                 } else {
-                    this.error_show("رمز عبور خالی است");
+                    if (this.value == "") {
+                        this.error_show("رمز عبور خالی است");
+                    }
                 }
             },
             next: function () {
@@ -226,7 +226,7 @@
                     fetch("/api/userValid", requestOptions)
                         .then((response) => {
                             if (response.status == 429) {
-                                console.log(response.status) 
+                                console.log(response.status);
                                 throw new Error("429");
                             }
                             return response.text();
@@ -235,14 +235,13 @@
                             console.log(JSON.parse(data));
                             if (JSON.parse(data).success) {
                                 if (JSON.parse(data).valid) {
-                                    this.this_username = this.value
+                                    this.this_username = this.value;
                                     this.image = JSON.parse(data).avatar;
                                     var response_json = data;
                                     this.error_show(false);
                                     this.next();
                                 } else {
                                     this.error_show("نام کاربری غلط است");
-                                    this.image = null;
                                 }
                             } else {
                                 this.error_show(
@@ -263,7 +262,9 @@
                             console.log("error", error);
                         });
                 } else {
-                    this.error_show("نام کاربری را وارد کنید");
+                    if (this.value == "") {
+                        this.error_show("نام کاربری را وارد کنید");
+                    }
                 }
             },
             check_E: function ($event) {

@@ -45,13 +45,13 @@
         />
 
         <img
-            alt="profile"
+        alt="profile"
             @click="changeProfile"
             v-if="scene == 'profile'"
             class="profile"
             ref="image"
             src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
-        />
+            />
         <br v-if="error" />
         <p ref="error" v-if="error" class="error">{{ error_text }}</p>
         <br />
@@ -186,7 +186,7 @@
                     fetch("/api/userValid", requestOptions)
                         .then((response) => {
                             if (response.status == 429) {
-                                console.log(11);
+                                console.log(11)
                                 throw new Error("429");
                             }
                             return response.json();
@@ -204,9 +204,8 @@
                             }
                         })
                         .catch((error) => {
-                            this.error = true;
-                            this.error_text =
-                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
+                            this.error = true
+                            this.error_text = 'مشکلی پیش آمده، کمی بعد دوباره تلاش کنید'
                         });
                 }
             },
@@ -247,7 +246,7 @@
                                 }
                             })
                             .catch((error) => {
-                                this.error = true;
+                                this.error = true
                                 this.error_text =
                                     "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                             });
@@ -332,11 +331,11 @@
                         })
                         .catch((error) => {
                             if (error == "Error: 429") {
-                                this.error = true;
+                                this.error = true
                                 this.error_text =
                                     "درخواست های بیش از حد، کمی بعد امتحان کنید";
                             } else {
-                                this.error = true;
+                                this.error = true
                                 this.error_text =
                                     "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                             }
