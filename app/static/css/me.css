@@ -10,10 +10,6 @@ img.avatar {
     width: 200px;
     height: 200px;
     border-radius: 100%;
-    cursor: pointer;
-}
-img.avatar:hover {
-    filter: grayscale(1);
 }
 .input {
     border-radius: 5px;
@@ -30,4 +26,28 @@ textarea.input{
 }
 .input:focus {
     color: black;
+}
+.avatars{
+    display: flex;
+    width: 90vw;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+    gap: 15px;
+    flex-wrap: wrap;
+    pointer-events: none;
+}
+.avatars img{
+    pointer-events: all;
+    border-radius: 100%;
+    cursor: pointer;
+    transition: all .3s ease;
+    width: 80px;
+}
+.avatars:hover img:hover{
+    transform: scale(1.1);
+}
+.avatars:hover img:not(:hover){
+    transform: scale(.9);
+    opacity: .8;
 }

@@ -24,7 +24,7 @@
             ref="username"
             v-model="value"
             name="username"
-            placeholder="username"
+            placeholder="نام کاربری"
             name="username"
             type="text"
             id="username"
@@ -52,6 +52,7 @@
         },
         methods: {
             error_show: function (x) {
+                // this function to display errors
                 this.style = "border: #c90000b2 solid 1px !important;";
                 this.error = true;
                 this.error_text = x;
@@ -61,36 +62,8 @@
                     this.style = "";
                 }
             },
-            Login: function () {
-                console.log("you login successfully");
-
-                this.isInvalid = false;
-                this.isEmpty = false;
-                this.style = "";
-                this.$refs.title2.style.marginLeft = "100%";
-                setTimeout(() => {
-                    this.$refs.title2.style.display = "none";
-                }, 450);
-
-                this.$refs.sub.style.marginLeft = "100%";
-                setTimeout(() => {
-                    this.$refs.sub.style.display = "none";
-                }, 450);
-
-                this.$refs.image.style.marginLeft = "100%";
-                setTimeout(() => {
-                    this.$refs.image.style.display = "none";
-                }, 450);
-
-                this.$refs.usernameinput.style.marginLeft = "100%";
-                setTimeout(() => {
-                    this.$refs.usernameinput.style.display = "none";
-                }, 450);
-
-                this.Login_ = true;
-                this.$root.style.alignItems = "center";
-            },
-            new_check: function () {
+            login: function () {
+                // this function to validate password and login
                 var myHeaders = new Headers();
                 myHeaders.append(
                     "Content-Type",
@@ -108,7 +81,9 @@
                     redirect: "follow",
                 };
 
+                // if value not empty
                 if (this.value != "") {
+                    // password validation
                     fetch("/api/userValid", requestOptions)
                         .then((response) => {
                             if (response.status == 429) {
@@ -123,6 +98,7 @@
                                     var response_json = data;
                                     this.error_show(false);
                                     let href = "/";
+                                    // set a login notification (send ip to index)
                                     fetch("https://api.ipify.org?format=json")
                                         .then((response) => response.json())
                                         .then((data) => {
@@ -168,8 +144,11 @@
                 }
             },
             next: function () {
+                // Changing the scene to the password scene
+                document.querySelector(".register").innerHTML =
+                    'رمز عبور خود را فراموش کرده اید؟ <a href="/recovery">آن را بازیابی کنید</a>';
                 this.this_username = this.$refs.usernameinput.value;
-                this.$refs.usernameinput.placeholder = "password";
+                this.$refs.usernameinput.placeholder = "رمزعبور";
                 this.$refs.usernameinput.name = "password";
                 this.$refs.usernameinput.type = "password";
 
@@ -200,12 +179,13 @@
 
                 this.$refs.sub.textContent = "ورود";
                 this.$refs.sub.removeEventListener("click", this.check);
-                this.$refs.sub.addEventListener("click", this.new_check);
+                this.$refs.sub.addEventListener("click", this.login);
                 this.input = "رمز ورود";
                 this.value = "";
                 this.error_show(false);
             },
             check: function () {
+                // username validation
                 var myHeaders = new Headers();
                 myHeaders.append(
                     "Content-Type",
@@ -235,6 +215,7 @@
                             console.log(JSON.parse(data));
                             if (JSON.parse(data).success) {
                                 if (JSON.parse(data).valid) {
+                                    // change the username and avatar
                                     this.this_username = this.value;
                                     this.image = JSON.parse(data).avatar;
                                     var response_json = data;
@@ -268,9 +249,10 @@
                 }
             },
             check_E: function ($event) {
+                // to handle enters
                 if ($event.keyCode == 13) {
                     if (this.next_) {
-                        this.new_check();
+                        this.login();
                     } else {
                         this.check();
                     }

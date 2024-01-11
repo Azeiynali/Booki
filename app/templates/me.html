@@ -19,11 +19,49 @@
     </div>
 
     <img
-        @click="change_avatar"
+        data-upload="1"
         class="avatar"
         src="{{ current_user.avatar }}"
         alt="avatar"
     />
+    <div class="avatars">
+        <img
+            @click="change_avatar"
+            src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
+            alt="profile 1"
+        />
+        <img
+            @click="change_avatar"
+            src="https://cdn-icons-png.flaticon.com/512/1999/1999625.png"
+            alt="profile 2"
+        />
+        <img
+            @click="change_avatar"
+            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+            alt="profile 3"
+        />
+        <img
+            @click="change_avatar"
+            src="https://cdn-icons-png.flaticon.com/512/6997/6997662.png"
+            alt="profile 4"
+        />
+        <img
+            @click="change_avatar"
+            src="https://cdn-icons-png.flaticon.com/512/1154/1154448.png"
+            alt="profile 5"
+        />
+        <img
+            @click="change_avatar"
+            src="https://cdn-icons-png.flaticon.com/512/10125/10125617.png"
+            alt="profile 6"
+        />
+        <img
+            @click="change_avatar"
+            src="https://cdn-icons-png.flaticon.com/512/2716/2716054.png"
+            data-upload="1"
+            alt="upload profile"
+        />
+    </div>
     <input
         type="text"
         placeholder="نام کاربری"
@@ -62,15 +100,6 @@
     <hr />
     <input
         type="password"
-        placeholder="پسورد قدیمی"
-        dir="rtl"
-        class="input"
-        ref="old_password"
-        @focus="old_password_focus"
-        v-model="old_password"
-    />
-    <input
-        type="password"
         placeholder="پسورد جدید"
         class="input"
         ref="password"
@@ -102,16 +131,14 @@
             error_text: "",
             error_display: false,
             error_show: false,
-            old_password: "",
         },
         methods: {
             password_focus() {
+                // this is a function to change the password input type to text
                 this.$refs.password.type = "text";
             },
-            old_password_focus() {
-                this.$refs.old_password.type = "text";
-            },
             close_error() {
+                // this function is for closing errors
                 this.$refs.error.style.transform = "translateX(200px)";
                 setTimeout(() => {
                     this.error_show = false;
@@ -120,6 +147,7 @@
                 }, 250);
             },
             change_country() {
+                // this function is for change country
                 let formData = new FormData();
                 formData.append("country", this.country);
 
@@ -131,6 +159,7 @@
                 }
             },
             change_city() {
+                // this function is for change city
                 let formData = new FormData();
                 formData.append("city", this.city);
 
@@ -142,6 +171,7 @@
                 }
             },
             error(text) {
+                // this function is for show a error
                 this.error_text = text;
                 this.error_show = true;
                 setTimeout(() => {
@@ -155,6 +185,7 @@
                 }, 10);
             },
             change_bio() {
+                // this function is for change the biography
                 let formData = new FormData();
                 formData.append("bio", this.bio);
 
@@ -176,84 +207,83 @@
                         });
                 }
             },
-            change_avatar() {
-                var inputElement = document.createElement("input");
-                inputElement.type = "file";
-                inputElement.accept = "image/jpeg, image/png";
+            change_avatar(ev) {
+                // this function is for change the avatar
+                // if clicked for upload
+                if (ev.target.getAttribute("data-upload")) {
+                    var inputElement = document.createElement("input");
+                    inputElement.type = "file";
+                    inputElement.accept = "image/jpeg, image/png";
 
-                inputElement.addEventListener("change", (event) => {
-                    let file = event.target.files[0];
-                    let fileType = file.type;
+                    inputElement.addEventListener("change", (event) => {
+                        let file = event.target.files[0];
+                        let fileType = file.type;
 
-                    if (fileType === "image/jpeg" || fileType === "image/png") {
-                        let formData = new FormData();
-                        formData.append("file", file);
+                        if (
+                            fileType === "image/jpeg" ||
+                            fileType === "image/png"
+                        ) {
+                            let formData = new FormData();
+                            formData.append("file", file);
 
-                        fetch("/api/uploadavatar", {
-                            method: "POST",
-                            body: formData,
-                        })
-                            .then((response) => {
-                                if (response.status == 429) {
-                                    throw new Error("429");
-                                }
-                                window.location.href = "/me";
+                            fetch("/api/uploadavatar", {
+                                method: "POST",
+                                body: formData,
                             })
-                            .catch((error) => {
-                                this.error(
-                                    "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
-                                );
-                            });
-                    }
-                });
+                                .then((response) => {
+                                    if (response.status == 429) {
+                                        throw new Error("429");
+                                    }
+                                    window.location.href = "/me";
+                                })
+                                .catch((error) => {
+                                    this.error(
+                                        "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
+                                    );
+                                });
+                        }
+                    });
 
-                inputElement.click();
+                    inputElement.click();
+                // if clicked on a picture
+                } else {
+                    let formData = new FormData();
+                    formData.append("avatar", ev.target.src);
+
+                    fetch("/api/edit", {
+                        method: "POST",
+                        body: formData,
+                    }).then((response) => {
+                        if (response.status == 429){
+                            throw new Error('429')
+                        }
+                        location.reload();
+                    }).catch((error)=>{
+                        this.error('مشکلی پیش آمده است، کمی بعد دوباره تلاش کنید')
+                    });
+                }
             },
             change_password() {
+                // this function is for change password
                 this.$refs.password.type = "password";
                 let formData = new FormData();
                 formData.append("password", this.password);
 
-                let old_formData = new FormData();
-                old_formData.append("username", this.user_username);
-                old_formData.append("password", this.old_password);
-
-                if (this.password && this.old_password) {
+                if (this.password) {
                     if (this.password.length < 8) {
                         this.error("رمز عبور جدید باید حداقل 8 کاراکتر باشد");
                         this.password = "";
                         return null;
                     }
-                    fetch("/api/userValid", {
+                    fetch("/api/edit", {
                         method: "POST",
-                        body: old_formData,
+                        body: formData,
                     })
                         .then((response) => {
                             if (response.status == 429) {
                                 throw new Error("429");
                             }
-                            response.json();
-                        })
-                        .then((data) => {
-                            if (data.valid) {
-                                fetch("/api/edit", {
-                                    method: "POST",
-                                    body: formData,
-                                })
-                                    .then((response) => {
-                                        if (response.status == 429) {
-                                            throw new Error("429");
-                                        }
-                                        response.json();
-                                    })
-                                    .catch((error) => {
-                                        this.error(
-                                            "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
-                                        );
-                                    });
-                            } else {
-                                this.error("رمز عبور قدیمی غلط است");
-                            }
+                            location.reload();
                         })
                         .catch((error) => {
                             this.error(
@@ -263,6 +293,7 @@
                 }
             },
             change_username() {
+                // this function is for change username
                 let formData = new FormData();
                 formData.append("username", this.username);
 

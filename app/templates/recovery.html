@@ -1,0 +1,85 @@
+{% extends "base.html" %} {% block head %}
+<link rel="stylesheet" href="./static/css/Login.css" />
+<link href="../static/library/Vuetify.css" rel="stylesheet" />
+{% endblock %} {% block Title %}ورود{% endblock %} {% block content %} {% raw %}
+<div id="app" dir="rtl" class="Form-box">
+    <h4 ref="des" class="des">لطفا یکی از کلید های بازیابی خود را وارد کنید</h4>
+    <div class="inp-box">
+        <p>پس از ورود، می توانید رمز عبور خود را تغییر دهید</p>
+        <input
+            ref="usernameinput"
+            @keydown="key_downed"
+            dir="ltr"
+            :style="style"
+            v-model="value"
+            style="text-align: center; font-size: 0.9rem"
+            placeholder="کلید بازیابی"
+            type="text"
+            class="username-inp"
+        />
+        <p v-if="error" class="error">{{ error_text }}</p>
+    </div>
+    <button @click="login()" id="username-sub">ورود</button>
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            value: "",
+            error_text: "",
+            error: "",
+            style: "",
+        },
+        methods: {
+            key_downed() {
+                // this function is for close errors
+                this.error = false;
+                this.error_text = "";
+                style = "";
+            },
+            login() {
+                // this function is for key validation and login
+                if (this.value.length !== 30) {
+                    this.error = true;
+                    this.error_text = "لطفا کلید را به درستی وارد کنید";
+                    style = "border: 2px solid red";
+                } else {
+                    let data = new FormData();
+                    data.append("code", this.value);
+
+                    fetch("/api/recovery", { method: "POST", body: data })
+                        .then((response) => {
+                            if (response.status == 429) {
+                                throw new Error("429");
+                            }
+                            return response.json();
+                        })
+                        .then((data) => {
+                            if (data.success) {
+                                if (data.valid) {
+                                    location.href = "/";
+                                } else {
+                                    this.error = true;
+                                    this.error_text =
+                                        "کلید وارد شده نامعتبر است";
+                                    style = "border: 2px solid red";
+                                }
+                            } else {
+                                this.error = true;
+                                this.error_text =
+                                    "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
+                            }
+                        })
+                        .catch((error) => {
+                            this.error = true;
+                            this.error_text =
+                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
+                            style = "border: 2px solid red";
+                        });
+                }
+            },
+        },
+    });
+</script>
+{% endraw %} {% endblock %}

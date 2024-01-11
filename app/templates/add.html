@@ -33,6 +33,7 @@
         data: {},
         methods: {
             image() {
+                /* upload the post image */
                 var inputElement = document.createElement("input");
                 inputElement.type = "file";
                 inputElement.accept = "image/jpeg, image/png";
@@ -73,6 +74,7 @@
                 inputElement.click();
             },
             save() {
+                /* save and send post to server */
                 var formData = new FormData();
                 formData.append("image", this.$refs.image.src);
                 formData.append("content", this.$refs.content.value);

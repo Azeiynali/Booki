@@ -117,6 +117,7 @@
         },
         methods: {
             check() {
+                // this function is for validations
                 if (this.scene == "username") {
                     if (this.value.length < 3) {
                         this.$refs.characters.style.color = "red";
@@ -149,6 +150,7 @@
                 }
             },
             typed() {
+                // this function is for handle key writing
                 if (this.scene == "username") {
                     if (this.value.length > 1) {
                         this.$refs.characters.style.color = "green";
@@ -166,6 +168,7 @@
                 this.error = false;
             },
             valid() {
+                // this function is for username validation
                 var myHeaders = new Headers();
                 myHeaders.append(
                     "Content-Type",
@@ -210,6 +213,7 @@
                 }
             },
             changeProfile() {
+                // this function is for upload user avatar
                 var inputElement = document.createElement("input");
                 inputElement.type = "file";
                 inputElement.accept = "image/jpeg, image/png";
@@ -256,6 +260,7 @@
                 inputElement.click();
             },
             next() {
+                // this function is for change to the next scene
                 if (this.scene == "username") {
                     this.$refs.title.innerHTML = "رمز عبور خود را وارد کنید";
                     this.placeholder = "Password";
@@ -306,6 +311,7 @@
                     loginData.append("username", this.Rusername);
                     loginData.append("password", this.Rpassword);
 
+                    // register the user
                     fetch("/api/adduser", {
                         method: "PUT",
                         body: formData,

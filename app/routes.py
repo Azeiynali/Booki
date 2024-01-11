@@ -13,30 +13,43 @@ import random
 
 # library imports
 
+
 # functions
 def verify_password(password, _hashed_password, salt):
-    if hash_password(password, salt) == _hashed_password:
+    '''this function for verify passwords with sha256 hash'''
+    if sha256_hash(password, salt) == _hashed_password:
         return True
     else:
         return False
 
-def hash_password(password, salt):
+
+def sha256_hash(password, salt):
+    '''This function generates texts using sha 256 encryption and salts'''
+
+    # sha256 object
     hash_object = hashlib.sha256()
+    # encoding the password
     hash_object.update(password.encode())
     hashed_text = hash_object.hexdigest()
+    # salt adding
     hashed_text = hashed_text + salt
     return hashed_text
 
+
 def salt_generator():
+    '''This function generates a random salt'''
     salt = ""
-    chars = "abcdefghijklmnopqrstuvwxyz+_-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
+    chars = (
+        "abcdefghijklmnopqrstuvwxyz+_-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
+    )
     numbers = "3456789"
     len = int(random.choice(numbers))
     for i in range(len):
         salt += random.choice(chars)
     salt = salt + str(datetime.now())[1]
-    
+
     return salt
+
 
 def add_not_for_all(message):
     """this function for sending a notification for all users"""
@@ -50,6 +63,7 @@ def add_not_for_all(message):
             # add to this session and commit changes
             db.session.add(n)
             db.session.commit()
+
 
 def add_notification(user_id, message):
     """this function for sending a notification for a user
@@ -86,33 +100,49 @@ def changeScore(score):
 root_url = "127"
 # !
 
+
 # error pages
 @app.errorhandler(404)
 def page_not_found(error):
+    '''this function to display 404 error page'''
     if current_user.is_authenticated:
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     else:
         n = 0
 
-    return render_template('errors/404.html', current_user=current_user, not_list=n), 404
+    return (
+        render_template("errors/404.html", current_user=current_user, not_list=n),
+        404,
+    )
+
 
 @app.errorhandler(500)
 def page_not_found(error):
+    '''this function to display 500 error page'''
     if current_user.is_authenticated:
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     else:
         n = 0
 
-    return render_template('errors/500.html', current_user=current_user, not_list=n), 500
+    return (
+        render_template("errors/500.html", current_user=current_user, not_list=n),
+        500,
+    )
+
 
 @app.errorhandler(403)
 def page_not_found(error):
+    '''this function to display 403 error page'''
     if current_user.is_authenticated:
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     else:
         n = 0
 
-    return render_template('errors/403.html', current_user=current_user, not_list=n), 403
+    return (
+        render_template("errors/403.html", current_user=current_user, not_list=n),
+        403,
+    )
+
 
 #
 
@@ -148,7 +178,7 @@ def index():
                 current_user.id, " ورود با آی پی " + request.args.get("login")
             )
             # create a log
-            app.logger.info('logged in user: %s' % current_user.username)
+            app.logger.info("logged in user: %s" % current_user.username)
             # back to index
             return redirect(url_for("index"))
     # if user's logged in, and not go to here from login/register page
@@ -156,16 +186,16 @@ def index():
         # n is the number of notifications
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
-        # falloweds is the current user Followers
-        falloweds = Fallow.query.filter_by(follower=current_user.id)
+        # followers is the current user Followers
+        followeds = Follow.query.filter_by(follower=current_user.id)
 
         users = []
         posts = []
         # get all follower posts
-        for fallow_item in falloweds:
-            users.append(User.query.get(fallow_item.followed))
+        for follow_item in followeds:
+            users.append(User.query.get(follow_item.followed))
             posts += Post.query.filter_by(
-                writer=User.query.get(fallow_item.followed)
+                writer=User.query.get(follow_item.followed)
             ).all()
         # add follower posts to the post list
         posts += Post.query.filter_by(writer=current_user).all()
@@ -207,25 +237,25 @@ def user_posts(username):
     # get user
     user = User.query.filter_by(username=username).first()
     if not user:
-        return abort(404)
+        return abort(400)
 
     # get posts
     posts = []
     posts += Post.query.filter_by(writer=user).all()
 
     # if user followed
-    if Fallow.query.filter_by(follower=current_user.id, followed=user.id).first():
-        fallow = True
+    if Follow.query.filter_by(follower=current_user.id, followed=user.id).first():
+        follow = True
     else:
-        fallow = False
+        follow = False
 
     # create a log
     app.logger.info("user showed")
     return render_template(
         "profile.html",
         user=user,
-        fallow=fallow,
-        fallows=len(Fallow.query.filter_by(followed=user.id).all()),
+        follow=follow,
+        follows=len(Follow.query.filter_by(followed=user.id).all()),
         not_list=n,
         posts=posts,
         fAge=format_age,
@@ -268,7 +298,10 @@ def search():
         # search in all posts
         for post in Post.query.all():
             # search_score in app/functions
-            score = search_score(post.tags, post.content, request.form.get("search_value")) * 10
+            score = (
+                search_score(post.tags, post.content, request.form.get("search_value"))
+                * 10
+            )
             if score > 2:
                 list_result.append([post, score])
 
@@ -281,6 +314,10 @@ def search():
 
         # create a log
         app.logger.info("searching")
+
+        if len(search_value) < 3:
+            result = []
+
         return render_template(
             "search.html",
             current_user=current_user,
@@ -297,6 +334,15 @@ def search():
 def login():
     """this is a function for display login page"""
     return redirect(url_for("index"))
+
+
+@app.route("/recovery")
+def recovery():
+    '''this is a function to display recovery acount page'''
+    if not current_user.is_authenticated:
+        return render_template("recovery.html")
+    else:
+        return redirect(url_for('index'))
 
 
 @app.route("/register")
@@ -329,6 +375,7 @@ def chat():
 @app.route("/logout")
 @login_required
 def logout():
+    '''this function to logout'''
     logout_user()
 
     # create a log
@@ -348,7 +395,6 @@ def newpost():
 
 @app.route("/chatContent")
 @login_required
-@limiter.limit("5 per minute")
 def chatContent():
     """this function for display all messages for reload the chat page"""
     classMessages = Message.query.all()
@@ -359,6 +405,7 @@ def chatContent():
             "content": i.content,
             "id": i.id,
             "type": "right" if i.writer.id == current_user.id else "left",
+            "date": i.date,
             "avatar": i.writer.avatar if i.writer.id != current_user.id else None,
             "username": i.writer.username if i.writer.id != current_user.id else None,
         }
@@ -375,25 +422,30 @@ def explore():
     """
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
-    _users = []
     users = []
+    if current_user.bio:
+        _users = []
 
-    # add users and similarity of their bio to the current user to the users list
-    for user in User.query.all():
-        _users.append([user, float(text_similarity(current_user.bio, user.bio)) > 0.4])
+        # add users and similarity of their bio to the current user to the users list
+        for user in User.query.all():
+            _users.append(
+                [user, float(text_similarity(current_user.bio, user.bio)) > 0.4]
+            )
 
-    # sort users
-    _users = sorted(_users, key=lambda x: x[1], reverse=True)
+        # sort users
+        _users = sorted(_users, key=lambda x: x[1], reverse=True)
 
-    for user in _users:
-        users.append(user[0])
-    del _users
+        for user in _users:
+            users.append(user[0])
+        del _users
+    else:
+        users = User.query.all()
 
     return render_template(
         "explore.html",
         current_user=current_user,
         users=users,
-        Fallow=Fallow,
+        Follow=Follow,
         not_list=n,
     )
 
@@ -413,6 +465,15 @@ def messages():
         fAge=format_age,
         not_list=0,
     )
+
+
+@app.route("/security")
+@login_required
+def security():
+    '''this function to display recovery code keys page'''
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+
+    return render_template("security.html", not_list=n)
 
 
 # APIs
@@ -528,14 +589,18 @@ def user_valid():
                         # login user
                         if not current_user.is_authenticated:
                             login_user(user)
-                        elif 'me' in referer:
+                        elif "me" in referer:
                             pass
                         else:
                             return abort(400)
                         # create a log
                         app.logger.warning("password validation")
                         return jsonify(
-                            {"success": True, "valid": True, "message": "password is valid"}
+                            {
+                                "success": True,
+                                "valid": True,
+                                "message": "password is valid",
+                            }
                         )
 
                     else:
@@ -557,7 +622,7 @@ def user_valid():
         print(e)
         print("#" * 10)
 
-    return abort(404)
+    return abort(400)
 
 
 @app.route("/api/add", methods=["POST", "GET"])
@@ -693,98 +758,98 @@ def upload():
 @app.route("/api/adduser", methods=["PUT"])
 @limiter.limit("1 per minute")
 def addUser():
-        ''' this api for adding users '''
+    """this api for adding users"""
     # try:
-        if request.method == "PUT":
-            # getting user data
-            data = request.form
-            usr = str(data.get("username"))
-            pwd = str(data.get("password"))
-            gender = str(data.get("gender"))
-            city = str(data.get("city"))
-            country = str(data.get("country"))
-            avatar = str(data.get("avatar"))
-            bio = str(data.get("bio"))
-            
-            salt = salt_generator()
+    if request.method == "PUT":
+        # getting user data
+        data = request.form
+        usr = str(data.get("username"))
+        pwd = str(data.get("password"))
+        gender = str(data.get("gender"))
+        city = str(data.get("city"))
+        country = str(data.get("country"))
+        avatar = str(data.get("avatar"))
+        bio = str(data.get("bio"))
 
-            if bio:
-                bio = re.sub(r"\n", "<br />", data.get("bio"))
-                bio = re.sub(r"\"", "\\\"", bio)
+        salt = salt_generator()
 
-            tags =  '، '.join(find_keywords(bio))
-            usr = usr.lower()
+        if bio:
+            bio = re.sub(r"\n", "<br />", data.get("bio"))
+            bio = re.sub(r"\"", '\\"', bio)
 
-            # if username is not exists
-            print(salt)
-            if not User.query.filter_by(username=usr).first():
-                u = User(
-                    username=usr,
-                    avatar=avatar,
-                    password=hash_password(pwd, salt),
-                    tags=tags,
-                    gender=gender,
-                    city=city,
-                    salt=salt,
-                    country=country,
-                    bio=bio,
-                )
-                db.session.add(u)
-                db.session.commit()
+        if bio:
+            tags = "، ".join(find_keywords(bio))
+        else:
+            tags = ""
+        usr = usr.lower()
 
-                f = Fallow(follower=u.id, followed=1)
-                db.session.add(f)
-                db.session.commit()
-                # create a log
-                app.logger.warning("a user added")
-                return jsonify({"success": True})
-            else:
-                return jsonify(
-                    {
-                        "success": True,
-                        "valid": False,
-                        "message": "username is valid",
-                    }
-                )
+        # if username is not exists
+        if not User.query.filter_by(username=usr).first():
+            u = User(
+                username=usr,
+                avatar=avatar,
+                password=sha256_hash(pwd, salt),
+                tags=tags,
+                gender=gender,
+                city=city,
+                salt=salt,
+                country=country,
+                bio=bio,
+            )
+            db.session.add(u)
+            db.session.commit()
+
+            f = Follow(follower=u.id, followed=1)
+            db.session.add(f)
+            db.session.commit()
+            # create a log
+            app.logger.warning("a user added")
+            return jsonify({"success": True})
         else:
             return jsonify(
-                {"success": False, "valid": "?", "message": "args not found"}
+                {
+                    "success": True,
+                    "valid": False,
+                    "message": "username is valid",
+                }
             )
+    else:
+        return jsonify({"success": False, "valid": "?", "message": "args not found"})
     # except Exception as e:
     #     print("#" * 10)
     #     print(e)
     #     print("#" * 10)
     #     return abort(500)
 
-        return abort(404)
+    return abort(400)
 
 
-@app.route("/api/addfallow", methods=["PUT"])
-def fallow():
+@app.route("/api/addfollow", methods=["PUT"])
+def follow():
     """this API for adding a follower to the current user"""
     if "id" in request.form:
         # getting id
         id = request.form["id"]
         username = User.query.get(current_user.id).username
 
-        # adding fallow notification
+        # adding follow notification
         add_notification(
             id, f'<a href="/@{username}">{username}</a> شما را دنبال میکند'
         )
-        f = Fallow(follower=current_user.id, followed=id)
+        f = Follow(follower=current_user.id, followed=id)
         db.session.add(f)
         db.session.commit()
         return jsonify({"success": True})
     return jsonify({"success": False})
 
 
-@app.route("/api/delfallow", methods=["DELETE"])
-def not_fallow():
+@app.route("/api/delfollow", methods=["DELETE"])
+def not_follow():
     """this API for unfollow a follower"""
     if "id" in request.form:
         id = request.form["id"]
         # delete follower
-        f = Fallow.query.filter_by(follower=current_user.id, followed=id).first()
+        f = Follow.query.filter_by(follower=current_user.id, followed=id).first()
         db.session.delete(f)
         db.session.commit()
         username = User.query.get(current_user.id).username
@@ -799,6 +864,7 @@ def not_fallow():
 
 @app.route("/api/edit", methods=["POST"])
 @limiter.limit("4 per minute")
+@login_required
 def edit():
     """this API for edit a user"""
     data = request.form
@@ -807,10 +873,15 @@ def edit():
     pwd = data.get("password")
     cnty = data.get("country")
     city = data.get("city")
+    avtr = data.get("avatar")
 
     if bio:
         bio = re.sub(r"\n", "<br />", str(data.get("bio")))
-        bio = re.sub(r"\"", "\\\"", str(bio))
+        bio = re.sub(r"\"", '\\"', str(bio))
+
+        tags = "، ".join(find_keywords(bio))
+    else:
+        tags = ""
     usr = data.get("username")
 
     # changing the username
@@ -826,7 +897,7 @@ def edit():
     # changing the password
     elif pwd:
         u = User.query.filter_by(username=current_user.username).first()
-        u.password = bcrypt.generate_password_hash(pwd).decode()
+        u.password = sha256_hash(pwd, u.salt)
 
         db.session.commit()
         # create a log
@@ -835,6 +906,7 @@ def edit():
     elif bio:
         u = User.query.filter_by(username=current_user.username).first()
         u.bio = bio
+        u.tags = tags
 
         db.session.commit()
         return jsonify({"success": True})
@@ -842,12 +914,17 @@ def edit():
         current_user.country = cnty
         db.session.commit()
 
-        return jsonify({"success": True, "message": 'country changed'})
+        return jsonify({"success": True, "message": "country changed"})
     elif city:
         current_user.city = city
         db.session.commit()
 
-        return jsonify({"success": True, "message": 'city changed'})
+        return jsonify({"success": True, "message": "city changed"})
+    elif avtr:
+        current_user.avatar = avtr
+        db.session.commit()
+
+        return jsonify({"success": True, "message": "avatar changed"})
 
     return jsonify({"success": False})
 
@@ -911,6 +988,56 @@ def like():
     return abort(500)
 
 
+@app.route("/api/recovery", methods=["post"])
+@limiter.limit("3 per minute")
+def recovery_codes_api():
+    '''this API to create, delete and validation the keys'''
+    id = request.form.get("id")
+    print(id)
+    name = request.form.get("name")
+    code = request.form.get("code")
+    # create
+    if name:
+        while True:
+            # generate code
+            g_code = generate_code()
+            # if code is unique
+            if not RecoveryCode.query.filter_by(code=sha256_hash(g_code, "")).first():
+                break
+        # create code
+        rc = RecoveryCode(name=name, user=current_user, code=sha256_hash(g_code, ""))
+        db.session.add(rc)
+        db.session.commit()
+
+        return jsonify({"success": True, "code": g_code, "id": rc.id})
+    # delete
+    elif id:
+        # get object
+        rc = RecoveryCode.query.get_or_404(id)
+        if rc:
+            # delete
+            db.session.delete(rc)
+            db.session.commit()
+
+        return jsonify({"success": True})
+    # validation
+    elif code:
+        # get key
+        rc = RecoveryCode.query.filter_by(code=sha256_hash(code, "")).first()
+        # if key
+        if rc:
+            # login
+            login_user(rc.user)
+
+            return jsonify({"success": True, "valid": True})
+        else:
+            return jsonify({"success": True, "valid": False})
+
+        return jsonify({"success": True})
+
+    return abort(400)
+
+
 @app.route("/api/notifdelete", methods=["POST"])
 @login_required
 def delete_notification():
@@ -923,7 +1050,7 @@ def delete_notification():
             db.session.commit()
 
         return jsonify({"success": True})
-    return abort(404)
+    return abort(400)
 
 
 @app.route("/api/unlike", methods=["POST"])

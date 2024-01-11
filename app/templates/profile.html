@@ -71,15 +71,15 @@ content %}
                 &nbsp; {{ user.posts | length }} پست
             </div>
             <div class="wraper">
-                <small dir="rtl" class="fallows">{{ fallows }} دنبال کننده</small>
+                <small dir="rtl" class="follows">{{ follows }} دنبال کننده</small>
                 <p v-html="`{{ user.bio }}`" class="bio"></p>
             </div>
             {% if user.username != 'booki' and current_user != user %}
             <div class="buttons">
-                <div @click="fallow" ref="fallow" style="background-color: var(--blue)" class="button" v-if="!fallowed">
+                <div @click="follow" ref="follow" style="background-color: var(--blue)" class="button" v-if="!followed">
                     دنبال کردن
                 </div>
-                <div @click="fallow" ref="fallow" style="background-color: var(--red)" v-if="fallowed" class="button">
+                <div @click="follow" ref="follow" style="background-color: var(--red)" v-if="followed" class="button">
                     دنبال نکردن
                 </div>
             </div>
@@ -250,10 +250,10 @@ content %}
     new Vue({
         el: "#app",
         data: {
-        {% if fallow %}
-    fallowed: true,
+        {% if follow %}
+    followed: true,
         {% else %}
-    fallowed: false,
+    followed: false,
         {% endif %}
     usernameValid: false,
         type: "password"
@@ -371,24 +371,24 @@ content %}
                 });
             }
         },
-        fallow() {
+        follow() {
             var formData = new FormData();
             formData.append("id", {{ user.id }});
         {% raw %}
 
-        if (!this.fallowed) {
-            fetch("/api/addfallow", { method: "PUT", body: formData });
+        if (!this.followed) {
+            fetch("/api/addfollow", { method: "PUT", body: formData });
             setTimeout(() => {
-                this.fallowed = true;
+                this.followed = true;
             }, 500);
         } else {
-            fetch("/api/delfallow", {
+            fetch("/api/delfollow", {
                 method: "DELETE",
                 body: formData,
             });
 
             setTimeout(() => {
-                this.fallowed = false;
+                this.followed = false;
             }, 500);
         }
     },

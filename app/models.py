@@ -1,5 +1,6 @@
 from app import db, Login_mg
 from datetime import datetime
+from .functions import generate_code
 from flask_login import UserMixin
 import re
 import random
@@ -11,6 +12,7 @@ def load_user(user_id):
 
 # models
 
+# users
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
@@ -30,11 +32,14 @@ class User(db.Model, UserMixin):
     posts = db.relationship("Post", backref="writer", lazy=True)
     messages = db.relationship("Message", backref="writer", lazy=True)
     notifications = db.relationship("Notification", backref="user", lazy=True)
+    # recovery codes
+    rec_codes = db.relationship("RecoveryCode", backref="user", lazy=True)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.id} ---> {self.username})"
 
 
+# notifications
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String, unique=False, nullable=False)
@@ -47,6 +52,7 @@ class Notification(db.Model):
         return f"{self.__class__.__name__}({self.id} ---> {self.content[:20]})"
 
 
+# posts
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     img = db.Column(db.String)
@@ -62,15 +68,7 @@ class Post(db.Model):
         return f"{self.__class__.__name__}({self.id} ---> {self.date})"
 
 
-class Medal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    image = db.Column(db.String, unique=False)
-    title = db.Column(db.String, nullable=False)
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.id} ---> {self.title})"
-
-
+# messages
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(
@@ -86,7 +84,8 @@ class Message(db.Model):
         return f"{self.__class__.__name__}({self.id} ---> {self.date})"
 
 
-class Fallow(db.Model):
+# Follows
+class Follow(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     follower = db.Column(db.Integer)
     followed = db.Column(db.Integer)
@@ -95,7 +94,18 @@ class Fallow(db.Model):
         return f"{self.__class__.__name__}({self.follower} ---> {self.followed})"
 
 
+# likes
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     liker = db.Column(db.Integer)
     liked = db.Column(db.Integer)
+
+
+# RecoveryCodes
+class RecoveryCode(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
+    code = db.Column(db.String, nullable=False, unique=True)
+    name = db.Column(db.String, nullable=False, unique=True)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)

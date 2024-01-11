@@ -3,8 +3,19 @@ import hashlib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
+import random
+import string
+
+
+def generate_code():
+    '''generate a random 30 character code'''
+    characters = string.ascii_letters + string.digits
+    code = ''.join(random.choice(characters) for _ in range(30))
+    
+    return code
 
 def encode_md5(text):
+    '''hash a text width MD5'''
     if text:
         md5_hash = hashlib.md5()
         md5_hash.update(text.encode('utf-8'))
@@ -12,6 +23,7 @@ def encode_md5(text):
     else:
         return ""
 
+# 
 def text_similarity(text1, text2):
     vectorizer = TfidfVectorizer().fit_transform([text1, text2])
     vectors = vectorizer.toarray()
@@ -19,6 +31,7 @@ def text_similarity(text1, text2):
     return csim[0][1]
 
 def format_age(date):
+    '''convert date to age'''
     now = datetime.now()
     ageY = now.year - date.year
     ageM = now.month - date.month
@@ -41,34 +54,11 @@ def format_age(date):
     elif not ageY:
         if ageD > 2:
             return f"{ageM} ماه و {ageD} روز پیش"
-    age = now - date
-
-    if age.days < 0:
-        return "تازه تولد شده"
-    elif age.days == 0:
-        if age.seconds < 60:
-            return "به تازگی"
-        elif age.seconds < 3600:
-            minutes = age.seconds // 60
-            return f"{minutes} دقیقه پیش"
-        else:
-            return f"{ageM} ماه"
-            hours = age.seconds // 3600
-            return f"{hours} ساعت پیش"
-    elif age.days == 1:
-        return "دیروز"
-    elif age.days < 30:
-        return f"{age.days} روز پیش"
-    elif age.days < 365:
-        months = age.days // 30
-        days = age.days % 30
-        return f"{months} ماه و {days} روز پیش"
     else:
         return f"{ageY} سال پیش"
-        years = age.days // 365
-        return f"{years} سال پیش"
 
 def normalize(text):
+    '''normalize a text'''
     cleaned_string = text
     cleaned_string = (str(cleaned_string).replace(b'\xdb\x96'.decode("utf-8"), ''))
     cleaned_string = re.sub("ي", "ی", cleaned_string)
@@ -111,6 +101,7 @@ def normalize(text):
     return cleaned_string
 
 def search_score(tags, content, search_value):
+    '''Search score for a term in a text'''
     score = 0
 
     content_normalized = normalize(content)
@@ -130,6 +121,7 @@ def search_score(tags, content, search_value):
     return score
 
 def find_keywords(text):
+    '''Finding keywords in a text'''
     vectorizer = TfidfVectorizer()
     vectorizer.fit_transform([text])
 

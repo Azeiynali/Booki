@@ -1,34 +1,32 @@
-{% extends "base.html" %}
-
-{% block head %} <link rel="stylesheet" href="../static/css/chatroom.css" />{% endblock %}
-{% block Title %}گفتگو{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block head %}
+<link rel="stylesheet" href="../static/css/chatroom.css" />{% endblock %} {%
+block Title %}گفتگو{% endblock %} {% block content %}
 <div class="background"></div>
 
 <div id="app">
     <navbar active_item="chat"></navbar>
     <div class="content" ref="content">
         {% for i in messages %} {% if i.writer == current_user %}
-            <messager date="{{ i.date }}" message="{{ i.content }}" id="{{ i.id }}"></messager>
+        <messager
+            date="{{ i.date }}"
+            message="{{ i.content }}"
+            id="{{ i.id }}"
+        ></messager>
         {% else %}
-            <messageL
-                id="{{ i.id }}"
-                date="{{ i.date }}"
-                message="{{ i.content }}"
-                user='{"image_src": "{{ i.writer.avatar }}", "username": "{{ i.writer.username }}", "url":"/@{{ i.writer.username }}"}'
-            ></messageL>
+        <messageL
+            id="{{ i.id }}"
+            date="{{ i.date }}"
+            message="{{ i.content }}"
+            user='{"image_src": "{{ i.writer.avatar }}", "username": "{{ i.writer.username }}", "url":"/@{{ i.writer.username }}"}'
+        ></messageL>
         {% endif %} {% endfor %}
     </div>
     <sendInput ref="send" @new-message="addMessage"></sendInput>
 </div>
-{% endblock %}
-
-{% block script %}
-    {% raw %}
-
-
-
+{% raw %}
+<script>
     function formatText(inputText) {
+        /* this function to break messages */
         const maxLength = 40;
         const spacesBeforeBr = [37, 38, 39, 41, 42, 43];
 
@@ -52,20 +50,19 @@
         return outputText;
     }
 
+    // this code for hide the context menu 
     document.body.addEventListener("click", (ev) => {
         document.querySelectorAll(".context-menu").forEach((item) => {
             item.style.display = "none";
         });
     });
 
+    // this is a right message Vue component
     Vue.component("messagel", {
         props: {
             message: {},
             user: {},
-            like_count: {
-                default: 0,
-            },
-            date: {}
+            date: {},
         },
         data() {
             return {
@@ -78,9 +75,11 @@
         },
         methods: {
             GoToUser() {
+                // this function to change location to message writer
                 window.location = this.url;
             },
             contextmenu(event) {
+                // this function to display context menu
                 if (this.$refs.cx.style.display === "none") {
                     this.$refs.cx.style.left = event.pageX - 20 + "px";
                     this.$refs.cx.style.top = event.pageY - 70 + "px";
@@ -88,51 +87,42 @@
                 }
             },
             copy() {
+                // this function for copy message text
                 navigator.clipboard.writeText(this.text);
-                document
-                    .querySelectorAll(".context-menu")
-                    .forEach((item) => {
-                        item.style.display = "none";
-                    });
-            },
-            like() {
-                document
-                    .querySelectorAll(".context-menu")
-                    .forEach((item) => {
-                        item.style.display = "none";
-                    });
-                this.like_count++;
+                document.querySelectorAll(".context-menu").forEach((item) => {
+                    item.style.display = "none";
+                });
             },
         },
         template: `
-<div class="mess-container">
-    <div>
-        <div @contextmenu.prevent="contextmenu" @click.stop="contextmenu" class="message_left">
-            <pre v-html="text"></pre>
-            <div class="date">{{ date }}</div>
-            <i class="fi fi-rr-check"></i>
+    <div class="mess-container">
+        <div>
+            <div @contextmenu.prevent="contextmenu" @click.stop="contextmenu" class="message_left">
+                <pre v-html="text"></pre>
+                <div class="date">{{ date }}</div>
+                <i class="fi fi-rr-check"></i>
+            </div>
+            <img @click="GoToUser" class="user-pic-mess" :src="image_src" />
+            <div class="username">{{ username }}</div>
         </div>
-        <img @click="GoToUser" class="user-pic-mess" :src="image_src" />
-        <div class="username">{{ username }}</div>
+        <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
+            <ul class="menu">
+                <li @click.stop="copy">
+                    <a @click.stop="copy" href="#"
+                        ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
-    <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
-        <ul class="menu">
-            <li @click.stop="copy">
-                <a @click.stop="copy" href="#"
-                    ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
-                </a>
-            </li>
-        </ul>
-    </div>
-</div>
-    `,
+        `,
     });
 
     Vue.component("messager", {
         props: {
             message: {},
             id: {},
-            date: {}
+            date: {},
         },
         data() {
             return {
@@ -151,73 +141,76 @@
             },
             copy() {
                 navigator.clipboard.writeText(this.text);
-                document
-                    .querySelectorAll(".context-menu")
-                    .forEach((item) => {
-                        item.style.display = "none";
-                    });
+                document.querySelectorAll(".context-menu").forEach((item) => {
+                    item.style.display = "none";
+                });
             },
             remove() {
-                document
-                    .querySelectorAll(".context-menu")
-                    .forEach((item) => {
-                        item.style.display = "none";
-                    });
+                // this function to remove the message
+                document.querySelectorAll(".context-menu").forEach((item) => {
+                    item.style.display = "none";
+                });
 
                 var myHeaders = new Headers();
-                myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+                myHeaders.append(
+                    "Content-Type",
+                    "application/x-www-form-urlencoded"
+                );
 
                 var urlencoded = new URLSearchParams();
                 urlencoded.append("id", this.id);
-                urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
-                {% endraw %}
+                urlencoded.append(
+                    "pin",
+                    "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f"
+                );
+                // {% endraw %}
                 urlencoded.append("user_id", {{ current_user.id }});
-                {% raw %}
+                // {% raw %}
                 var requestOptions = {
-                    method: 'DELETE',
+                    method: "DELETE",
                     headers: myHeaders,
                     body: urlencoded,
-                    redirect: 'follow'
+                    redirect: "follow",
                 };
 
                 fetch("/api/delMessage", requestOptions)
-                .then(response => response.text())
+                    .then((response) => response.text())
 
-                .then(result => {
-                    this.is = false;
-                    }
-                )
-                .catch(error => console.log('error', error));
-            }
+                    .then((result) => {
+                        this.is = false;
+                    })
+                    .catch((error) => console.log("error", error));
             },
+        },
         template: `
-<div v-if="is" class="mess-container">
-    <div dir="rtl">
-        <div @click.stop="contextmenu($event)" @contextmenu.prevent="contextmenu" class="message_right">
-            <pre v-html="text"></pre>
-            <div class="date">{{ date }}</div>
-            <i class="fi fi-rr-check"></i>
+    <div v-if="is" class="mess-container">
+        <div dir="rtl">
+            <div @click.stop="contextmenu($event)" @contextmenu.prevent="contextmenu" class="message_right">
+                <pre v-html="text"></pre>
+                <div class="date">{{ date }}</div>
+                <i class="fi fi-rr-check"></i>
+            </div>
+        </div>
+        <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
+            <ul class="menu">
+                <li @click.stop="copy">
+                    <a @click.stop="copy" href="#"
+                        ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
+                    </a>
+                </li>
+                <li @click.stop="remove" class="trash">
+                    <a @click.stop="remove" href="#"
+                        ><i @click.stop="remove" class="fi fi-rr-trash-xmark" aria-hidden="true"></i>
+                        Delete</a
+                    >
+                </li>
+            </ul>
         </div>
     </div>
-    <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
-        <ul class="menu">
-            <li @click.stop="copy">
-                <a @click.stop="copy" href="#"
-                    ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
-                </a>
-            </li>
-            <li @click.stop="remove" class="trash">
-                <a @click.stop="remove" href="#"
-                    ><i @click.stop="remove" class="fi fi-rr-trash-xmark" aria-hidden="true"></i>
-                    Delete</a
-                >
-            </li>
-        </ul>
-    </div>
-</div>
-    `,
+        `,
     });
 
+    // send input Vue component
     Vue.component("sendinput", {
         data() {
             return {
@@ -226,45 +219,58 @@
         },
         methods: {
             send() {
+                // this function to send a message
                 if (this.message.trim() !== "") {
                     var myHeaders = new Headers();
-                    myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+                    myHeaders.append(
+                        "Content-Type",
+                        "application/x-www-form-urlencoded"
+                    );
 
                     var urlencoded = new URLSearchParams();
                     urlencoded.append("content", this.message);
-                    urlencoded.append("pin", "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f");
+                    urlencoded.append(
+                        "pin",
+                        "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f"
+                    );
 
                     var requestOptions = {
-                        method: 'POST',
+                        method: "POST",
                         headers: myHeaders,
                         body: urlencoded,
-                        redirect: 'follow'
+                        redirect: "follow",
                     };
 
                     fetch("/api/addMessage", requestOptions)
-                    .then(response => response.text())
+                        .then((response) => response.text())
 
-                    .then(result => {
-                        this.$emit("new-message", this.message, JSON.parse(result).date, JSON.parse(result).id)
-                        this.message = "";
-                        }
-                    )
-                    .catch(error => console.log('error', error));
+                        .then((result) => {
+                            this.$emit(
+                                "new-message",
+                                this.message,
+                                JSON.parse(result).date,
+                                JSON.parse(result).id
+                            );
+                            this.message = "";
+                        })
+                        .catch((error) => console.log("error", error));
                 }
-                this.$parent.$refs.content.scrollTop = this.$parent.$refs.content.scrollHeight;
+                this.$parent.$refs.content.scrollTop =
+                    this.$parent.$refs.content.scrollHeight;
             },
         },
         template: `
-<div class="send-input">
-    <input dir="rtl" @keyup.enter="send" v-model="message" type="text" class="send-input-text" placeholder="پیامی بنویسید...">
-    <i @click="send" class="fi fi-rr-paper-plane-top"></i>
-</div>`,
+    <div class="send-input">
+        <input dir="rtl" @keyup.enter="send" v-model="message" type="text" class="send-input-text" placeholder="پیامی بنویسید...">
+        <i @click="send" class="fi fi-rr-paper-plane-top"></i>
+    </div>`,
     });
+
     // root instance
     var app = new Vue({
         el: "#app",
         data: {},
-        mounted(){
+        mounted() {
             this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
         },
         methods: {
@@ -276,66 +282,64 @@
                         return {
                             message: message,
                             date: date,
-                            id: id
+                            id: id,
                         };
                     },
                 });
                 const vm = new messagerComponent().$mount();
                 this.$refs.content.appendChild(vm.$el);
             },
-            change(messsages){
-                this.$refs.content.innerHTML = ""
-                for (const message of JSON.parse(messsages).all){
-                    if (message.type == "right"){
+
+            change(messages) {
+                // this is to update the chatroom page
+                this.$refs.content.innerHTML = "";
+                for (const message of JSON.parse(messages).all) {
+                    if (message.type == "right") {
                         const messagerComponent = Vue.extend({
                             template:
-                                    '<messager :date="date" :message="message" :id="id"></messager>',
+                                '<messager :date="date" :message="message" :id="id"></messager>',
                             data() {
-                                    return {
-                                        message: message.content,
-                                        id: message.id,
-                                        date: message.date
-                                    };
-                                },
+                                return {
+                                    message: message.content,
+                                    id: message.id,
+                                    date: message.date,
+                                };
+                            },
                         });
                         const vm = new messagerComponent().$mount();
                         this.$refs.content.appendChild(vm.$el);
-                    }
-                    else {
+                    } else {
                         const messagerComponent = Vue.extend({
-                            template:
-                                    `<messagel :message="message"
-                                    :date="date"
-                                    user='{"image_src": "${message.avatar}",
-                                    "username": "${message.username}",
-                                    "url":"/@${message.username}"}'></messagel>`,
+                            template: `<messagel :message="message"
+                                        :date="date"
+                                        user='{"image_src": "${message.avatar}",
+                                        "username": "${message.username}",
+                                        "url":"/@${message.username}"}'></messagel>`,
 
                             data() {
-                                    return {
-                                        date: message.date,
-                                        message: message.content,
-                                    };
-                                },
+                                return {
+                                    date: message.date,
+                                    message: message.content,
+                                };
+                            },
                         });
                         const vm = new messagerComponent().$mount();
                         this.$refs.content.appendChild(vm.$el);
-
                     }
                 }
-
-            }
+            },
         },
     });
 
     function fetchData() {
-        fetch("/chatContent", { method: 'GET' })
-            .then(response => response.text())
-            .then(result => {
+        fetch("/chatContent", { method: "GET" })
+            .then((response) => response.text())
+            .then((result) => {
                 app.change(result);
                 setTimeout(fetchData, 5000);
             });
-
     }
-    // fetchData()
-    {% endraw %}
+    fetchData()
+</script>
+{% endraw %}
 {% endblock %}

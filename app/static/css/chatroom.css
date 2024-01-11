@@ -32,8 +32,8 @@
     position: absolute;
     font-size: 0.7rem;
     color: #ffffff98;
-    bottom: 8px;
-    left: 40px;
+    bottom: 2px;
+    right: 10px;
 }
 
 .message_right {
@@ -70,8 +70,8 @@
     position: absolute;
     font-size: 0.7rem;
     color: #ffffff98;
-    bottom: 8px;
-    left: 40px;
+    bottom: 2px;
+    right: 10px;
 }
 .content {
     overflow-y: scroll;

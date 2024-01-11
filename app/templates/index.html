@@ -38,6 +38,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
 
 {% raw %}
 <script>
+    // this is site header with all followers
     Vue.component("site-header", {
         props: ["items"],
         data() {
@@ -55,6 +56,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                     `,
     });
 
+    // this is post Vue component
     Vue.component("post", {
         props: {
             id: {},
@@ -83,6 +85,8 @@ Title %}Booki - خانه{% endblock %} {% block content %}
 
         methods: {
             like() {
+                // this function to like the post
+                // if not liked
                 if (this.like_classes) {
                     var data = new FormData();
                     data.append('postId', this.id)
@@ -97,6 +101,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                                 this.likes--;
                             }
                         })
+                // if liked
                 } else {
                     var data = new FormData();
                     data.append('postId', this.id)
@@ -114,6 +119,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                 }
             },
             delete_() {
+                // this function to delete the post
                 if (
                     this.$refs.itrash.getAttribute("class") ===
                     "fi fi-rr-check"
@@ -181,6 +187,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                     `,
     });
 
+    // user Vue component
     Vue.component("user", {
         props: ["img", "score", "href", "username"],
         template: `
@@ -203,14 +210,6 @@ Title %}Booki - خانه{% endblock %} {% block content %}
 
     new Vue({
         el: "#app",
-        methods: {
-            open_comd() {
-                this.$refs.comd.open();
-            },
-            open_immd() {
-                this.$refs.immd.open();
-            },
-        },
     });
 </script>
 {% endraw %} {% endblock %}
