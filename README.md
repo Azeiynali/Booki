@@ -21,7 +21,8 @@
 ./run.bat
 ```
 نکته: این وبسایت توسط پایتون 3.11 نوشته شده است
-[داکیومنت و راهنمای سفر](./docs/get_started.md)
+[داکیومنت و راهنمای سفر](./docs/get_started.md)<br /><br />
+نکته مهم: قبل از استفاده، به دلیل نکات امنیتی، باید متغییر root_url را در فایل routes به آدرس صفحه اصلی سایت تغییر دهید.
 
 
 ## تصاویر
@@ -29,3 +30,4 @@
 ![picture 2](./readme_pictures/2.png)
 ![picture 3](./readme_pictures/3.png)
 ![picture 4](./readme_pictures/4.png)
+![picture 5](./readme_pictures/5.png)
