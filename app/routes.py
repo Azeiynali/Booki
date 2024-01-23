@@ -315,7 +315,7 @@ def search():
         # create a log
         app.logger.info("searching")
 
-        if len(search_value) < 3:
+        if len(request.form.get("search_value")) < 3:
             result = []
 
         return render_template(
@@ -640,11 +640,16 @@ def addPost():
         # getting the Referer
         referer = request.headers.get("Referer")
         if content and referer and root_url in referer:
-            # TODO: add $ in the regex
             # change url(s) to "a" tag
             content = re.sub(
-                r"([www\.|https:\/\/].*\..*?)([\s|\.|،|\,|$])",
-                r'<a target="_blank" href="https:\/\/\1">\1</a>\2',
+                r"(?:https?:\/\/)?(?:www\.)?([^\/\s]+)(\..+)",
+                '<a target="_blank" href="https://\1">\1\2</a>',
+                content,
+            )
+            
+            content = re.sub(
+                "\n",
+                '<br />',
                 content,
             )
 

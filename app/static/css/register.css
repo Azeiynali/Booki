@@ -90,11 +90,12 @@ body {
     color: #c90000b2;
     float: right;
 }
-.login a {
+.link a {
     color: #4b70e2;
     text-decoration: none;
+    cursor: pointer;
 }
-.login a:hover {
+.link a:hover {
     text-decoration: underline;
 }
 .input-detail {
@@ -105,6 +106,7 @@ body {
     border: 5px solid white;
     border-radius: 100%;
     width: 250px;
+    position: relative;
     cursor: pointer;
 }
 .box {

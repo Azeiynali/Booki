@@ -35,6 +35,7 @@ app.config["ALLOWED_EXTENSIONS"] = {"png", "jpg", "jpeg"}
 
 # set database variable
 db = SQLAlchemy(app)
+
 # set login manager
 Login_mg = LoginManager(app)
 Login_mg.login_view = "/"

@@ -81,11 +81,15 @@ block Title %}گفتگو{% endblock %} {% block content %}
             contextmenu(event) {
                 // this function to display context menu
                 if (this.$refs.cx.style.display === "none") {
-                    this.$refs.cx.style.left = event.pageX - 20 + "px";
-                    this.$refs.cx.style.top = event.pageY - 70 + "px";
+                    const scrollX = window.scrollX || window.pageXOffset;
+                    const scrollY = window.scrollY || window.pageYOffset;
+
+                    this.$refs.cx.style.left = event.pageX - 20 - scrollX + "px";
+                    this.$refs.cx.style.top = event.pageY - 70 - scrollY + "px";
                     this.$refs.cx.style.display = "block";
                 }
             },
+
             copy() {
                 // this function for copy message text
                 navigator.clipboard.writeText(this.text);
@@ -134,8 +138,10 @@ block Title %}گفتگو{% endblock %} {% block content %}
         methods: {
             contextmenu(event) {
                 if (this.$refs.cx.style.display === "none") {
-                    this.$refs.cx.style.left = event.pageX - 20 + "px";
-                    this.$refs.cx.style.top = event.pageY - 70 + "px";
+                    content = document.querySelector(".content")
+
+                    this.$refs.cx.style.left = event.clientX - 20 + "px";
+                    this.$refs.cx.style.top = event.clientY - 70 + content.scrollTop + "px";
                     this.$refs.cx.style.display = "block";
                 }
             },

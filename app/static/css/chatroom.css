@@ -154,56 +154,52 @@ pre {
     background-color: #dbdbdb;
 }
 .send-input {
-    width: 95vw;
+    width: 100vw;
     height: 70px;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    outline: none;
     position: fixed;
-    column-gap: 20px;
-    bottom: 25px;
-    left: 5px;
+    bottom: 10px;
     text-align: center;
 }
 .send-input .send-input-text {
     outline: none;
-    border: none;
-    width: 80%;
+    background-color: #dddddd;
+    width: 90%;
     height: 80%;
-    background-color: #1975ff;
-    border-radius: 100px;
-    color: white;
+    border: 3px solid #9c9c9c;
     font-size: 1.5rem;
     padding-left: 20px;
     padding-right: 20px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
 }
 .send-input .send-input-text::placeholder {
-    color: #d8d8d8 !important;
-}
-.send-input .send-input-text:focus::placeholder {
-    color: #555555 !important;
+    color: #555555;
 }
 .send-input .send-input-text:focus {
     background-color: white;
     color: #1b1b1b;
-    border: 3px solid #1975ff;
 }
 .send-input-text:not(:placeholder-shown) ~ i {
-    background-color: #ff822e;
+    background-color: #2e82ff;
+    border: 3px solid #0a6cff;
 }
 .send-input i {
     font-size: 2rem;
     cursor: pointer;
-    width: 55px;
+    width: 8%;
     height: 80%;
     color: white;
     box-sizing: border-box;
-    padding-top: 12px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding-top: .4rem;
     align-items: center;
-    border-radius: 100px;
-    background-color: #1975ff;
+    background-color: #c0c0c0;
+    border: 3px solid #9c9c9c;
 }
 ul {
     list-style: none;

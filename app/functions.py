@@ -85,6 +85,7 @@ def normalize(text):
     cleaned_string = (cleaned_string.replace(b'\xd9\xb0'.decode("utf-8"), ''))
     cleaned_string = (cleaned_string.replace('\n', ' '))
     cleaned_string = re.sub(r"،", "", cleaned_string)
+    cleaned_string = re.sub("#", "", cleaned_string)
     cleaned_string = re.sub(r"\.", "", cleaned_string)
     cleaned_string = re.sub(r",", "", cleaned_string)
     cleaned_string = re.sub(r"\"", "", cleaned_string)
@@ -106,6 +107,11 @@ def search_score(tags, content, search_value):
 
     content_normalized = normalize(content)
 
+    if search_value[0] == "#" and len(search_value.split()) == 1:
+        if search_value[1:] in tags:
+            score += 1
+        return score
+
     for token in normalize(search_value).split(" "):
         score += content_normalized.count(token)
     
@@ -116,6 +122,7 @@ def search_score(tags, content, search_value):
                     score += text_similarity(token, search_token) * 1.5
                     if search_token in tags:
                         score += 1
+                    
 
 
     return score

@@ -45,15 +45,18 @@
         />
 
         <img
-        alt="profile"
+            alt="profile"
             @click="changeProfile"
             v-if="scene == 'profile'"
             class="profile"
             ref="image"
             src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
-            />
+        />
         <br v-if="error" />
         <p ref="error" v-if="error" class="error">{{ error_text }}</p>
+        <p dir="rtl" v-if="on_upload" ref="error" class="error">
+            فقط یک لحظه...
+        </p>
         <br />
         <p
             ref="characters"
@@ -86,10 +89,10 @@
             />
         </div>
     </div>
-    <p v-if="scene == 'username'" class="login">
+    <p v-if="scene == 'username'" class="link">
         حساب دارید؟ <a href="/">وارد شوید!</a>
     </p>
-    <p v-if="scene == 'profile'" @click="next()" class="login">
+    <p v-if="scene == 'profile'" @click="next()" class="link">
         <a>الان نه</a>
     </p>
 </div>
@@ -107,6 +110,7 @@
             placeholder: "username",
             placeholder_2: "",
             scene: "username",
+            on_upload: false,
             Rusername: "",
             Rpassword: "",
             Rbio: "",
@@ -189,7 +193,7 @@
                     fetch("/api/userValid", requestOptions)
                         .then((response) => {
                             if (response.status == 429) {
-                                console.log(11)
+                                console.log(11);
                                 throw new Error("429");
                             }
                             return response.json();
@@ -207,8 +211,9 @@
                             }
                         })
                         .catch((error) => {
-                            this.error = true
-                            this.error_text = 'مشکلی پیش آمده، کمی بعد دوباره تلاش کنید'
+                            this.error = true;
+                            this.error_text =
+                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                         });
                 }
             },
@@ -225,7 +230,7 @@
                     if (fileType === "image/jpeg" || fileType === "image/png") {
                         var formData = new FormData();
                         formData.append("file", file);
-
+                        this.on_upload = true;
                         fetch("/api/uploadavatar", {
                             method: "POST",
                             body: formData,
@@ -240,6 +245,7 @@
                                 } else {
                                     console.error("no OK");
                                 }
+                                this.on_upload = false;
                             })
                             .then((data) => {
                                 console.log(data);
@@ -248,9 +254,11 @@
                                     this.$refs.image.src = data.url;
                                     this.next();
                                 }
+                                this.on_upload = false;
                             })
                             .catch((error) => {
-                                this.error = true
+                                this.error = true;
+                                this.on_upload = false;
                                 this.error_text =
                                     "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                             });
@@ -337,11 +345,11 @@
                         })
                         .catch((error) => {
                             if (error == "Error: 429") {
-                                this.error = true
+                                this.error = true;
                                 this.error_text =
                                     "درخواست های بیش از حد، کمی بعد امتحان کنید";
                             } else {
-                                this.error = true
+                                this.error = true;
                                 this.error_text =
                                     "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                             }
