@@ -117,7 +117,7 @@ def page_not_found(error):
 
 
 @app.errorhandler(500)
-def page_not_found(error):
+def server_error(error):
     '''this function to display 500 error page'''
     if current_user.is_authenticated:
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
@@ -131,7 +131,7 @@ def page_not_found(error):
 
 
 @app.errorhandler(403)
-def page_not_found(error):
+def access_denied(error):
     '''this function to display 403 error page'''
     if current_user.is_authenticated:
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
@@ -144,13 +144,11 @@ def page_not_found(error):
     )
 
 
-#
-
-
 # index route
 @app.route("/")
 def index():
     """this function for displaying index page"""
+
     # RegisteredNow for Show whether the user is currently registered or not
     RegisteredNow = False
     # if user go to here from login or register page...
