@@ -12,7 +12,7 @@
             type="text"
             v-model="value"
             @keydown="typed"
-            @keydown.enter="check()"
+            @keydown.enter.stop="check"
             :placeholder="placeholder"
             dir="rtl"
             v-show="scene == 'username' || scene == 'password' || scene == 'address'"
@@ -31,7 +31,7 @@
 
         <input
             placeholder="none"
-            @keydown.enter="check()"
+            @keydown.enter.stop="check"
             @paste.prevent
             ref="input_2"
             maxlength="30"
@@ -120,18 +120,21 @@
             Ravatar: "https://cdn-icons-png.flaticon.com/512/3177/3177440.png",
         },
         methods: {
-            check() {
+            check(ev) {
                 // this function is for validations
                 if (this.scene == "username") {
                     if (this.value.length < 3) {
                         this.$refs.characters.style.color = "red";
                         this.info_error = true;
+
+                        return "";
                     } else if (!/^[a-zA-Z0-9_]+$/gm.test(this.value)) {
                         this.error = true;
                         this.error_text = "فقط حروف انگلیسی، اعداد و زیر خط";
-                    } else {
-                        this.valid();
+
+                        return "";
                     }
+                    this.valid();
                 } else if (this.scene == "password") {
                     if (this.value == this.value_2) {
                         this.error = false;
@@ -189,18 +192,21 @@
                     redirect: "follow",
                 };
 
-                if (!this.error && !this.info_error) {
+                if (!this.info_error) {
+                    if (this.error){
+                        if (this.error_text != "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید"){
+                            return ""
+                        }
+                    }
                     fetch("/api/userValid", requestOptions)
                         .then((response) => {
                             if (response.status == 429) {
-                                console.log(11);
                                 throw new Error("429");
                             }
                             return response.json();
                         })
                         .then((data) => {
                             if (data.success) {
-                                console.log(data);
                                 if (data.valid) {
                                     this.error = true;
                                     this.error_text =
@@ -240,7 +246,6 @@
                                     throw new Error("429");
                                 }
                                 if (response.ok) {
-                                    console.log("OK");
                                     return response.json();
                                 } else {
                                     console.error("no OK");
@@ -248,7 +253,6 @@
                                 this.on_upload = false;
                             })
                             .then((data) => {
-                                console.log(data);
                                 if (data.success) {
                                     this.Ravatar = data.url;
                                     this.$refs.image.src = data.url;
@@ -340,9 +344,7 @@
                                 throw new Error("429");
                             }
                         })
-                        .then((data) => {
-                            console.log(data);
-                        })
+                        .then((data) => {})
                         .catch((error) => {
                             if (error == "Error: 429") {
                                 this.error = true;

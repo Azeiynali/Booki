@@ -16,7 +16,7 @@ import random
 
 # functions
 def verify_password(password, _hashed_password, salt):
-    '''this function for verify passwords with sha256 hash'''
+    """this function for verify passwords with sha256 hash"""
     if sha256_hash(password, salt) == _hashed_password:
         return True
     else:
@@ -24,7 +24,7 @@ def verify_password(password, _hashed_password, salt):
 
 
 def sha256_hash(password, salt):
-    '''This function generates texts using sha 256 encryption and salts'''
+    """This function generates texts using sha 256 encryption and salts"""
 
     # sha256 object
     hash_object = hashlib.sha256()
@@ -37,7 +37,7 @@ def sha256_hash(password, salt):
 
 
 def salt_generator():
-    '''This function generates a random salt'''
+    """This function generates a random salt"""
     salt = ""
     chars = (
         "abcdefghijklmnopqrstuvwxyz+_-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
@@ -104,7 +104,7 @@ root_url = "127"
 # error pages
 @app.errorhandler(404)
 def page_not_found(error):
-    '''this function to display 404 error page'''
+    """this function to display 404 error page"""
     if current_user.is_authenticated:
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     else:
@@ -118,7 +118,7 @@ def page_not_found(error):
 
 @app.errorhandler(500)
 def server_error(error):
-    '''this function to display 500 error page'''
+    """this function to display 500 error page"""
     if current_user.is_authenticated:
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     else:
@@ -132,7 +132,7 @@ def server_error(error):
 
 @app.errorhandler(403)
 def access_denied(error):
-    '''this function to display 403 error page'''
+    """this function to display 403 error page"""
     if current_user.is_authenticated:
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     else:
@@ -297,7 +297,9 @@ def search():
         for post in Post.query.all():
             # search_score in app/functions
             score = (
-                search_score(post.tags, post.content, request.form.get("search_value"))
+                search_score(
+                    eval(post.tags), post.content, request.form.get("search_value")
+                )
                 * 10
             )
             if score > 2:
@@ -336,11 +338,11 @@ def login():
 
 @app.route("/recovery")
 def recovery():
-    '''this is a function to display recovery acount page'''
+    """this is a function to display recovery acount page"""
     if not current_user.is_authenticated:
         return render_template("recovery.html")
     else:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
 
 @app.route("/register")
@@ -373,7 +375,7 @@ def chat():
 @app.route("/logout")
 @login_required
 def logout():
-    '''this function to logout'''
+    """this function to logout"""
     logout_user()
 
     # create a log
@@ -468,7 +470,7 @@ def messages():
 @app.route("/security")
 @login_required
 def security():
-    '''this function to display recovery code keys page'''
+    """this function to display recovery code keys page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
     return render_template("security.html", not_list=n)
@@ -644,10 +646,10 @@ def addPost():
                 '<a target="_blank" href="https://\1">\1\2</a>',
                 content,
             )
-            
+
             content = re.sub(
                 "\n",
-                '<br />',
+                "<br />",
                 content,
             )
 
@@ -663,7 +665,7 @@ def addPost():
                 writer=User.query.get(current_user.id),
                 img=img,
                 content=content,
-                tags=tags,
+                tags=str(tags),
                 group=group,
                 description=content[:50],
             )
@@ -693,9 +695,17 @@ def delPost():
             pos = Post.query.get_or_404(id)
             # هf the author of the post was the current user
             if pos.writer.id == current_user.id:
+                # delete post likes
+                likes = Like.query.filter_by(liked=pos.id).all()
+                for like in likes:
+                    db.session.delete(like)
+
                 # delete the post
                 db.session.delete(pos)
+
+                # commit
                 db.session.commit()
+
                 # Subtract 5 Scores
                 changeScore(-5)
 
@@ -994,7 +1004,7 @@ def like():
 @app.route("/api/recovery", methods=["post"])
 @limiter.limit("3 per minute")
 def recovery_codes_api():
-    '''this API to create, delete and validation the keys'''
+    """this API to create, delete and validation the keys"""
     id = request.form.get("id")
     print(id)
     name = request.form.get("name")

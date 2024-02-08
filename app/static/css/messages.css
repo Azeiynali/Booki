@@ -5,6 +5,7 @@
     flex-direction: column;
     gap: 20px;
     align-items: center;
+    padding-bottom: 30px;
 }
 .message{
     width: 90%;

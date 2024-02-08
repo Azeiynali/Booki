@@ -50,7 +50,7 @@ block Title %}گفتگو{% endblock %} {% block content %}
         return outputText;
     }
 
-    // this code for hide the context menu 
+    // this code for hide the context menu
     document.body.addEventListener("click", (ev) => {
         document.querySelectorAll(".context-menu").forEach((item) => {
             item.style.display = "none";
@@ -80,19 +80,21 @@ block Title %}گفتگو{% endblock %} {% block content %}
             },
             contextmenu(event) {
                 // this function to display context menu
-                if (this.$refs.cx.style.display === "none") {
-                    const scrollX = window.scrollX || window.pageXOffset;
-                    const scrollY = window.scrollY || window.pageYOffset;
-
-                    this.$refs.cx.style.left = event.pageX - 20 - scrollX + "px";
-                    this.$refs.cx.style.top = event.pageY - 70 - scrollY + "px";
-                    this.$refs.cx.style.display = "block";
+                if (document.querySelector('.context-menu')) {
+                    document.querySelectorAll('.context-menu').forEach((el) => {
+                        el.style.display = "none";
+                    })
                 }
+                content = document.querySelector(".content")
+
+                this.$refs.cx.style.left = event.clientX - 20 + "px";
+                this.$refs.cx.style.top = event.clientY - 70 + content.scrollTop + "px";
+                this.$refs.cx.style.display = "block";
             },
 
             copy() {
                 // this function for copy message text
-                navigator.clipboard.writeText(this.text);
+                navigator.clipboard.writeText(this.text.replace(/<br \/>/g, "\n"));
                 document.querySelectorAll(".context-menu").forEach((item) => {
                     item.style.display = "none";
                 });
@@ -137,16 +139,19 @@ block Title %}گفتگو{% endblock %} {% block content %}
         },
         methods: {
             contextmenu(event) {
-                if (this.$refs.cx.style.display === "none") {
+                if (document.querySelector('.context-menu')) {
+                    document.querySelectorAll('.context-menu').forEach((el) => {
+                        el.style.display = "none";
+                    })
+                }
                     content = document.querySelector(".content")
 
                     this.$refs.cx.style.left = event.clientX - 20 + "px";
                     this.$refs.cx.style.top = event.clientY - 70 + content.scrollTop + "px";
                     this.$refs.cx.style.display = "block";
-                }
             },
             copy() {
-                navigator.clipboard.writeText(this.text);
+                navigator.clipboard.writeText(this.text.replace(/<br \/>/g, "\n"));
                 document.querySelectorAll(".context-menu").forEach((item) => {
                     item.style.display = "none";
                 });
@@ -347,5 +352,4 @@ block Title %}گفتگو{% endblock %} {% block content %}
     }
     fetchData()
 </script>
-{% endraw %}
-{% endblock %}
+{% endraw %} {% endblock %}

@@ -16,7 +16,7 @@
     <div class="posts">
         {% if search %}
         {% if not result %}
-        <p dir="rtl">نتیجه ای یافت نشد!</p>
+        <p class="p" dir="rtl">نتیجه ای یافت نشد!</p>
         {% endif %}
         {% for post in result %}
         <post {% if post.writer==current_user %} iw="True" {% endif %}

@@ -23,9 +23,6 @@ content %}
         <div class="infos">
             <input placeholder="username" disabled value="{{ user.username }}" class="username" ref="username" name="username" type="text"
                 @keydown.enter="updateUsername" />
-            {% if current_user == user %}
-            <i ref="changeU" @click="changeUsername" class="fi fi-rr-edit"></i>
-            {% endif %}
 
             <h6 class="address">
                 <i class="fi fi-rr-marker"></i>{{ user.country }}, {{
@@ -251,43 +248,15 @@ content %}
         el: "#app",
         data: {
         {% if follow %}
-    followed: true,
+            followed: true,
         {% else %}
-    followed: false,
+            followed: false,
         {% endif %}
-    usernameValid: false,
+            usernameValid: false,
         type: "password"
         },
 
     methods: {
-        changeUsername() {
-            this.$refs.username.disabled = false;
-            this.$refs.username.focus();
-            this.$refs.changeU.setAttribute(
-                "class",
-                "fi fi-rr-check-circle"
-            );
-            this.$refs.changeU.addEventListener(
-                "click",
-                this.updateUsername
-            );
-        },
-        changeP() {
-            let data = new FormData();
-            data.append("password", this.$refs.password.value);
-
-            fetch("/api/edit", {
-                method: "POST",
-                body: data,
-            });
-
-            setTimeout(
-                () =>
-                (window.location.href =
-                    "/@" + "{{ current_user.username }}"),
-                700
-            );
-        },
         changeAvatar(){
             var inputElement = document.createElement("input");
             inputElement.type = "file";
@@ -326,50 +295,6 @@ content %}
             });
 
             inputElement.click();
-        },
-        updateUsername() {
-            this.$refs.changeU.setAttribute("class", "fi fi-rr-edit");
-            this.$refs.username.disabled = true;
-            let formData = new FormData();
-            formData.append("username", this.$refs.username.value);
-
-            fetch("/api/userValid", {
-                method: "POST",
-                body: formData,
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                })
-                .then((data) => {
-                    if (data.valid) {
-                        this.usernameValid = true;
-                    } else {
-                        this.usernameValid = false;
-                    }
-                });
-
-            let data = new FormData();
-            data.append("username", this.$refs.username.value);
-
-            if (!this.usernameValid) {
-                fetch("/api/edit", {
-                    method: "POST",
-                    body: data,
-                }).then((response)=>response.json()).then((data)=>{
-                    if (data.success){
-                        if (response.ok){
-                            setTimeout(
-                                    () =>
-                                    (window.location.href =
-                                        "/@" + this.$refs.username.value),
-                                    700
-                                );
-                            }
-                    }
-                });
-            }
         },
         follow() {
             var formData = new FormData();

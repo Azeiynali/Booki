@@ -8,7 +8,8 @@
         <h2>کلید های بازیابی</h2>
         <p dir="rtl">
             با ساخت این کلید ها، می توانید هنگام فراموشی رمز عبور، حساب خود را
-            بازیابی کنید<br />بعد از کپی کردن، آنها را در جای امنی ذخیره کنید، چون امکان دسترسی دوباره به آنها وجود ندارد
+            بازیابی کنید<br />بعد از کپی کردن، آنها را در جای امنی ذخیره کنید،
+            چون امکان دسترسی دوباره به آنها وجود ندارد
         </p>
     </div>
     <div class="top_buttons">
@@ -84,14 +85,24 @@
                                             err
                                         );
                                         this.error = true;
+                                        setTimeout(() => {
+                                            this.error = false;
+                                        }, 3000);
                                     });
                                 div.setAttribute("data-id", data.id);
                             }
+                        })
+                        .catch((error) => {
+                            this.error = true;
+                            setTimeout(() => {
+                                this.error = false;
+                            }, 3000);
                         });
 
                     keys.appendChild(div);
                 }
                 this.key_name = "";
+                location.reload()
             },
             delete_key(ev) {
                 // this function is for delete a key
@@ -110,7 +121,12 @@
                             item.remove();
                         }
                     })
-                    .catch((error) => (this.error = true));
+                    .catch((error) => {
+                        this.error = true;
+                        setTimeout(() => {
+                            this.error = false;
+                        }, 3000);
+                    });
             },
         },
     });

@@ -26,7 +26,6 @@ body {
     margin-right: auto;
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
     justify-content: space-around;
     position: relative;
     margin-top: 13vh;
@@ -79,6 +78,7 @@ body {
     border-radius: 100px;
     border: none;
     /* margin-left: 34.6%; */
+    max-width: 80%;
     outline: none;
     background-color: #4b70e2;
     transition: all 0.1s ease-in;

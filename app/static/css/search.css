@@ -1,4 +1,4 @@
-#app form{
+#app form {
     display: flex;
     justify-content: center;
     padding-top: 200px;
@@ -9,7 +9,7 @@
     background-color: #ffa632;
     padding-bottom: 50px;
 }
-input{
+input {
     background-color: #fff;
     border-radius: 100px;
     box-shadow: 2px 2px 5px #2424244f, inset 3px 3px 5px #3b3b3b34;
@@ -18,13 +18,18 @@ input{
     direction: rtl;
     padding: 10px;
 }
-.blue{
+.blue {
     background-color: "#fff" !important;
     color: #328bff !important;
     transform: scale(1.2);
-    transition: all .3s;
+    transition: all 0.3s;
     opacity: 1 !important;
 }
-.blue:hover{
+.blue:hover {
     transform: scale(1.1);
+}
+p.p {
+    position: absolute;
+    top: 25rem;
+    right: 2rem;
 }
