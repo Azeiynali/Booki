@@ -9,9 +9,9 @@
         {% endif %} {% for notification in notifications %} {% if
         notification.seened %}
         <div class="message">
-            {{ notification.content }} {% else %}
+            <div v-html="`{{ notification.content }}`"></div>{% else %}
             <div class="message not_seened">
-                {{ notification.content }} {% endif %}
+                <div v-html="`{{ notification.content }}`"></div> {% endif %}
                 <small class="date">{{ fAge(notification.date) }}</small>
                 <div
                     onclick="delete_notification({{ notification.id }})"

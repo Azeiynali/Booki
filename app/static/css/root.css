@@ -12,15 +12,30 @@
     font-family: "Baloo Bhaijaan 2" !important;
     padding: 0;
     flex-shrink: 0;
+    overflow: hidden;
     margin: 0;
 }
 body {
+    overflow: auto !important;
     width: 100vw;
     min-height: 100vh;
+    background-color: #e0e1e2;
+}
+a {
+    display: contents;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow: visible !important;
 }
 nav.nav {
     width: 100%;
     position: fixed;
+    overflow: visible !important;
     height: 50px;
     top: 0;
     z-index: 111111111111111111111111111111111;
@@ -33,6 +48,7 @@ nav.nav {
 }
 .nav-items {
     height: 50px;
+    overflow: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,6 +56,7 @@ nav.nav {
 }
 .navbar-item {
     color: #292929;
+    display: inline-block;
     cursor: pointer;
     transition: all 0.3s;
     text-decoration: none;
@@ -85,11 +102,13 @@ nav.nav {
     height: 100%;
     column-gap: 20px;
     font-size: 1.5rem;
+    overflow: visible !important;
     cursor: pointer;
 }
 .profile-nav i {
     transition: all 0.3s;
     position: relative;
+    overflow: visible !important;
     margin-top: 15px;
 }
 .profile-nav i:nth-child(3) {
@@ -106,7 +125,6 @@ nav.nav {
         margin-right: 10px;
     }
 }
-a,
 span,
 h1,
 h2,
@@ -130,19 +148,19 @@ div.menu {
     gap: 10px;
     border-radius: 10px;
     position: absolute;
-    transition: all .3s;
+    transition: all 0.3s;
     flex-direction: column;
 }
-div.menu .item.blue{
+div.menu .item.blue {
     color: #3f93ca;
 }
-div.menu .item.red{
+div.menu .item.red {
     color: #ff4f49;
 }
-div.menu .item{
-    transition: all .3s;
+div.menu .item {
+    transition: all 0.3s;
 }
-div.menu .item:hover{
+div.menu .item:hover {
     color: #213cc5;
 }
 .message_error {

@@ -272,14 +272,14 @@ def me():
     return render_template("me.html", current_user=current_user, not_list=n)
 
 
-@app.route("/search", methods=["GET", "POST"])
+@app.route("/search", methods=["GET"])
 @login_required
 def search():
     """this is a function for display search page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
     # if not a search value
-    if not request.form.get("search_value"):
+    if not request.args.get("q"):
         # create a log
         app.logger.info("search showed")
         return render_template(
@@ -298,7 +298,7 @@ def search():
             # search_score in app/functions
             score = (
                 search_score(
-                    eval(post.tags), post.content, request.form.get("search_value")
+                    eval(post.tags), post.content, request.args.get("q")
                 )
                 * 10
             )
@@ -315,7 +315,7 @@ def search():
         # create a log
         app.logger.info("searching")
 
-        if len(request.form.get("search_value")) < 3:
+        if len(request.args.get("q")) < 3:
             result = []
 
         return render_template(
@@ -326,7 +326,7 @@ def search():
             result=list(result),
             fAge=format_age,
             Like=Like,
-            search_value=request.form.get("search_value"),
+            search_value=request.args.get("q"),
         )
 
 
@@ -643,7 +643,7 @@ def addPost():
             # change url(s) to "a" tag
             content = re.sub(
                 r"(?:https?:\/\/)?(?:www\.)?([^\/\s]+)(\..+)",
-                '<a target="_blank" href="https://\1">\1\2</a>',
+                r'<a target="_blank" href="https://\1\2">\1\2</a>',
                 content,
             )
 
@@ -656,9 +656,20 @@ def addPost():
             # find content keywords
             tags = find_keywords(content)
 
-            hashtags = re.findall(r"#([\w|آ-ی]*)", content)
+            # find hash tags
+            hashtags = re.findall(r"#([\w|آ-ی]+)", content)
+            content = re.sub(r"#([\w|آ-ی]+)", r'<a href="/search?q=%23\1">#\1</a>', content)
             if hashtags:
                 tags += hashtags
+
+            # unique the list
+            tags = list(set(tags))
+            _tags = []
+            for tag in tags:
+                if '<' not in tag and '>' not in tag and tag != 'br':
+                    _tags.append(tag)
+
+            tags = _tags.copy()
 
             # creating the post
             pos = Post(
@@ -672,8 +683,10 @@ def addPost():
             # adding post
             db.session.add(pos)
             db.session.commit()
+
             # add 5 scores
             changeScore(5)
+
             # create a log
             app.logger.info("post adding")
             return jsonify({"success": True})
@@ -1006,7 +1019,6 @@ def like():
 def recovery_codes_api():
     """this API to create, delete and validation the keys"""
     id = request.form.get("id")
-    print(id)
     name = request.form.get("name")
     code = request.form.get("code")
     # create

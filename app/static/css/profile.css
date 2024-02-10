@@ -4,6 +4,7 @@
     height: 25em;
     width: 100vw;
     position: relative;
+    overflow: visible;
     display: flex;
     background-image: url("https://wordpress.iqonic.design/product/wp/socialv/wp-content/themes/socialv-themes/assets/images/redux/default-cover.jpg");
     align-items: center;
@@ -36,6 +37,7 @@
     border: 6px solid white;
     border-radius: 100%;
     margin-bottom: 30px;
+    overflow: visible;
     background-size: cover;
     margin-top: 50px;
 }
@@ -63,6 +65,7 @@
 }
 .address {
     font-weight: 1;
+    overflow: visible;
     font-size: 1rem;
     position: relative;
     color: #353535;
@@ -89,6 +92,7 @@
     padding: 3px 8px;
     color: white;
     position: absolute;
+    overflow: visible;
     right: 1em;
     border-radius: 100px;
     justify-content: center;
@@ -110,6 +114,7 @@
 }
 .buttons {
     margin-top: 30px;
+    overflow: visible;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -152,4 +152,4 @@ def find_keywords(text):
 
     words = vectorizer.get_feature_names_out()
 
-    return words[:25]
+    return list(words[:25])

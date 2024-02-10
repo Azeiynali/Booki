@@ -2,7 +2,9 @@
     --transition-duration: 0.15s;
     --color-primary: #f38a00;
 }
-
+body{
+    background-color: white !important;
+}
 /* Plus Button Styles */
 .plus-button {
     display: inline-block;

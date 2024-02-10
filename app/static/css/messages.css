@@ -1,4 +1,4 @@
-.message-container{
+.message-container {
     display: flex;
     width: 100vw;
     margin-top: 70px;
@@ -7,7 +7,7 @@
     align-items: center;
     padding-bottom: 30px;
 }
-.message{
+.message {
     width: 90%;
     position: relative;
     border-radius: 5px;
@@ -17,29 +17,29 @@
     direction: rtl;
     background-color: #008cff;
 }
-.not_seened{
+.not_seened {
     background-color: #ffbb00;
 }
-.clear{
+.clear {
     padding: 10px 30px;
     background-color: #008cff;
     color: white;
     border-radius: 10px;
     cursor: pointer;
-    transition: all .3s;
+    transition: all 0.3s;
 }
-.clear:hover{
+.clear:hover {
     transform: scale(1.09);
 }
-.date{
+.date {
     position: absolute;
     bottom: 5px;
     left: 5px;
 }
-p{
+p {
     color: #384957;
 }
-.delete{
+.delete {
     position: absolute;
     left: 20px;
     top: 25%;
@@ -50,10 +50,17 @@ p{
     justify-content: center;
     height: 30px;
     text-align: center;
-    transition: all .3s;
+    transition: all 0.3s;
     padding-top: 7px;
     border-radius: 5px;
 }
-.delete:hover{
+.delete:hover {
     background-color: #0000003d;
+}
+.message a{
+    text-decoration: none;
+    color: #002442;
+}
+.message a:hover{
+    opacity: .7;
 }

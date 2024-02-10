@@ -1,5 +1,5 @@
-body{
-    overflow: hidden;
+body {
+    background-color: white !important;
 }
 .container {
     display: flex;
@@ -18,7 +18,7 @@ body{
     flex-direction: column;
     justify-content: center;
 }
-.container .left img{
+.container .left img {
     max-width: 410px;
     max-height: 400px;
 }
@@ -35,7 +35,7 @@ body{
     cursor: pointer;
     border-radius: 10px;
 }
-button.blue{
+button.blue {
     background-color: var(--blue) !important;
     color: white !important;
 }
@@ -43,7 +43,7 @@ button.blue{
     padding: 10px;
     width: 80%;
     height: 300px;
-    font-size: .9rem;
+    font-size: 0.9rem;
     direction: rtl;
     border-radius: 10px;
     color: #1f1f1f;
@@ -62,10 +62,11 @@ button.blue{
     outline: none;
 }
 @media screen and (max-width: 800px) {
-    .container{
+    .container {
         flex-direction: column;
     }
-    .container .right, .container .left{
+    .container .right,
+    .container .left {
         width: 95%;
     }
 }

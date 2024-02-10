@@ -15,6 +15,7 @@
     <div class="top_buttons">
         <div @click="new_key()" class="button">افزودن</div>
         <input
+            @keyup.enter="new_key()"
             v-model="key_name"
             dir="rtl"
             type="text"
@@ -64,7 +65,12 @@
                         this.key_name + '<i class="fi fi-rr-trash-xmark"></i>';
 
                     fetch("/api/recovery", { method: "POST", body: data })
-                        .then((response) => response.json())
+                        .then((response) => {
+                            if (response.status == 429) {
+                                throw new Error("429");
+                            }
+                            return response.json();
+                        })
                         .then((data) => {
                             if (data.success) {
                                 navigator.clipboard
@@ -90,19 +96,19 @@
                                         }, 3000);
                                     });
                                 div.setAttribute("data-id", data.id);
+                                keys.appendChild(div);
+                                setTimeout(() => location.reload(), 500);
+                                this.key_name = "";
                             }
                         })
                         .catch((error) => {
+                            console.log(error)
                             this.error = true;
                             setTimeout(() => {
                                 this.error = false;
                             }, 3000);
                         });
-
-                    keys.appendChild(div);
                 }
-                this.key_name = "";
-                location.reload()
             },
             delete_key(ev) {
                 // this function is for delete a key

@@ -1,26 +1,30 @@
-{% extends "base.html" %}
-
-{% block head %}
+{% extends "base.html" %} {% block head %}
 <link rel="stylesheet" href="/static/css/add.css" />
-{% endblock %}
-
-
-{% block Title %}افزودن{% endblock %}
-
-
-{% block content %}
+{% endblock %} {% block Title %}افزودن{% endblock %} {% block content %}
 <div id="app">
     <navbar active_item="add"></navbar>
     <div class="container">
         <div class="left">
-            <img alt="post_picture" ref="image" @click="image" src="/static/pictures/select_post_image.png" class="select">
+            <img
+                alt="post_picture"
+                ref="image"
+                @click="image"
+                src="/static/pictures/select_post_image.png"
+                class="select"
+            />
         </div>
         <div class="right">
-            <textarea placeholder="اینجا بنویسید" ref="content" type="text" class="input"></textarea>
-            <v-btn @click="save" color="blue" elevation="5" x-large>دخیره و انتشار</v-btn>
+            <textarea
+                placeholder="اینجا بنویسید"
+                ref="content"
+                type="text"
+                class="input"
+            ></textarea>
+            <v-btn @click="save" color="blue" elevation="5" x-large
+                >دخیره و انتشار</v-btn
+            >
         </div>
     </div>
-
 </div>
 
 <script src="/static/library/vuetify.js"></script>
@@ -28,6 +32,18 @@
 
 {% raw %}
 <script>
+    window.addEventListener("beforeunload", function (e) {
+        // Cancel the event
+        e.preventDefault();
+        // Chrome requires returnValue to be set
+        e.returnValue = "";
+
+        // Show the confirmation dialog
+        var confirmationMessage = "Are you sure you want to leave?";
+        (e || window.event).returnValue = confirmationMessage;
+        return confirmationMessage;
+    });
+
     app = new Vue({
         el: "#app",
         data: {},
@@ -82,10 +98,11 @@
                 fetch("/api/add", {
                     method: "POST",
                     body: formData,
-                }).then((response) => {window.location.href="/"})
-            }
-        }
-    })
+                }).then((response) => {
+                    window.location.href = "/";
+                });
+            },
+        },
+    });
 </script>
-{% endraw %}
-{% endblock %}
+{% endraw %} {% endblock %}

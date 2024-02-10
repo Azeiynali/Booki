@@ -1,3 +1,6 @@
+body {
+    background-color: white;
+}
 #app {
     display: flex;
     align-items: center;
@@ -21,33 +24,34 @@ img.avatar {
     border: 2px solid var(--blue);
     text-align: center;
 }
-textarea.input{
-    font-size: .7rem;
+textarea.input {
+    font-size: 0.7rem;
 }
 .input:focus {
     color: black;
 }
-.avatars{
+.avatars {
     display: flex;
     width: 90vw;
     align-items: center;
     justify-content: center;
     margin-bottom: 40px;
     gap: 15px;
+    overflow: visible;
     flex-wrap: wrap;
     pointer-events: none;
 }
-.avatars img{
+.avatars img {
     pointer-events: all;
     border-radius: 100%;
     cursor: pointer;
-    transition: all .3s ease;
+    transition: all 0.3s ease;
     width: 80px;
 }
-.avatars:hover img:hover{
+.avatars:hover img:hover {
     transform: scale(1.1);
 }
-.avatars:hover img:not(:hover){
-    transform: scale(.9);
-    opacity: .8;
+.avatars:hover img:not(:hover) {
+    transform: scale(0.9);
+    opacity: 0.8;
 }

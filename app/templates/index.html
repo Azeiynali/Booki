@@ -22,7 +22,8 @@ Title %}Booki - خانه{% endblock %} {% block content %}
         <div class="posts">
             {% for post in posts %}
             <post {% if post.writer==current_user %} iw="True" {% endif %}
-                content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
+                content="{{ post.content }}" id="{{ post.id }}"
+                image="{{ post.img }}"
                 username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
                 classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
                 like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}">
@@ -63,6 +64,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
             content: {},
             username: {},
             img: {},
+            image: {},
             avatar: {},
             date: "",
             like_classes: {
@@ -172,7 +174,10 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                                     </div>
                                 </a>
                             </div>
-                            <div v-html="content" dir="rtl" class="content"></div>
+                            <div dir="rtl" class="content">
+                                <img @dblclick="like" class="img" :src="image" />
+                                <p v-html="content"></p>    
+                            </div>
                             <div dir="rtl" class="bottom">
                                 <div @click="like" ref="like" :class="'like ' + like_classes">
                                     <i ref="like_icon" class="fi fi-rr-circle-heart"></i>

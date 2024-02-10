@@ -47,8 +47,8 @@
             },
         },
         template: `
-                    <form ref='root' method="POST" action="">
-                        <input value="{{ search_value }}" ref="search_input" required type="search" name="search_value">
+                    <form ref='root' action="">
+                        <input value="{{ search_value }}" ref="search_input" required type="search" name="q">
                         <v-btn @click="submit" x-large color="blue">جستجو</v-btn>
                     </form>
                 `,
