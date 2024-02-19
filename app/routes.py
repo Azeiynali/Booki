@@ -782,7 +782,7 @@ def upload():
 
 
 @app.route("/api/adduser", methods=["PUT"])
-@limiter.limit("1 per minute")
+@limiter.limit("1 per hours")
 def addUser():
     """this api for adding users"""
     # try:
