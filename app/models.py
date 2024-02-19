@@ -1,6 +1,5 @@
 from app import db, Login_mg
 from datetime import datetime
-from .functions import generate_code
 from flask_login import UserMixin
 import re
 import random
