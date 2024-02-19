@@ -642,8 +642,8 @@ def addPost():
         if content and referer and root_url in referer:
             # change url(s) to "a" tag
             content = re.sub(
-                r"(?:https?:\/\/)?(?:www\.)?([^\/\s]+)(\..+)",
-                r'<a target="_blank" href="https://\1\2">\1\2</a>',
+                r"(?:https?:\/\/)?(?:www\.)?([^\/\s]+)?(\..+)\s",
+                r'<a target="_blank" href="https://\1\2">\1\2 </a>',
                 content,
             )
 

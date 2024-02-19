@@ -98,7 +98,7 @@
                                     var response_json = data;
                                     this.error_show(false);
                                     let href = "/";
-                                    // set a login notification (send ip to index)
+                                    // set a login notification (send ip to backend)
                                     fetch("https://api.ipify.org?format=json")
                                         .then((response) => response.json())
                                         .then((data) => {
@@ -116,6 +116,7 @@
                                             window.location.href =
                                                 href + "?login=" + "0.0.0.0";
                                         });
+                                    location.reload();
                                 } else {
                                     this.error_show("رمزعبور غلط است");
                                 }

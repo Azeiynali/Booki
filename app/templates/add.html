@@ -32,18 +32,6 @@
 
 {% raw %}
 <script>
-    window.addEventListener("beforeunload", function (e) {
-        // Cancel the event
-        e.preventDefault();
-        // Chrome requires returnValue to be set
-        e.returnValue = "";
-
-        // Show the confirmation dialog
-        var confirmationMessage = "Are you sure you want to leave?";
-        (e || window.event).returnValue = confirmationMessage;
-        return confirmationMessage;
-    });
-
     app = new Vue({
         el: "#app",
         data: {},

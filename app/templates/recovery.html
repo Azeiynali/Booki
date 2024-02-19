@@ -3,7 +3,7 @@
 <link href="../static/library/Vuetify.css" rel="stylesheet" />
 {% endblock %} {% block Title %}ورود{% endblock %} {% block content %} {% raw %}
 <div id="app" dir="rtl" class="Form-box">
-    <h4 ref="des" class="des">لطفا یکی از کلید های بازیابی خود را وارد کنید</h4>
+    <h4 ref="des" style="line-height: normal;" class="des">لطفا یکی از کلید های بازیابی خود را وارد کنید</h4>
     <div class="inp-box">
         <p>پس از ورود، می توانید رمز عبور خود را تغییر دهید</p>
         <input
@@ -20,6 +20,7 @@
         <p v-if="error" class="error">{{ error_text }}</p>
     </div>
     <button @click="login()" id="username-sub">ورود</button>
+    <a href="/" class="link">بازگشت به صفحه ورود</a>
 </div>
 
 <script>
