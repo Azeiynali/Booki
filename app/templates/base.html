@@ -1,20 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- Tags -->
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        
-        <title>{% block Title %}{% endblock %}</title>
+        <meta name="generator" content="Flask">
 
+        <title>{% block Title %}{% endblock %}</title>
+        
+        <!-- imports -->
         <link href="../static/library/Vuetify.css" rel="stylesheet" />
-        <link rel="stylesheet" href="/static/library/regular_uicons.css" />
-        {% block head %}{% endblock %}
         <link rel="stylesheet" href="/static/css/root.css" />
+        <link rel="stylesheet" href="/static/library/regular_uicons.css" />
+
+        {% block head %}{% endblock %}
+        
+
+        <!-- Theme -->
+        <meta name="msapplication-TileColor" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff" />
+
+        <!-- icons -->
+        <link type="image/png" rel="icon" href="/static/pictures/favicon.png" />
+        <meta
+            name="msapplication-TileImage"
+            content="/static/pictures/favicon.png"
+        />
         <link
-            rel="icon"
+            rel="apple-touch-icon"
+            sizes="180x180"
             href="/static/pictures/favicon.png"
         />
+
+        <!-- SEO -->
+        <link rel="canonical" href="/">
+        <meta name="robots" content="index, follow">
+        <meta name="author" content="Azeiynali">
+        <meta http-equiv="Content-Language" content="fa">
+        <meta name="revisit-after" content="1 days">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="Booki">
+        <meta name="apple-mobile-web-app-status-bar-style" content="white">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="application-name" content="Booki">
+
     </head>
     <body>
         <script src="/static/library/vue.js"></script>

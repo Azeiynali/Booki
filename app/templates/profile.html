@@ -2,20 +2,17 @@
 <link href="../static/css/profile.css" rel="stylesheet" />
 <link href="../static/css/home.css" rel="stylesheet" />
 <link href="../static/library/Vuetify.css" rel="stylesheet" />
-<meta name="keywords" content="{{ user.tags }}">
-<meta name="description" content="{{ user.bio }}">
+<meta name="keywords" content="{{ user.tags }}" />
+<meta name="description" content="{{ user.bio }}" />
 
-{% endblock %} {% block Title %}{{ user.username }}{% endblock %} {% block
-content %}
+{% endblock %} {% block Title %}{{ user.username }}{% endblock %} {% block content %}
 <div id="app">
     <div @click="usernameValid = false" v-if="usernameValid" class="message_error">
         <i class="fi fi-rr-exclamation"></i>این نام کاربری موجود است!
     </div>
     <navbar></navbar>
     <div class="pbackground">
-        <div ref="avatar" style="
-                background-image: url('{{ user.avatar }}');
-            " class="avatar">
+        <div ref="avatar" style=" background-image: url('{{ user.avatar }}'); " class="avatar">
             {% if current_user == user %}
             <div @click="changeAvatar" class="change"><i class="fi fi-rr-camera"></i></div>
             {% endif %}
