@@ -16,8 +16,8 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                 [
                     {% for user in users %}
                         {"user_img": "{{ user.avatar }}",
-                        "user_href": "/@{{ user.username[:9] }}",
-                        "username": "{{ user.username }}"},
+                        "user_href": "/@{{ user.username }}",
+                        "username": "{{ user.username[:9] }}"},
                     {% endfor %}
                 ]
             '>

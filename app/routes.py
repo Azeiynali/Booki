@@ -235,7 +235,7 @@ def user_posts(username):
     # get user
     user = User.query.filter_by(username=username).first()
     if not user:
-        return abort(400)
+        return abort(404)
 
     # get posts
     posts = []
@@ -856,7 +856,7 @@ def follow():
     if "id" in request.form:
         # getting id
         id = request.form["id"]
-        username = User.query.get(current_user.id).username
+        username = current_user.username
 
         # adding follow notification
         add_notification(
