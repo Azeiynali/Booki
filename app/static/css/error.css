@@ -33,12 +33,13 @@ body {
     color: white;
     padding: 0.2rem 0.5rem;
     margin: 4px;
-    border-radius: 3px;
+    border-radius: 10px;
     text-decoration: none;
     transition: all .3s;
+    display: inline;
 }
 .link:hover{
-    transform: scale(.95);
+    transform: scale(.9);
 }
 .link.purple {
     background-color: #a430c7;
