@@ -1,0 +1,303 @@
+{% extends "base.html" %} {% block head %}
+<link rel="stylesheet" href="/static/css/home.css" />
+<link rel="stylesheet" href="/static/css/post.css" />
+<base href="http://127.0.0.1:5000">
+{% endblock %} {% block Title %}{{ post.writer.username }} -- {{ content }} {%
+endblock %} {% block content %}
+<div id="app">
+    <navbar></navbar>
+    <div class="container">
+        <post {% if post.writer==current_user %} iw="True" {% endif %}
+        content="{{ post.content }}" id="{{ post.id }}"
+        image="{{ post.img }}"
+        username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
+        classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+        like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}"> </post>
+        <div class="container">
+            <div class="examples">
+                <div @click="text_ar" class="exam">پست شما بسیار زیبا بود، اما</div>
+                <div @click="text_ar" class="exam">بسیار لذت بردم</div>
+                <div @click="text_ar" class="exam">این پست بسیار عمیق بود</div>
+                <div @click="text_ar" class="exam">این پست می توانست بهتر از این باشد اگر</div>
+                <div @click="text_ar" class="exam">اولین کامنت!</div>
+            </div>
+            <textarea placeholder="به نظر من..." class="comment-textarea"></textarea>
+            <button class="send" @click="add_comment">ارسال</button>
+            {% for comment in post.comments %}
+                <comment
+                    {% if comment.user == current_user %}
+                        iw="1"
+                    {% else %}
+                        iw=""
+                    {% endif %}
+                    avatar="{{ comment.user.avatar }}"
+                    username="{{ comment.user.username }}"
+                    id="{{ comment.id }}"
+                    content="{{ comment.content }}"
+                    date="{{ fAge(comment.date) }}" ></comment>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% raw %}
+    <script>
+        Vue.component("comment", {
+            props: ["username", "id", "content", "date", "avatar", "iw"],
+            data() {
+                return {
+                    is: true,
+                    delete_button: "حذف",
+                };
+            },
+            methods: {
+                delete_() {
+                    if (
+                        this.$refs.itrash.getAttribute("class") ===
+                        "fi fi-rr-check"
+                    ) {
+                        var myHeaders = new Headers();
+                        myHeaders.append(
+                            "Content-Type",
+                            "application/x-www-form-urlencoded"
+                        );
+
+                        var urlencoded = new URLSearchParams();
+                        urlencoded.append("id", this.id);
+                        var requestOptions = {
+                            method: "POST",
+                            headers: myHeaders,
+                            body: urlencoded,
+                            redirect: "follow",
+                        };
+
+                        fetch("/api/comment/del", requestOptions)
+                            .then((response) => response.text())
+
+                            .then((result) => {
+                                this.is = false;
+                            })
+                            .catch((error) => console.log("error", error));
+                    } else {
+                        this.$refs.itrash.setAttribute(
+                            "class",
+                            "fi fi-rr-check"
+                        );
+                        this.$refs.trash.setAttribute(
+                            "class",
+                            "like trash liked"
+                        );
+                        this.delete_button = "مطمئنید؟";
+                    }
+                },
+            },
+            template: `<div v-if="is" class="comment post">
+                        <div dir="rtl" class="user">
+                            <a :href="'\@' + username">
+                                <img :src="avatar" />
+                            </a>
+                            <a :href="'\@' + username">
+                                <div>
+                                    <p>
+                                        {{ username }}
+
+                                    </p>
+                                    <small>{{ date }}</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div dir="rtl" class="content">
+                            <p v-html="content"></p>
+                        </div>
+                        <div v-if="iw" dir="rtl" class="bottom">
+                            <div @click="delete_" ref="trash" class="like trash">
+                                {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
+                            </div>
+                            </a>
+                        </div>
+                    </div>`,
+        });
+        Vue.component("post", {
+            props: {
+                id: {},
+                content: {},
+                username: {},
+                img: {},
+                image: {},
+                avatar: {},
+                date: "",
+                like_classes: {
+                    default: "",
+                },
+                likes: {
+                    default: 0,
+                },
+                iw: {
+                    default: false,
+                },
+                classes: { default: "post" },
+            },
+            data() {
+                return {
+                    is: true,
+                    delete_button: "حذف",
+                };
+            },
+
+            methods: {
+                like() {
+                    // this function to like the post
+                    // if not liked
+                    if (this.like_classes) {
+                        var data = new FormData();
+                        data.append("postId", this.id);
+                        fetch("/api/unlike", {
+                            method: "POST",
+                            body: data,
+                        })
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                if (data.success) {
+                                    this.$refs.like_icon.style.color = "black";
+                                    this.like_classes = "";
+                                    this.likes--;
+                                }
+                            });
+                        // if liked
+                    } else {
+                        var data = new FormData();
+                        data.append("postId", this.id);
+                        fetch("/api/like", {
+                            method: "POST",
+                            body: data,
+                        })
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                if (data.success) {
+                                    this.$refs.like_icon.style.color =
+                                        "var(--red)";
+                                    this.like_classes = "liked";
+                                    this.likes++;
+                                }
+                            });
+                    }
+                },
+                delete_() {
+                    // this function to delete the post
+                    if (
+                        this.$refs.itrash.getAttribute("class") ===
+                        "fi fi-rr-check"
+                    ) {
+                        var myHeaders = new Headers();
+                        myHeaders.append(
+                            "Content-Type",
+                            "application/x-www-form-urlencoded"
+                        );
+
+                        var urlencoded = new URLSearchParams();
+                        urlencoded.append("id", this.id);
+                        var requestOptions = {
+                            method: "DELETE",
+                            headers: myHeaders,
+                            body: urlencoded,
+                            redirect: "follow",
+                        };
+
+                        fetch("/api/delete", requestOptions)
+                            .then((response) => response.text())
+
+                            .then((result) => {
+                                this.is = false;
+                            })
+                            .catch((error) => console.log("error", error));
+                    } else {
+                        this.$refs.itrash.setAttribute(
+                            "class",
+                            "fi fi-rr-check"
+                        );
+                        this.$refs.trash.setAttribute(
+                            "class",
+                            "like trash liked"
+                        );
+                        this.delete_button = "مطمئنید؟";
+                    }
+                },
+            },
+            template: `
+                        <div v-if="is" :class="classes">
+                            <div dir="rtl" class="user">
+                                <a :href="'\@' + username">
+                                    <img :src="avatar" />
+                                </a>
+                                <a :href="'\@' + username">
+                                    <div>
+                                        <p>
+                                            {{ username }}
+
+                                        </p>
+                                        <small>{{ date }}</small>
+                                    </div>
+                                </a>
+                            </div>
+                            <div dir="rtl" class="content">
+                                <img @dblclick="like" class="img" :src="image" />
+                                <p v-html="content"></p>    
+                            </div>
+                            <div dir="rtl" class="bottom">
+                                <div @click="like" ref="like" :class="'like ' + like_classes">
+                                    <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
+                                    <small>{{ likes }}</small>
+                                </div>
+                                <div v-if="iw" @click="delete_" ref="trash" class="like trash">
+                                    {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
+                                </div>
+                                </a>
+                            </div>
+                        </div>
+                    `,
+        });
+        app = new Vue({
+            el: "#app",
+            data: {},
+            methods :{
+                text_ar(ev) {
+                    let text = document.querySelector('textarea')
+                    text.innerHTML = ev.target.innerText
+                },
+                add_comment() {
+                    let text = document.querySelector('textarea')
+                    if (text.value){
+                        var myHeaders = new Headers();
+                            myHeaders.append(
+                                "Content-Type",
+                                "application/x-www-form-urlencoded"
+                            );
+
+                            var urlencoded = new URLSearchParams();
+                            urlencoded.append("content", text.value);
+                            // {% endraw %}
+                            urlencoded.append("id", "{{ post.id }}");
+                            // {% raw %}
+                            var requestOptions = {
+                                method: "POST",
+                                headers: myHeaders,
+                                body: urlencoded,
+                                redirect: "follow",
+                            };
+
+                            fetch("/api/comment/add", requestOptions)
+                                .then((response) => response.text())
+                                .then((result) => {
+                                    location.reload()
+                                })
+                                .catch((error) => console.log("error", error));
+                    }
+                },
+            }
+        });
+    </script>
+    {% endraw %} {% endblock %}
+</div>

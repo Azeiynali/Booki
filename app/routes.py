@@ -226,6 +226,17 @@ def user(username):
     return redirect(f"/@{username}/posts")
 
 
+@app.route("/post/<id>")
+@login_required
+def post(id):
+    p = Post.query.get_or_404(int(id))
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+    content = p.id
+
+    return render_template('post.html', current_user=current_user, post=p, not_list=n, content=content, fAge=format_age, Like=Like)
+
+
+
 @app.route("/@<username>/posts")
 @login_required
 def user_posts(username):
@@ -1100,6 +1111,36 @@ def unlike():
         print("#" * 10)
 
     return abort(500)
+
+
+@app.route("/api/comment/add", methods=["POST"])
+@login_required
+def add_comment():
+    data = request.form
+    content = data.get('content')
+    post = Post.query.get_or_404(int(data.get('id')))
+
+    cm = Comment(post=post, content=content, user=current_user)
+    db.session.add(cm)
+    db.session.commit()
+
+    return jsonify({"success": True})
+
+@app.route("/api/comment/del", methods=["POST"])
+@login_required
+def delete_comment():
+    data = request.form
+    id = data.get('id')
+
+    cm = Comment.query.get(id)
+    if cm.user == current_user:
+        db.session.delete(cm)
+        db.session.commit()
+
+        return jsonify({"success": True})
+    else: 
+        return abort(403)
+
 
 
 # ------ robots.txt file ------

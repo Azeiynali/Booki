@@ -31,6 +31,8 @@ class User(db.Model, UserMixin):
     posts = db.relationship("Post", backref="writer", lazy=True)
     messages = db.relationship("Message", backref="writer", lazy=True)
     notifications = db.relationship("Notification", backref="user", lazy=True)
+    comments = db.relationship("Comment", backref="user", lazy=True)
+
     # recovery codes
     rec_codes = db.relationship("RecoveryCode", backref="user", lazy=True)
 
@@ -62,6 +64,8 @@ class Post(db.Model):
     group = db.Column(db.String, unique=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    comments = db.relationship("Comment", backref="post", lazy=True)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.id} ---> {self.date})"
@@ -108,3 +112,11 @@ class RecoveryCode(db.Model):
     name = db.Column(db.String, nullable=False, unique=True)
     
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
+    content = db.Column(db.String, nullable=False, unique=False)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)

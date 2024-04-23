@@ -521,3 +521,7 @@ header.header {
 .trash {
     justify-content: center !important;
 }
+.comment_button {
+    color: #6969ff;
+    border-color: #6969ff !important;
+}

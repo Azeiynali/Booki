@@ -30,7 +30,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                 image="{{ post.img }}"
                 username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
                 classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
-                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}">
+                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ post.comments | length }}">
             </post>
             {% endfor %}
         </div>
@@ -65,6 +65,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
     Vue.component("post", {
         props: {
             id: {},
+            comment_length: {},
             content: {},
             username: {},
             img: {},
@@ -186,6 +187,10 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                                 <div @click="like" ref="like" :class="'like ' + like_classes">
                                     <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
                                     <small>{{ likes }}</small>
+                                </div>
+                                <div @click="window.location.href = '/post/' + id" class="like comment_button">
+                                    <i class="fi fi-rr-comment"></i>
+                                    <small>{{ comment_length }}</small>
                                 </div>
                                 <div v-if="iw" @click="delete_" ref="trash" class="like trash">
                                     {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
