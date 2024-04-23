@@ -1,7 +1,7 @@
 import os
 from app import app, db, limiter
 import ast
-from flask import render_template, abort, request, jsonify, redirect, url_for
+from flask import render_template, abort, request, jsonify, redirect, url_for, send_from_directory
 from app.models import *
 from flask_login import login_user, login_required, current_user, logout_user
 from app.functions import *
@@ -1100,3 +1100,9 @@ def unlike():
         print("#" * 10)
 
     return abort(500)
+
+
+# ------ robots.txt file ------
+@app.route('/robots.txt')
+def robots_txt():
+    return send_from_directory('static', 'robots.txt')
