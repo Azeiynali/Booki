@@ -102,21 +102,33 @@
                                     fetch("https://api.ipify.org?format=json")
                                         .then((response) => response.json())
                                         .then((data) => {
+                                            const nextParam =
+                                                window.location.search
+                                                    .split("?")[1]
+                                                    .split("&")
+                                                    .find((param) =>
+                                                        param.startsWith(
+                                                            "next="
+                                                        )
+                                                    );
+                                            const nextValue = nextParam
+                                                ? nextParam.split("=")[1]
+                                                : "";
+
+                                            const nextURL =
+                                                nextValue &&
+                                                `${window.location.origin}/${nextValue}`;
+
                                             if (data.ip) {
-                                                window.location.href =
-                                                    href + "?login=" + data.ip;
-                                            } else {
-                                                window.location.href =
-                                                    href +
-                                                    "?login=" +
-                                                    "0.0.0.0";
+                                                fetch(
+                                                    href + "?login=" + data.ip
+                                                );
                                             }
-                                        })
-                                        .catch((error) => {
-                                            window.location.href =
-                                                href + "?login=" + "0.0.0.0";
+                                            if (nextURL) {
+                                                window.location.href = nextURL;
+                                                return null;
+                                            }
                                         });
-                                    location.reload();
                                 } else {
                                     this.error_show("رمزعبور غلط است");
                                 }
@@ -148,7 +160,6 @@
                 // Changing the scene to the password scene
                 document.querySelector(".register").innerHTML =
                     'رمز عبور خود را فراموش کرده اید؟ <a href="/recovery">آن را بازیابی کنید</a>';
-                this.this_username = this.$refs.usernameinput.value;
                 this.$refs.usernameinput.placeholder = "رمزعبور";
                 this.$refs.usernameinput.name = "password";
                 this.$refs.usernameinput.type = "password";
@@ -234,7 +245,7 @@
                         .catch((error) => {
                             if (error == "Error: 429") {
                                 this.error_show(
-                                    "درخواست های بیش از حد، کمی بعد دوباره امتحان کنید"
+                                    "درخواست های بیش از حد، کمی بعد دوباره تلاش کنید"
                                 );
                             } else {
                                 this.error_show(

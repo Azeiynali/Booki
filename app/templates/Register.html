@@ -193,9 +193,12 @@
                 };
 
                 if (!this.info_error) {
-                    if (this.error){
-                        if (this.error_text != "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید"){
-                            return ""
+                    if (this.error) {
+                        if (
+                            this.error_text !=
+                            "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید"
+                        ) {
+                            return "";
                         }
                     }
                     fetch("/api/userValid", requestOptions)
