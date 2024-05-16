@@ -55,3 +55,14 @@ textarea.input {
     transform: scale(0.9);
     opacity: 0.8;
 }
+button {
+    color: white;
+    background-color: #5e5eff;
+    padding: 5px 20px;
+    transition: all .3s ease-out;
+    font-size: 1.3rem;
+    border-radius: 5px;
+}
+button:hover {
+    transform: scale(.9);
+}

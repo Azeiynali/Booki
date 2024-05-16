@@ -59,6 +59,7 @@
             @click="change_avatar"
             src="https://cdn-icons-png.flaticon.com/512/2716/2716054.png"
             data-upload="1"
+            title="upload avatar"
             alt="upload profile"
         />
     </div>
@@ -100,14 +101,21 @@
     <hr />
     <input
         type="password"
-        placeholder="پسورد جدید"
+        placeholder="رمز عبور جدید"
         class="input"
         ref="password"
-        @blur="change_password"
-        @focus="password_focus"
-        @keydown.enter="change_password"
+        @keydown.enter="next_password_input"
         v-model="password"
     />
+    <input
+        type="password"
+        placeholder="تکرار رمز عبور"
+        class="input"
+        ref="password"
+        @keydown.enter="change_password"
+        v-model="password_repeat"
+    />
+    <button @click="change_password">تغییر رمز عبور</button>
     <span class="white"></span>
 </div>
 
@@ -122,6 +130,7 @@
             city: "{{ current_user.city }}",
             user_city: "{{ current_user.city }}",
             password: "",
+            password_repeat: "",
             // {% if current_user.bio.replace("<br />", "") %}
             user_bio: `{{ current_user.bio.replace("<br />", "") }}`,
             // {% else %}
@@ -133,10 +142,6 @@
             error_show: false,
         },
         methods: {
-            password_focus() {
-                // this is a function to change the password input type to text
-                this.$refs.password.type = "text";
-            },
             close_error() {
                 // this function is for closing errors
                 this.$refs.error.style.transform = "translateX(200px)";
@@ -270,11 +275,15 @@
                 formData.append("password", this.password);
 
                 if (this.password) {
-                    if (this.password.length < 8) {
-                        this.error("رمز عبور جدید باید حداقل 8 کاراکتر باشد");
-                        this.password = "";
+                    if (this.password_repeat !== this.password) {
+                        this.error("رمزعبور با تکرار آن مساوی نیست");
                         return null;
                     }
+                    else if (this.password.length < 8) {
+                        this.error("رمز عبور جدید باید حداقل 8 کاراکتر باشد");
+                        return null;
+                    }
+                    
                     fetch("/api/edit", {
                         method: "POST",
                         body: formData,

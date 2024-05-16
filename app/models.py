@@ -80,8 +80,9 @@ class Message(db.Model):
         nullable=False,
         unique=False,
     )
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     content = db.Column(db.String, nullable=False)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.id} ---> {self.date})"
