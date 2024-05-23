@@ -1,0 +1,48 @@
+#app {
+    margin-top: 50px;
+}
+header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: #ffd92d;
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 50px;
+}
+.session {
+    background-color: rgb(113, 103, 255);
+    color: white;
+    width: 85%;
+    font-size: 2rem;
+    direction: rtl;
+    margin-left: 10%;
+    line-height: 40px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: all .3s ease-out;
+    margin-bottom: 50px;
+}
+.session small {
+    font-size: 1rem;
+    margin-right: 3%;
+    line-height: 0;
+}
+.session img, header img {
+    float: left;
+    width: 120px;
+    height: 120px;
+    background-color: white;
+    border-radius: 100%;
+    padding: 20px;
+    margin-bottom: 2%;
+    border: none;
+}
+.session:hover {
+    transform: scale(.97);
+    opacity: .9;
+}

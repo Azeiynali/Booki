@@ -1,140 +1,38 @@
-{% extends "base.html" %} {% block head %}
-<link rel="stylesheet" href="/static/css/security.css" />
-{% endblock %} {% block Title %}امنیت{% endblock %} {% block content %}
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/security_p.css" />
+{% endblock %}
+
+
+{% block Title %}امنیت{% endblock %}
+
+
+{% block content %}
 <div id="app">
     <navbar></navbar>
-
-    <div class="header">
-        <h2>کلید های بازیابی</h2>
-        <p dir="rtl">
-            با ساخت این کلید ها، می توانید هنگام فراموشی رمز عبور، حساب خود را
-            بازیابی کنید<br />بعد از کپی کردن، آنها را در جای امنی ذخیره کنید،
-            چون امکان دسترسی دوباره به آنها وجود ندارد
-        </p>
+    <header>
+        <img src="https://cdn-icons-png.flaticon.com/512/1040/1040247.png" alt="Security image">
+        <h1>امنیت حساب خود را افزایش دهید</h1>
+    </header>
+    <div @click="location.href = '/me#passwordB'" class="session">
+        تغییر رمز عبور<br />
+        <small>رمز عبور خود را تغییر دهید</small>
+        <img src="https://cdn-icons-png.flaticon.com/512/10473/10473528.png" alt="Password">
     </div>
-    <div class="top_buttons">
-        <div @click="new_key()" class="button">افزودن</div>
-        <input
-            @keyup.enter="new_key()"
-            v-model="key_name"
-            dir="rtl"
-            type="text"
-            placeholder="نام کلید"
-        />
-        <p v-if="error" class="error">
-            مشکلی پیش آمد، کمی بعد دوباره تلاش کنید
-        </p>
+    <div @click="location.href = '/recodes'" class="session">
+        مدیریت کلید های بازیابی<br />
+        <small>اگر رمز عبور حساب خود را فراموش کردید، با استفاده از این کلید ها، آن را بازیابی کنید</small>
+        <img src="https://cdn-icons-png.flaticon.com/512/3039/3039427.png" alt="Security Keys">
     </div>
-    <div class="keys">
-        {% for key in current_user.rec_codes %}
-        <div data-id="{{ key.id }}" class="key">
-            {{ key.name }}
-            <i @click="delete_key" class="fi fi-rr-trash-xmark"></i>
-        </div>
-        {% endfor %}
-    </div>
-    <div class="copy_message">کلید در کلیپبورد کپی شد</div>
 </div>
 
 {% raw %}
 <script>
     app = new Vue({
         el: "#app",
-        data: {
-            key_name: "",
-            error: false,
-        },
-        methods: {
-            new_key() {
-                // this function is for add new key
-                let keyElements = document.querySelectorAll(".key");
-                for (let i = 0; i < keyElements.length; i++) {
-                    if (keyElements[i].innerText === this.key_name) {
-                        return true;
-                    }
-                }
-                if (this.key_name) {
-                    var data = new FormData();
-                    data.append("name", this.key_name);
-
-                    keys = document.querySelector(".keys");
-
-                    div = document.createElement("div");
-                    div.setAttribute("class", "key");
-                    div.innerHTML =
-                        this.key_name + '<i class="fi fi-rr-trash-xmark"></i>';
-
-                    fetch("/api/recovery", { method: "POST", body: data })
-                        .then((response) => {
-                            if (response.status == 429) {
-                                throw new Error("429");
-                            }
-                            return response.json();
-                        })
-                        .then((data) => {
-                            if (data.success) {
-                                navigator.clipboard
-                                    .writeText(data.code)
-                                    .then(() => {
-                                        document.querySelector(
-                                            ".copy_message"
-                                        ).style.opacity = "1";
-                                        setTimeout(() => {
-                                            document.querySelector(
-                                                ".copy_message"
-                                            ).style.opacity = "0";
-                                        }, 4000);
-                                    })
-                                    .catch((err) => {
-                                        console.error(
-                                            "خطا در کپی کردن متن :",
-                                            err
-                                        );
-                                        this.error = true;
-                                        setTimeout(() => {
-                                            this.error = false;
-                                        }, 3000);
-                                    });
-                                div.setAttribute("data-id", data.id);
-                                keys.appendChild(div);
-                                setTimeout(() => location.reload(), 500);
-                                this.key_name = "";
-                            }
-                        })
-                        .catch((error) => {
-                            console.log(error)
-                            this.error = true;
-                            setTimeout(() => {
-                                this.error = false;
-                            }, 3000);
-                        });
-                }
-            },
-            delete_key(ev) {
-                // this function is for delete a key
-                item = ev.target.parentNode;
-                id = item.getAttribute("data-id");
-
-                console.log(id);
-
-                var data = new FormData();
-                data.append("id", id);
-
-                fetch("/api/recovery", { method: "POST", body: data })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (data.success) {
-                            item.remove();
-                        }
-                    })
-                    .catch((error) => {
-                        this.error = true;
-                        setTimeout(() => {
-                            this.error = false;
-                        }, 3000);
-                    });
-            },
-        },
-    });
+        data: {}
+    })
 </script>
-{% endraw %} {% endblock %}
+{% endraw %}
+{% endblock %}

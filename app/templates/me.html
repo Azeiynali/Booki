@@ -115,7 +115,7 @@
         @keydown.enter="change_password"
         v-model="password_repeat"
     />
-    <button @click="change_password">تغییر رمز عبور</button>
+    <button id="passeordB" @click="change_password">تغییر رمز عبور</button>
     <span class="white"></span>
 </div>
 
@@ -250,7 +250,7 @@
                     });
 
                     inputElement.click();
-                // if clicked on a picture
+                    // if clicked on a picture
                 } else {
                     let formData = new FormData();
                     formData.append("avatar", ev.target.src);
@@ -258,14 +258,18 @@
                     fetch("/api/edit", {
                         method: "POST",
                         body: formData,
-                    }).then((response) => {
-                        if (response.status == 429){
-                            throw new Error('429')
-                        }
-                        location.reload();
-                    }).catch((error)=>{
-                        this.error('مشکلی پیش آمده است، کمی بعد دوباره تلاش کنید')
-                    });
+                    })
+                        .then((response) => {
+                            if (response.status == 429) {
+                                throw new Error("429");
+                            }
+                            location.reload();
+                        })
+                        .catch((error) => {
+                            this.error(
+                                "مشکلی پیش آمده است، کمی بعد دوباره تلاش کنید"
+                            );
+                        });
                 }
             },
             change_password() {
@@ -278,12 +282,11 @@
                     if (this.password_repeat !== this.password) {
                         this.error("رمزعبور با تکرار آن مساوی نیست");
                         return null;
-                    }
-                    else if (this.password.length < 8) {
+                    } else if (this.password.length < 8) {
                         this.error("رمز عبور جدید باید حداقل 8 کاراکتر باشد");
                         return null;
                     }
-                    
+
                     fetch("/api/edit", {
                         method: "POST",
                         body: formData,
@@ -342,7 +345,7 @@
                             }
                         })
                         .catch((error) => {
-                                this.username = this.user_username;
+                            this.username = this.user_username;
                             this.error(
                                 "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
                             );

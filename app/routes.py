@@ -478,10 +478,18 @@ def messages():
     )
 
 
+@app.route("/recodes")
+@login_required
+def recodes():
+    """this function to display recovery code keys page"""
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+
+    return render_template("recodes.html", not_list=n)
+
 @app.route("/security")
 @login_required
 def security():
-    """this function to display recovery code keys page"""
+    """this function to display security page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
     return render_template("security.html", not_list=n)

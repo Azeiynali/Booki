@@ -9,7 +9,7 @@
             placeholder="none"
             maxlength="30"
             ref="input"
-            type="text"
+            :type="type"
             v-model="value"
             @keydown="typed"
             @keydown.enter.stop="check"
@@ -35,7 +35,7 @@
             @paste.prevent
             ref="input_2"
             maxlength="30"
-            type="text"
+            :type="type_2"
             v-model="value_2"
             :placeholder="placeholder_2"
             @keydown="typed"
@@ -118,6 +118,8 @@
             Rcity: "",
             Rgender: "",
             Ravatar: "https://cdn-icons-png.flaticon.com/512/3177/3177440.png",
+            type: 'text',
+            type_2: 'text'
         },
         methods: {
             check(ev) {
@@ -280,11 +282,15 @@
                     this.$refs.title.innerHTML = "رمز عبور خود را وارد کنید";
                     this.placeholder = "Password";
                     this.placeholder_2 = "Password again";
+                    this.type = 'password';
+                    this.type_2 = 'password';
                     this.scene = "password";
                     this.character = "8";
                     this.Rusername = this.value;
                 } else if (this.scene == "password") {
                     this.$refs.title.innerHTML = "لطفا بیو خود را وارد کنید";
+                    this.type = 'text';
+                    this.type_2 = 'text';
                     this.scene = "bio";
                     this.placeholder = "من یک ...";
                     this.$refs.text.style.height = "100px";
