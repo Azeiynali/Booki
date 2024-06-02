@@ -199,3 +199,11 @@ div.menu .item:hover {
     width: 100vw;
     height: 50px;
 }
+a.link {
+    color: #4b70e2;
+    text-decoration: none;
+    cursor: pointer;
+}
+a.link:hover {
+    text-decoration: underline !important;
+}

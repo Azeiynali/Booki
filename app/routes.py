@@ -22,7 +22,7 @@ def verify_password(password, _hashed_password, salt):
     else:
         return False
 
-def SMS(sms_code):
+def SMS(phone, sms_code):
     '''this function for SMS sending'''
 
     print(sms_code)
@@ -401,6 +401,14 @@ def recovery():
     """this is a function to display recovery acount page"""
     if not current_user.is_authenticated:
         return render_template("recovery.html")
+    else:
+        return redirect(url_for("index"))
+
+@app.route("/phone_recovery")
+def phone_recovery():
+    """this is a function to display recovery acount page"""
+    if not current_user.is_authenticated:
+        return render_template("phone_recovering.html")
     else:
         return redirect(url_for("index"))
 
@@ -1225,14 +1233,14 @@ def phone_validating():
 
         code = generate_code(6, only_numbers=True)
 
-        while not Code.query.filter_by(code=code):
+        while Code.query.filter_by(code=code).first():
             code = generate_code(6, only_numbers=True)
 
         c = Code(phone=phone, code=code)
         db.session.add(c)
         db.session.commit()
         
-        sms_sended = SMS(code)
+        sms_sended = SMS(phone, code)
         return jsonify({'success': True, 'valid': True})
 
     elif phone and code:
@@ -1243,6 +1251,58 @@ def phone_validating():
 
         if c and days == 0 and seconds <= 1000:
             return jsonify({'success': True, 'valid': True}) 
+
+        return jsonify({'success': True, 'valid': False})
+
+    return abort(400)
+
+@app.route("/api/recovery/phone", methods=["POST"])
+@limiter.limit("3 per minute")
+def phone_recovery_codes_api():
+    """this API to acount recovering with phone"""
+
+    phone = request.form.get("phone")
+    code = request.form.get("code")
+
+    print('-'*20)
+    print(phone)
+    print('-'*20)
+    print(code)
+    print('-'*20)
+
+    if phone and not code:
+        print(1)
+        if User.query.filter_by(phone=phone).first():
+            code = generate_code(6, only_numbers=True)
+
+            while Code.query.filter_by(code=code).first():
+                code = generate_code(6, only_numbers=True)
+            print(2)
+
+
+            c = Code(phone=phone, code=code)
+            db.session.add(c)
+            db.session.commit()
+
+            SMS(phone, code)
+
+            print(3)
+            return jsonify({'success': True, 'valid': True})
+        return jsonify({'success': True, 'valid': False})
+
+    elif phone and code:
+        c = Code.query.filter_by(phone=phone, code=code).first()
+
+        days = (datetime.now() - c.date).days
+        seconds = (datetime.now() - c.date).seconds
+
+        if c and days == 0 and seconds <= 1000:
+            u = User.query.filter_by(phone=phone).first()
+            login_user(u)
+
+            db.session.delete(c)
+            db.session.commit()
+            return jsonify({'success': True, 'valid': True})
 
         return jsonify({'success': True, 'valid': False})
 

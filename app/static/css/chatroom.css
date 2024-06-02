@@ -79,7 +79,7 @@
     right: 10px;
 }
 .content {
-    overflow-y: scroll !important;
+    overflow-y: auto !important;
     height: calc(100vh - 200px);
     padding-bottom: 40px;
     margin-top: 89px;
