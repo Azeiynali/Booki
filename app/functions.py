@@ -7,10 +7,10 @@ import random
 import string
 
 
-def generate_code():
-    """generate a random 30 character code"""
-    characters = string.ascii_letters + string.digits
-    code = "".join(random.choice(characters) for _ in range(30))
+def generate_code(length, only_numbers=False):
+    """generate a random code"""
+    characters = string.digits if only_numbers else string.ascii_letters + string.digits
+    code = "".join(random.choice(characters) for _ in range(length))
 
     return code
 

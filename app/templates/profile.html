@@ -83,13 +83,13 @@
     </div>
     <div class="posts">
         {% for post in posts %}
-            <post
-                {% if post.writer==current_user %} iw="True" {% endif %}
-                content="<img class='img' src='{{ post.img }}'><p>{{ post.content }}</p>" id="{{ post.id }}"
-                username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
-                classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
-                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}"  comment_length="{{ post.comments | length }}">
-            </post>
+        <post {% if post.writer==current_user %} iw="True" {% endif %}
+        content="{{ post.content }}" id="{{ post.id }}"
+        image="{{ post.img }}"
+        username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
+        classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+        like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ post.comments | length }}">
+    </post>
         {% endfor %}
     </div>
 </div>
@@ -122,6 +122,7 @@
             content: {},
             username: {},
             img: {},
+            image: {},
             avatar: {},
             date: "",
             like_classes: {
@@ -144,6 +145,8 @@
 
         methods: {
             like() {
+                // this function to like the post
+                // if not liked
                 if (this.like_classes) {
                     var data = new FormData();
                     data.append('postId', this.id)
@@ -158,6 +161,7 @@
                                 this.likes--;
                             }
                         })
+                // if liked
                 } else {
                     var data = new FormData();
                     data.append('postId', this.id)
@@ -175,6 +179,7 @@
                 }
             },
             delete_() {
+                // this function to delete the post
                 if (
                     this.$refs.itrash.getAttribute("class") ===
                     "fi fi-rr-check"
@@ -227,7 +232,10 @@
                                     </div>
                                 </a>
                             </div>
-                            <div v-html="content" dir="rtl" class="content"></div>
+                            <div dir="rtl" class="content">
+                                <img @dblclick="like" v-if="image != 'http://127.0.0.1:5000/static/pictures/select_post_image.png'" class="img" :src="image" />
+                                <p v-html="content"></p>    
+                            </div>
                             <div dir="rtl" class="bottom">
                                 <div @click="like" ref="like" :class="'like ' + like_classes">
                                     <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
@@ -245,15 +253,15 @@
                         </div>
                     `,
     });
-    {% endraw %}
+    // {% endraw %}
     new Vue({
         el: "#app",
         data: {
-        {% if follow %}
+        // {% if follow %}
             followed: true,
-        {% else %}
+        // {% else %}
             followed: false,
-        {% endif %}
+        // {% endif %}
             usernameValid: false,
         type: "password"
         },
@@ -301,7 +309,7 @@
         follow() {
             var formData = new FormData();
             formData.append("id", {{ user.id }});
-        {% raw %}
+        // {% raw %}
 
         if (!this.followed) {
             fetch("/api/addfollow", { method: "PUT", body: formData });

@@ -142,8 +142,8 @@ body {
 }
 @media screen and (max-width: 1160px) {
     .box {
-        width: 150px;
-        height: 150px;
+        width: 100px;
+        height: 100px;
     }
     .genders {
         flex-direction: column;

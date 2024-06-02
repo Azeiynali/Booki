@@ -1,5 +1,6 @@
 .post {
     margin-top: 70px;
+    width: 85%;
 }
 .comment {
     background-color: white;
@@ -20,6 +21,7 @@
 .comment .user {
     transform: scale(.85);
     width: unset;
+    text-align: center;
     height: unset;
     display: inline-block;
     overflow: visible !important;

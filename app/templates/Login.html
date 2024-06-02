@@ -107,33 +107,30 @@
                                                     href + "?login=" + data.ip
                                                 );
                                             }
-                                            var nextURL = ""
-                                            try {
-                                                const nextParam =
-                                                    window.location.search
-                                                        .split("?")[1]
-                                                        .split("&")
-                                                        .find((param) =>
-                                                            param.startsWith(
-                                                                "next="
-                                                            )
-                                                        );
-                                                const nextValue = nextParam
-                                                    ? nextParam.split("=")[1]
-                                                    : "";
-
-                                                var nextURL =
-                                                    nextValue &&
-                                                    `${window.location.origin}/${nextValue}`;
-                                            } catch {
-                                                window.location.reload()
-                                            }
-                                            if (nextURL) {
-                                                window.location.href = nextURL;
-                                                return null;
-                                            }
-                                            window.location.reload()
                                         });
+                                    var nextURL = "";
+                                    try {
+                                        const nextParam = window.location.search
+                                            .split("?")[1]
+                                            .split("&")
+                                            .find((param) =>
+                                                param.startsWith("next=")
+                                            );
+                                        const nextValue = nextParam
+                                            ? nextParam.split("=")[1]
+                                            : "";
+
+                                        var nextURL =
+                                            nextValue &&
+                                            `${window.location.origin}/${nextValue}`;
+                                    } catch {
+                                        window.location.reload();
+                                    }
+                                    if (nextURL) {
+                                        window.location.href = nextURL;
+                                        return null;
+                                    }
+                                    window.location.reload();
                                 } else {
                                     this.error_show("رمزعبور غلط است");
                                 }

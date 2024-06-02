@@ -18,7 +18,7 @@
                 <img alt="" src="{{ user.avatar }}" />
                 <p><i class="fi fi-rr-{{ user.gender }}-head"></i> {{ user.username[:10] }}</p>
                 <small>{{ Follow.query.filter_by(followed=user.id).all() | length }}</small>
-                <p v-html="`{{ user.bio[:150] }}`"></p>
+                <p v-text="`{{ user.bio[:45] }}{% if user.bio.__len__() > 45 %}...{% endif %} `"></p>
             </div>
         </a>
         {% endfor %}

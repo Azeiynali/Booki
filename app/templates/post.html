@@ -23,7 +23,7 @@ endblock %} {% block content %}
             </div>
             <textarea placeholder="به نظر من..." class="comment-textarea"></textarea>
             <button class="send" @click="add_comment">ارسال</button>
-            {% for comment in post.comments %}
+            {% for comment in comments %}
                 <comment
                     {% if comment.user == current_user %}
                         iw="1"
@@ -243,7 +243,7 @@ endblock %} {% block content %}
                                 </a>
                             </div>
                             <div dir="rtl" class="content">
-                                <img @dblclick="like" class="img" :src="image" />
+                                <img @dblclick="like" v-if="image != 'http://127.0.0.1:5000/static/pictures/select_post_image.png'" class="img" :src="image" />
                                 <p v-html="content"></p>    
                             </div>
                             <div dir="rtl" class="bottom">

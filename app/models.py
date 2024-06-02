@@ -16,6 +16,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     gems = db.Column(db.Integer, default=0)
+    phone = db.Column(db.String, unique=True)
     password = db.Column(db.String, unique=False)
     avatar = db.Column(db.String, unique=False)
     date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
@@ -114,6 +115,7 @@ class RecoveryCode(db.Model):
     
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
+# Comments
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
@@ -121,3 +123,10 @@ class Comment(db.Model):
     
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)
+
+# Register SMS Codes
+class Code(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    phone = db.Column(db.String)
+    code = db.Column(db.Integer, unique=True)
+    date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)

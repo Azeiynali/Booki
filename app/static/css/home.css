@@ -14,9 +14,21 @@
     text-align: center;
     padding-top: 5px;
 }
+.load_button {
+    background-color: #005be4;
+    display: inline-block;
+    color: white;
+    padding: 10px 30px;
+    border-radius: 10px;
+    margin: auto;
+}
+.load_button:hover {
+    opacity: .9;
+}
 .posts {
     width: 70%;
     margin: 50px auto;
+    text-align: center;
 }
 .post {
     min-height: 200px;
@@ -433,6 +445,7 @@ header.header {
     font-size: 1.5rem;
 }
 .img {
+    max-height: 30rem;
     width: 20rem;
     border-radius: 10px;
 }

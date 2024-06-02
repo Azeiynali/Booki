@@ -22,6 +22,13 @@ def verify_password(password, _hashed_password, salt):
     else:
         return False
 
+def SMS(sms_code):
+    '''this function for SMS sending'''
+
+    print(sms_code)
+
+    return True
+
 
 def sha256_hash(password, salt):
     """This function generates texts using sha 256 encryption and salts"""
@@ -185,11 +192,12 @@ def index():
         n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
         # followers is the current user Followers
-        followeds = Follow.query.filter_by(follower=current_user.id)
+        followeds = Follow.query.filter_by(follower=current_user.id).all()
 
         users = []
         posts = []
         # get all follower posts
+        print(followeds)
         for follow_item in followeds:
             users.append(User.query.get(follow_item.followed))
             posts += Post.query.filter_by(
@@ -206,17 +214,55 @@ def index():
             "index.html",
             fAge=format_age,
             users=users,
-            posts=posts,
+            posts=posts[:50],
+            posts_length=len(posts),
             current_user=current_user,
             not_list=n,
             Like=Like,
-            first=RegisteredNow,
+            pagination=1
         )
     else:
         # if not logged in, display login page
         # create a log
         app.logger.info("login page showed")
         return render_template("login.html")
+
+@app.route("/page/<num_>")
+@login_required
+def posts_pagination(num_: int):
+    num = int(num_)
+    # n is the number of notifications
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+
+    # followers is the current user Followers
+    followeds = Follow.query.filter_by(follower=current_user.id).all()
+
+    users = []
+    posts = []
+    # get all follower posts
+    for follow_item in followeds:
+        users.append(User.query.get(follow_item.followed))
+        posts += Post.query.filter_by(
+            writer=User.query.get(follow_item.followed)
+        ).all()
+    # add follower posts to the post list
+    posts += Post.query.filter_by(writer=current_user).all()
+
+    # unique the post list
+    posts = list(set(posts))
+    # sort as the date
+    posts.sort(key=lambda x: x.date, reverse=True)
+    return render_template(
+        "index.html",
+        fAge=format_age,
+        users=users,
+        posts=posts[num*50:num*50 + 50],
+        posts_length=len(posts),
+        current_user=current_user,
+        not_list=n,
+        Like=Like,
+        pagination=num
+    )
 
 
 @app.route("/@<username>")
@@ -232,8 +278,11 @@ def post(id):
     p = Post.query.get_or_404(int(id))
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     content = p.id
+    
+    
+    comments = sorted(p.comments, key=lambda x: x.date, reverse=True)
 
-    return render_template('post.html', current_user=current_user, post=p, not_list=n, content=content, fAge=format_age, Like=Like)
+    return render_template('post.html', comments=comments, current_user=current_user, post=p, not_list=n, content=content, fAge=format_age, Like=Like)
 
 
 
@@ -244,7 +293,7 @@ def user_posts(username):
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
     # get user
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username.lower()).first()
     if not user:
         return abort(404)
 
@@ -357,7 +406,6 @@ def recovery():
 
 
 @app.route("/register")
-@limiter.limit("5 per minute")
 def register():
     """this is a function for display register page"""
     if current_user.is_authenticated:
@@ -366,7 +414,7 @@ def register():
         return redirect(url_for("index"))
     else:
         # create a log
-        app.logger.warning("user showed")
+        app.logger.warning("register page showed!")
         return render_template("register.html")
 
 
@@ -656,19 +704,15 @@ def addPost():
         content = data.get("content")
         group = data.get("group")
 
+        print(content)
+
         # getting the Referer
         referer = request.headers.get("Referer")
         if content and referer and root_url in referer:
             # change url(s) to "a" tag
             content = re.sub(
-                r"(?:https?:\/\/)?(?:www\.)?([^\/\s]+)?(\..+)\s",
-                r'<a target="_blank" href="https://\1\2">\1\2 </a>',
-                content,
-            )
-
-            content = re.sub(
-                "\n",
-                "<br />",
+                r"(https:\/\/|www\.|http:\/\/)(.*)(\..*)(\s|$)",
+                r'<a target="_blank" href="https://\2\3">\2\3 </a>',
                 content,
             )
 
@@ -677,7 +721,12 @@ def addPost():
 
             # find hash tags
             hashtags = re.findall(r"#([\w|آ-ی]+)", content)
-            content = re.sub(r"#([\w|آ-ی]+)", r'<a href="/search?q=%23\1">#\1</a>', content)
+            content =  re.sub(r"#([\w|آ-ی]+)", r'<a href="/search?q=%23\1">#\1</a>', content)
+            content =  re.sub(r'@(\w+)', r'<a href="@\1">\1@</a>', content)
+
+            while '\n' in content:
+                content = content.replace('\n', '<br />')
+
             if hashtags:
                 tags += hashtags
 
@@ -731,6 +780,11 @@ def delPost():
                 likes = Like.query.filter_by(liked=pos.id).all()
                 for like in likes:
                     db.session.delete(like)
+                
+                # delete post comments
+                comments = Comment.query.filter_by(post=pos).all()
+                for comment in comments:
+                    db.session.delete(comment)
 
                 # delete the post
                 db.session.delete(pos)
@@ -815,6 +869,8 @@ def addUser():
         country = str(data.get("country"))
         avatar = str(data.get("avatar"))
         bio = str(data.get("bio"))
+        phone = str(data.get("phone"))
+        code = str(data.get("code"))
 
         salt = salt_generator()
 
@@ -830,34 +886,40 @@ def addUser():
 
         # if username is not exists
         if not User.query.filter_by(username=usr).first():
-            u = User(
-                username=usr,
-                avatar=avatar,
-                password=sha256_hash(pwd, salt),
-                tags=tags,
-                gender=gender,
-                city=city,
-                salt=salt,
-                country=country,
-                bio=bio,
-            )
-            db.session.add(u)
-            db.session.commit()
+            c = Code.query.filter_by(code=code, phone=phone).first()
+            if c:
+                u = User(
+                    username=usr,
+                    avatar=avatar,
+                    password=sha256_hash(pwd, salt),
+                    tags=tags,
+                    gender=gender,
+                    city=city,
+                    salt=salt,
+                    country=country,
+                    bio=bio,
+                    phone=phone
+                )
+                db.session.add(u)
+                db.session.delete(c)
 
-            f = Follow(follower=u.id, followed=1)
-            db.session.add(f)
-            db.session.commit()
-            # create a log
-            app.logger.warning("a user added")
-            return jsonify({"success": True})
-        else:
-            return jsonify(
-                {
-                    "success": True,
-                    "valid": False,
-                    "message": "username is valid",
-                }
-            )
+                check_u = User.query.filter_by(username=usr).first()
+
+                f = Follow(follower=check_u.id, followed=1)
+                db.session.add(f)
+                db.session.commit()
+
+                
+                # create a log
+                app.logger.warning("a user added")
+                return jsonify({"success": True})
+        return jsonify(
+            {
+                "success": True,
+                "valid": False,
+                "message": "username is valid",
+            }
+        )
     else:
         return jsonify({"success": False, "valid": "?", "message": "args not found"})
     # except Exception as e:
@@ -1044,7 +1106,7 @@ def recovery_codes_api():
     if name:
         while True:
             # generate code
-            g_code = generate_code()
+            g_code = generate_code(30)
             # if code is unique
             if not RecoveryCode.query.filter_by(code=sha256_hash(g_code, "")).first():
                 break
@@ -1148,6 +1210,50 @@ def delete_comment():
         return jsonify({"success": True})
     else: 
         return abort(403)
+
+
+@app.route('/api/register/phone', methods=['POST'])
+# @limiter.limit("6 per hours")
+def phone_validating():
+    data = request.form
+    phone = data.get('phone')
+    code = data.get('code')
+
+    if phone and not code:
+        if User.query.filter_by(phone=phone).first():
+            return jsonify({'success': True, 'valid': False})
+
+        code = generate_code(6, only_numbers=True)
+
+        while not Code.query.filter_by(code=code):
+            code = generate_code(6, only_numbers=True)
+
+        c = Code(phone=phone, code=code)
+        db.session.add(c)
+        db.session.commit()
+        
+        sms_sended = SMS(code)
+        return jsonify({'success': True, 'valid': True})
+
+    elif phone and code:
+        c = Code.query.filter_by(phone=phone, code=code).first()
+
+        days = (datetime.now() - c.date).days
+        seconds = (datetime.now() - c.date).seconds
+
+        if c and days == 0 and seconds <= 1000:
+            return jsonify({'success': True, 'valid': True}) 
+
+        return jsonify({'success': True, 'valid': False})
+
+    return abort(400)
+
+
+
+
+
+
+
 
 
 

@@ -3,11 +3,18 @@
 {% endblock %} {% block Title %}ثبت نام{% endblock %} {% block content %} {% raw
 %}
 <div id="app" dir="rtl" class="Form-box">
-    <h4 ref="title" class="title">نام کاربری خود را وارد کنید</h4>
+    <div>
+        <h4 ref="title" class="title">به جامعه بزرگ بوکی خوش آمدید!</h4>
+        <br />
+        <h5 style="font-size: 1.1rem" v-if="scene == 'phone'">
+            لطفا تلفن خود را وارد کنید
+        </h5>
+    </div>
     <div class="inp-box">
         <input
             placeholder="none"
-            maxlength="30"
+            :type="scene == 'phone' ? 'phone' : scene == 'password' ? 'password': 'text'"
+            maxlength="15"
             ref="input"
             :type="type"
             v-model="value"
@@ -15,9 +22,11 @@
             @keydown.enter.stop="check"
             :placeholder="placeholder"
             dir="rtl"
-            v-show="scene == 'username' || scene == 'password' || scene == 'address'"
+            v-show="scene == 'username' || scene == 'password' || scene == 'address' || scene == 'phone'"
             class="input"
-        /><br v-if="scene == 'password' || scene == 'address'" />
+        /><br
+            v-if="scene == 'password' || scene == 'address' || scene == 'phone_c'"
+        />
 
         <textarea
             placeholder="من یک ..."
@@ -40,7 +49,7 @@
             :placeholder="placeholder_2"
             @keydown="typed"
             dir="rtl"
-            v-if="scene == 'password' || scene == 'address'"
+            v-if="scene == 'password' || scene == 'address' || scene == 'phone_c'"
             class="input"
         />
 
@@ -64,6 +73,13 @@
             class="input-detail"
         >
             حداقل {{ character }} کاراکتر باشد
+        </p>
+        <p
+            ref="characters"
+            v-if="(scene == 'phone') && info_error"
+            class="input-detail"
+        >
+            لطفا شماره را با صفر وارد کنید
         </p>
     </div>
 
@@ -89,7 +105,7 @@
             />
         </div>
     </div>
-    <p v-if="scene == 'username'" class="link">
+    <p v-if="scene == 'phone'" class="link">
         حساب دارید؟ <a href="/">وارد شوید!</a>
     </p>
     <p v-if="scene == 'profile'" @click="next()" class="link">
@@ -107,9 +123,11 @@
             value_2: "",
             button_text: "بعدی",
             info_error: false,
-            placeholder: "username",
-            placeholder_2: "",
-            scene: "username",
+            placeholder: "phone",
+            placeholder_2: "code",
+            scene: "phone",
+            phone_number: "",
+            code: "",
             on_upload: false,
             Rusername: "",
             Rpassword: "",
@@ -118,12 +136,36 @@
             Rcity: "",
             Rgender: "",
             Ravatar: "https://cdn-icons-png.flaticon.com/512/3177/3177440.png",
-            type: 'text',
-            type_2: 'text'
+            type: "text",
+            type_2: "text",
         },
         methods: {
             check(ev) {
-                // this function is for validations
+                // this function is for input validations
+                if (this.scene == "phone") {
+                    if (
+                        this.value.length != 11 ||
+                        this.value.slice(1, 2) != "9"
+                    ) {
+                        this.error = true;
+                        this.error_text =
+                            "لطفا شماره تلفن را به صورت صحیح (09xxxxxxxxx) وارد کنید";
+
+                        return "";
+                    }
+                    this.phone();
+                }
+                if (this.scene == "phone_c") {
+                    console.log();
+                    if (this.value_2.length != 6) {
+                        this.error = true;
+                        this.error_text =
+                            "کد صحیح نیست! لطفا دوباره بررسی کنید";
+
+                        return "";
+                    }
+                    this.phone();
+                }
                 if (this.scene == "username") {
                     if (this.value.length < 3) {
                         this.$refs.characters.style.color = "red";
@@ -217,15 +259,16 @@
                                     this.error_text =
                                         "این نام کاربری موجود است!";
                                 } else {
+                                    console.log(this.next);
                                     this.next();
                                 }
                             }
-                        })
-                        .catch((error) => {
-                            this.error = true;
-                            this.error_text =
-                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                         });
+                    // .catch((error) => {
+                    //     this.error = true;
+                    //     this.error_text =
+                    //         "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
+                    // });
                 }
             },
             changeProfile() {
@@ -276,21 +319,71 @@
 
                 inputElement.click();
             },
+            phone() {
+                if (this.scene == "phone") {
+                    const data = new FormData();
+                    data.append("phone", this.value);
+                    fetch("/api/register/phone", { method: "POST", body: data })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.valid) {
+                                this.scene = "phone_c";
+                                this.$refs.title.innerHTML =
+                                    "لطفا کد ارسال شده را وارد کنید";
+                                this.phone_number = this.value;
+                            } else {
+                                this.error = true;
+                                this.error_text = "این تلفن ثبت شده است!";
+                            }
+                        })
+                        .catch(() => {
+                            this.error = true;
+                            this.error_text =
+                                "مشکلی پیش آمده است، کمی بعد دوباره تلاش کنید";
+                        });
+                } else if (this.scene == "phone_c") {
+                    const data = new FormData();
+                    data.append("phone", this.phone_number);
+                    data.append("code", this.value_2);
+                    fetch("/api/register/phone", { method: "POST", body: data })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.valid) {
+                                this.code = this.value_2;
+                                this.scene = "username";
+                                this.value = "";
+                                this.value_2 = "";
+                                this.placeholder = "نام کاربری";
+                                this.$refs.title.innerHTML =
+                                    "یک نام کاربری برای خود انتخاب کنید";
+                            } else {
+                                this.error = true;
+                                this.error_text =
+                                    "کد صحیح نیست یا منقضی شده است، لطفا دوباره بررسی کنید";
+                            }
+                        })
+                        .catch(() => {
+                            this.error = true;
+                            this.error_text =
+                                "مشکلی پیش آمده است، لطفا بعدا دوباره تلاش کنید";
+                        });
+                }
+            },
             next() {
                 // this function is for change to the next scene
                 if (this.scene == "username") {
                     this.$refs.title.innerHTML = "رمز عبور خود را وارد کنید";
                     this.placeholder = "Password";
                     this.placeholder_2 = "Password again";
-                    this.type = 'password';
-                    this.type_2 = 'password';
+                    this.type = "password";
+                    this.type_2 = "password";
                     this.scene = "password";
                     this.character = "8";
                     this.Rusername = this.value;
                 } else if (this.scene == "password") {
                     this.$refs.title.innerHTML = "لطفا بیو خود را وارد کنید";
-                    this.type = 'text';
-                    this.type_2 = 'text';
+                    this.type = "text";
+                    this.type_2 = "text";
                     this.scene = "bio";
                     this.placeholder = "من یک ...";
                     this.$refs.text.style.height = "100px";
@@ -328,6 +421,8 @@
                     formData.append("country", this.Rcountry);
                     formData.append("avatar", this.Ravatar);
                     formData.append("bio", this.Rbio);
+                    formData.append("phone", this.phone_number);
+                    formData.append("code", this.code);
 
                     loginData.append("username", this.Rusername);
                     loginData.append("password", this.Rpassword);
