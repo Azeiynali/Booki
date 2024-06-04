@@ -22,7 +22,7 @@
             @keydown.enter.stop="check"
             :placeholder="placeholder"
             dir="rtl"
-            v-show="scene == 'username' || scene == 'password' || scene == 'address' || scene == 'phone'"
+            v-show="scene == 'username' || scene == 'password' || scene == 'address' || scene == 'phone' || scene == 'name'"
             class="input"
         /><br
             v-if="scene == 'password' || scene == 'address' || scene == 'phone_c'"
@@ -138,6 +138,7 @@
             Ravatar: "https://cdn-icons-png.flaticon.com/512/3177/3177440.png",
             type: "text",
             type_2: "text",
+            Rname: "",
         },
         methods: {
             check(ev) {
@@ -156,7 +157,6 @@
                     this.phone();
                 }
                 if (this.scene == "phone_c") {
-                    console.log();
                     if (this.value_2.length != 6) {
                         this.error = true;
                         this.error_text =
@@ -179,6 +179,14 @@
                         return "";
                     }
                     this.valid();
+                } else if (this.scene == "name") {
+                    if (this.value.length < 3) {
+                        this.$refs.characters.style.color = "red";
+                        this.info_error = true;
+
+                        return "";
+                    }
+                    this.next();
                 } else if (this.scene == "password") {
                     if (this.value == this.value_2) {
                         this.error = false;
@@ -259,16 +267,15 @@
                                     this.error_text =
                                         "این نام کاربری موجود است!";
                                 } else {
-                                    console.log(this.next);
                                     this.next();
                                 }
                             }
+                        })
+                        .catch((error) => {
+                            this.error = true;
+                            this.error_text =
+                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                         });
-                    // .catch((error) => {
-                    //     this.error = true;
-                    //     this.error_text =
-                    //         "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
-                    // });
                 }
             },
             changeProfile() {
@@ -372,6 +379,12 @@
             next() {
                 // this function is for change to the next scene
                 if (this.scene == "username") {
+                    this.$refs.title.innerHTML = "نام نمایشی خود را وارد کنید";
+                    this.placeholder = "نام نمایشی";
+                    this.placeholder_2 = "Password again";
+                    this.scene = "name";
+                    this.Rusername = this.value;
+                } else if (this.scene == "name") {
                     this.$refs.title.innerHTML = "رمز عبور خود را وارد کنید";
                     this.placeholder = "Password";
                     this.placeholder_2 = "Password again";
@@ -379,7 +392,7 @@
                     this.type_2 = "password";
                     this.scene = "password";
                     this.character = "8";
-                    this.Rusername = this.value;
+                    this.Rname = this.value;
                 } else if (this.scene == "password") {
                     this.$refs.title.innerHTML = "لطفا بیو خود را وارد کنید";
                     this.type = "text";
@@ -423,6 +436,7 @@
                     formData.append("bio", this.Rbio);
                     formData.append("phone", this.phone_number);
                     formData.append("code", this.code);
+                    formData.append("name", this.Rname);
 
                     loginData.append("username", this.Rusername);
                     loginData.append("password", this.Rpassword);

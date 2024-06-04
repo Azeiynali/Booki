@@ -5,7 +5,10 @@ block Title %}گفتگو{% endblock %} {% block content %}
 
 <div id="app">
     <navbar active_item="chat"></navbar>
-    <div class="content" ref="content">
+    <div
+        class="content pb-2 mt-20 relative transition-all duration-1000"
+        ref="content"
+    >
         {% for i in messages %} {% if i.writer == current_user %}
         <messager
             date="{{ i.date }}"
@@ -103,18 +106,18 @@ block Title %}گفتگو{% endblock %} {% block content %}
         template: `
     <div class="mess-container">
         <div>
-            <div @contextmenu.prevent="contextmenu" @click.stop="contextmenu" class="message_left">
+            <div @contextmenu.prevent="contextmenu" @click.stop="contextmenu" class="message overflow-visible left px-3 rounded-lg text-white bg-[#54baff] mb-3 relative inline-block overflow-visible ml-3">
                 <pre v-html="text"></pre>
                 <div class="date">{{ date }}</div>
                 <i class="fi fi-rr-check"></i>
             </div>
-            <img @click="GoToUser" class="user-pic-mess" :src="image_src" />
-            <div class="username">{{ username }}</div>
+            <img @click="GoToUser" class="user-pic-mess cursor-pointer size-10 absolute rounded-full" :src="image_src" />
+            <div class="username px-3 rounded text-white absolute inline-block bg-[#1c2025bb] opacity-0 transition-all duration-500 h-6">{{ username }}</div>
         </div>
         <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
-            <ul class="menu">
+            <ul class="flex flex-col gap-2 bg-white rounded p-3 relative ">
                 <li @click.stop="copy">
-                    <a @click.stop="copy" href="#"
+                    <a class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="copy" href="#"
                         ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
                     </a>
                 </li>
@@ -157,6 +160,7 @@ block Title %}گفتگو{% endblock %} {% block content %}
                 });
             },
             remove() {
+                console.log(11)
                 // this function to remove the message
                 document.querySelectorAll(".context-menu").forEach((item) => {
                     item.style.display = "none";
@@ -196,21 +200,21 @@ block Title %}گفتگو{% endblock %} {% block content %}
         template: `
     <div v-if="is" class="mess-container">
         <div dir="rtl">
-            <div @click.stop="contextmenu($event)" @contextmenu.prevent="contextmenu" class="message_right">
+            <div @click.stop="contextmenu($event)" @contextmenu.prevent="contextmenu" class="message overflow-visible right px-3 rounded-lg text-white bg-[#ff6464] mb-3 relative inline-block overflow-visible ml-3">
                 <pre v-html="text"></pre>
                 <div class="date">{{ date }}</div>
                 <i class="fi fi-rr-check"></i>
             </div>
         </div>
-        <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
-            <ul class="menu">
+        <div ref="cx" id="contextMenu" class="context-menu z-50" style="display: none">
+            <ul class="flex flex-col gap-2 bg-white rounded p-3 relative ">
                 <li @click.stop="copy">
-                    <a @click.stop="copy" href="#"
-                        ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
+                    <a class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="copy" href="#"
+                    ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
                     </a>
                 </li>
                 <li @click.stop="remove" class="trash">
-                    <a @click.stop="remove" href="#"
+                    <a class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="remove" href="#"
                         ><i @click.stop="remove" class="fi fi-rr-trash-xmark" aria-hidden="true"></i>
                         Delete</a
                     >
@@ -271,9 +275,9 @@ block Title %}گفتگو{% endblock %} {% block content %}
             },
         },
         template: `
-    <div class="send-input">
-        <input dir="rtl" @keyup.enter="send" v-model="message" type="text" class="send-input-text" placeholder="پیامی بنویسید...">
-        <i @click="send" class="fi fi-rr-paper-plane-top"></i>
+    <div class="send-input border-t border-[#b6b6b6]  w-full bottom-0 h-16 fixed flex items-center justify-center w-9/10 text-center bg-white">
+        <input dir="rtl" @keyup.enter="send" v-model="message" type="text" class="send-input-text border-0 text-lg h-full bg-white" placeholder="پیامی بنویسید...">
+        <i @click="send" :class="{ 'fi fi-rr-paper-plane-top text-[#696969]': true, 'send-active': message.trim() }"></i>
     </div>`,
     });
 
@@ -350,6 +354,6 @@ block Title %}گفتگو{% endblock %} {% block content %}
                 setTimeout(fetchData, 5000);
             });
     }
-    fetchData()
+    // fetchData()
 </script>
 {% endraw %} {% endblock %}

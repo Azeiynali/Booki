@@ -15,6 +15,7 @@ def load_user(user_id):
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
+    name = db.Column(db.String, unique=False, nullable=False)
     gems = db.Column(db.Integer, default=0)
     phone = db.Column(db.String, unique=True)
     password = db.Column(db.String, unique=False)

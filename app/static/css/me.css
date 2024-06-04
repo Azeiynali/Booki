@@ -6,12 +6,12 @@ body {
     align-items: center;
     flex-direction: column;
     width: 100vw;
-    margin-top: 100px;
     gap: 30px;
 }
 img.avatar {
     width: 200px;
     height: 200px;
+    margin-top: 100px;
     border-radius: 100%;
 }
 .input {
@@ -54,14 +54,6 @@ textarea.input {
 .avatars:hover img:not(:hover) {
     transform: scale(0.9);
     opacity: 0.8;
-}
-button {
-    color: white;
-    background-color: #5e5eff;
-    padding: 5px 20px;
-    transition: all .3s ease-out;
-    font-size: 1.3rem;
-    border-radius: 5px;
 }
 button:hover {
     transform: scale(.9);

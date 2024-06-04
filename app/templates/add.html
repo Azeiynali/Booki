@@ -3,8 +3,8 @@
 {% endblock %} {% block Title %}افزودن{% endblock %} {% block content %}
 <div id="app">
     <navbar active_item="add"></navbar>
-    <div class="container">
-        <div class="left">
+    <div style="min-height: 98vh;" class="container gap-20 flex mt-12 justify-center items-center w-full">
+        <div class="flex items-center justify-center w-1/2">
             <img
                 alt="post_picture"
                 ref="image"
@@ -13,12 +13,13 @@
                 class="select"
             />
         </div>
-        <div class="right">
+        <div class="w-1/2 justify-center flex flex-col gap-4 h-full items-center">
             <textarea
                 placeholder="اینجا بنویسید"
                 ref="content"
                 type="text"
-                class="input"
+                dir="rtl"
+                class="input resize-none p-3 w-4/5 h-72 rounded-lg text-[#1f1f1f] bg-[#e1e8e9] transition-all duration-300"
             ></textarea>
             <v-btn @click="save" color="blue" elevation="5" x-large
                 >دخیره و انتشار</v-btn

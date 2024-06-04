@@ -1,28 +1,41 @@
 {% extends "base.html" %} {% block head %}
 <link rel="stylesheet" href="./static/css/Login.css" />
 {% endblock %} {% block Title %}ورود{% endblock %} {% block content %} {% raw %}
-<div id="app" dir="rtl" class="Form-box">
-    <h4 ref="des" style="line-height: normal" class="des">
-        لطفا شماره تلفن خود را وارد کنید
-    </h4>
-    <div class="inp-box">
-        <p v-if="!phone">پس از ورود، می توانید رمز عبور خود را تغییر دهید</p>
+<div
+    id="app"
+    dir="rtl"
+    class="Form-box overflow-hidden rounded-lg relative mx-auto flex items-center flex-col mt-16 justify-around text-center"
+>
+    <div class="flex flex-none flex-col items-center">
+        <h4 ref="des" style="line-height: normal" class="text-4xl">
+            لطفا شماره تلفن خود را وارد کنید
+        </h4>
+        <p class="texl-lg" v-if="!phone">
+            پس از ورود، می توانید رمز عبور خود را تغییر دهید
+        </p>
+    </div>
+    <div class="text-center">
         <input
             ref="usernameinput"
-            @keydown="key_downed"
-            @keydown.enter="enter()"
+            @keypress="key_downed"
+            @keypress.enter="login()"
             dir="ltr"
             :style="style"
             v-model="value"
             style="text-align: center; font-size: 0.9rem"
             :placeholder="placeholder"
             type="text"
-            class="username-inp"
+            class="username-inp text-xl p-2 rounded-lg mt-3 outline-none w-60"
         />
-        <p v-if="error" class="error">{{ error_text }}</p>
+        <p v-if="error" class="text-[#ff0000]">{{ error_text }}</p>
     </div>
-    <button @click="code()" v-if="!phone" id="username-sub">ارسال</button>
-    <button @click="login()" v-if="phone" id="username-sub">ورود</button>
+    <button
+        class="transition-all duration-100 active:text-3xl text-4xl w-60 p-1 text-white rounded-3xl bg-[#4b70e2]"
+        @click="login()"
+        id="username-sub"
+    >
+        {{ button }}
+    </button>
     <a href="/" class="link">بازگشت به صفحه ورود</a><br />
     <a href="/recovery" class="link">روش های دیگر</a>
 </div>
@@ -36,7 +49,8 @@
             error: "",
             style: "",
             phone: "",
-            placeholder: 'شماره تلفن'
+            placeholder: "شماره تلفن",
+            button: 'ارسال'
         },
         methods: {
             key_downed() {
@@ -45,106 +59,97 @@
                 this.error_text = "";
                 style = "";
             },
-            enter() {
+            login() {
                 if (this.phone) {
-                    this.code();
-                } else {
-                    this.login();
-                }
-            },
-            code() {
-                // this function is for key validation and login
-                console.log(
-                    (this.value.length != 11) | (this.value.slice(1, 2) != "9")
-                );
-                if (
-                    (this.value.length != 11) |
-                    (this.value.slice(1, 2) != "9")
-                ) {
-                    this.error = true;
-                    this.error_text =
-                        "لطفا شماره موبایل خود را به درستی وارد کنید (09xxxxxxxxx) ";
-                    style = "border: 2px solid red";
-                } else {
-                    let data = new FormData();
-                    data.append("phone", this.value);
+                    if (this.value.length != 6) {
+                        this.error = true;
+                        this.error_text = "لطفا کد را به درستی وارد نمایید";
+                        style = "border: 2px solid red";
+                    } else {
+                        let data = new FormData();
+                        data.append("phone", this.phone);
+                        data.append("code", this.value);
 
-                    fetch("/api/recovery/phone", { method: "POST", body: data })
-                        .then((response) => {
-                            if (response.status == 429) {
-                                throw new Error("429");
-                            }
-                            return response.json();
+                        fetch("/api/recovery/phone", {
+                            method: "POST",
+                            body: data,
                         })
-                        .then((data) => {
-                            if (data.success) {
-                                if (data.valid) {
-                                    this.$refs.des.innerText =
-                                        "لطفا کد تایید ارسال شده را وارد نمایید";
-                                    this.phone = this.value;
-                                    this.value = "";
-                                    this.placeholder = 'کد تایید'
-                                } else {
-                                    this.error = true;
-                                    this.error_text =
-                                        "شماره تلفن وارد شده نامعتبر است";
-                                    style = "border: 2px solid red";
+                            .then((response) => {
+                                if (response.status == 429) {
+                                    throw new Error("429");
                                 }
-                            } else {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                    if (data.valid) {
+                                        location.href = "/";
+                                    } else {
+                                        this.error = true;
+                                        this.error_text =
+                                            "کد تایید غلط است و یا منقضی شده است";
+                                        style = "border: 2px solid red";
+                                    }
+                            })
+                            .catch((error) => {
                                 this.error = true;
                                 this.error_text =
                                     "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                                 style = "border: 2px solid red";
-                            }
-                        })
-                        .catch((error) => {
-                            this.error = true;
-                            this.error_text =
-                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
-                            style = "border: 2px solid red";
-                        });
-                }
-            },
-            login() {
-                if (this.value.length != 6) {
-                    this.error = true;
-                    this.error_text =
-                        "لطفا شماره موبایل خود را به درستی وارد کنید (09xxxxxxxxx) ";
-                    style = "border: 2px solid red";
+                            });
+                    }
                 } else {
-                    let data = new FormData();
-                    data.append("phone", this.phone);
-                    data.append("code", this.value);
+                    // for key validation and login
+                    if (
+                        (this.value.length != 11) |
+                        (this.value.slice(1, 2) != "9")
+                    ) {
+                        this.error = true;
+                        this.error_text =
+                            "لطفا شماره موبایل خود را به درستی وارد کنید (09xxxxxxxxx) ";
+                        style = "border: 2px solid red";
+                    } else {
+                        let data = new FormData();
+                        data.append("phone", this.value);
 
-                    fetch("/api/recovery/phone", { method: "POST", body: data })
-                        .then((response) => {
-                            if (response.status == 429) {
-                                throw new Error("429");
-                            }
-                            return response.json();
+                        fetch("/api/recovery/phone", {
+                            method: "POST",
+                            body: data,
                         })
-                        .then((data) => {
-                            if (data.success) {
-                                if (data.valid) {
-                                    location.href = "/";
+                            .then((response) => {
+                                if (response.status == 429) {
+                                    throw new Error("429");
+                                }
+                                return response.json();
+                            })
+                            .then((data) => {
+                                if (data.success) {
+                                    if (data.valid) {
+                                        this.$refs.des.innerText =
+                                            "لطفا کد تایید ارسال شده را وارد نمایید";
+                                        this.phone = this.value;
+                                        this.value = "";
+                                        this.placeholder = "کد تایید";
+                                        this.button = 'ورود'
+                                    } else {
+                                        this.error = true;
+                                        this.error_text =
+                                            "شماره تلفن وارد شده نامعتبر است";
+                                        style = "border: 2px solid red";
+                                    }
                                 } else {
                                     this.error = true;
                                     this.error_text =
-                                        "کد تایید اشتباه است و یا منقضی شده است";
+                                        "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
                                     style = "border: 2px solid red";
                                 }
-                            } else {
+                            })
+                            .catch((error) => {
                                 this.error = true;
                                 this.error_text =
                                     "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
-                            }
-                        })
-                        .catch((error) => {
-                            this.error = true;
-                            this.error_text =
-                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
-                            style = "border: 2px solid red";
-                        });
+                                style = "border: 2px solid red";
+                            });
+                    }
                 }
             },
         },

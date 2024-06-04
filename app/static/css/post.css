@@ -2,50 +2,9 @@
     margin-top: 70px;
     width: 85%;
 }
-.comment {
-    background-color: white;
-    width: 85%;
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    align-items: center;
-    gap: 30px;
-    flex-direction: row-reverse;
-    position: relative;
-    margin-bottom: 0;
-}
-.container {
-    flex-direction: column;
-    align-items: center;
-}
-.comment .user {
-    transform: scale(.85);
-    width: unset;
-    text-align: center;
-    height: unset;
-    display: inline-block;
-    overflow: visible !important;
-}
-.comment .bottom {
-    border-top: none !important;
-    display: inline-block;
-    position: absolute;
-    left: 30px;
-    bottom: 3px;
-}
-.comment .bottom .like {
-    float: left;
-}
-.comment-textarea{
-    background-color: white;
-    border-radius: 15px;
-    resize: none;
-    width: 85%;
-    padding: 20px;
-    border: 2px solid gray;
+.gray-shadow{
     box-shadow: 3px 3px 0 gray;
     outline: none;
-    direction: rtl;
 }
 .comment-textarea:focus, .comment-textarea:active {
     box-shadow: none;
@@ -72,27 +31,9 @@
     box-shadow: none;
     transform: translateY(3px) translateX(3px) scale(.95);
 }
-.examples {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    flex-direction: row-reverse;
-}
 .send {
-    width: 85%;
-    background-color: white;
-    border-radius: 10px;
-    border: 1px solid gray;
     box-shadow: 2px 2px 0 gray;
-    outline: none;
-    padding: 5px;
-    margin-bottom: 10px;
-    direction: rtl;
     user-select: none;
-    cursor: pointer;
-    transition: all .3s;
-    margin-top: 20px;
 }
 .send:active {
     box-shadow: none;

@@ -1,61 +1,9 @@
-.message-container {
-    display: flex;
-    width: 100vw;
-    margin-top: 70px;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    padding-bottom: 30px;
-}
-.message {
-    width: 90%;
-    position: relative;
-    border-radius: 5px;
-    color: white;
-    padding: 20px;
-    padding-bottom: 30px;
-    direction: rtl;
-    background-color: #008cff;
-}
-.not_seened {
-    background-color: #ffbb00;
-}
-.clear {
-    padding: 10px 30px;
-    background-color: #008cff;
-    color: white;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-.clear:hover {
-    transform: scale(1.09);
-}
-.date {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-}
 p {
     color: #384957;
 }
 .delete {
-    position: absolute;
     left: 20px;
     top: 25%;
-    cursor: pointer;
-    width: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 30px;
-    text-align: center;
-    transition: all 0.3s;
-    padding-top: 7px;
-    border-radius: 5px;
-}
-.delete:hover {
-    background-color: #0000003d;
 }
 .message a{
     text-decoration: none;

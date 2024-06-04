@@ -24,19 +24,19 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                 ]
             '>
     </site-header>
-    <div class="container">
-        <div class="posts">
+    <div class="flex flex-none justify-center" style="width: 95vw;">
+        <div class="w-3/4 mx-50 my-auto text-center mt-10">
             {% for post in posts %}
             <post {% if post.writer==current_user %} iw="True" {% endif %}
                 content="{{ post.content }}" id="{{ post.id }}"
                 image="{{ post.img }}"
                 username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
-                classes="img-container post" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+                classes="post img-container min-h-40 rounded-xl mb-5 p-3 bg-[#fefefe]" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
                 like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ post.comments | length }}">
             </post>
             {% endfor %}
             {% if posts_length > 50 %}
-                <a class="load_button" href="/page/{{ pagination + 1 }}">بارگذاری بیشتر</a>
+            <a class="inline-block bg-[#005be4] px-5 py-1 rounded text-white text-lg mx-auto hover:text-xl transition-all duration-300 ease-out" href="/page/{{ pagination + 1 }}">بارگذاری بیشتر</a>
             {% endif %}
         </div>
 
@@ -54,10 +54,10 @@ Title %}Booki - خانه{% endblock %} {% block content %}
             };
         },
         template: `
-            <header ref="root" class="header">
-                <a :href="item.user_href" v-for="item in items_dict" class="item">
-                    <img :src="item.user_img" class="user" />
-                    <p>{{ item.username }}</p>
+            <header ref="root" class="flex flex-none overflow-x-auto overflow-y-hidden justify-start mx-auto mt-16 w-full p-2 right-0">
+                <a :href="item.user_href" v-for="item in items_dict" class="relative flex items-center justify-center flex-col flex-none">
+                    <img :src="item.user_img" class="flex justify-s\tart text-lg w-9/10 text-[#292929] gap-2 relative h-20 rounded-full user items-center mx-3" />
+                    <p class="text-xl">{{ item.username }}</p>
                 </a>
             </header>
                     `,
@@ -160,14 +160,14 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                         "class",
                         "fi fi-rr-check"
                     );
-                    this.$refs.trash.setAttribute("class", "like trash liked");
+                    this.$refs.trash.setAttribute("class", "px-3 gap-10 py-2 rounded flex items-center border-2 border-[#6d6d6d] transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none cursor-pointer justify-center liked");
                     this.delete_button = "مطمئنید؟"
                 }
             },
         },
         template: `
                         <div v-if="is" :class="classes">
-                            <div dir="rtl" class="user">
+                            <div dir="rtl" class="flex justify-start text-lg w-9/10 text-[#292929] gap-2 relative h-20 user items-center mr-5">
                                 <a :href="'\@' + username">
                                     <img :src="avatar" />
                                 </a>
@@ -181,20 +181,20 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                                     </div>
                                 </a>
                             </div>
-                            <div dir="rtl" class="content">
+                            <div dir="rtl" class="flex gap-3 items-center justofy-center flex-col">
                                 <img @dblclick="like" v-if="image != 'http://127.0.0.1:5000/static/pictures/select_post_image.png'" class="img" :src="image" />
-                                <p v-html="content"></p>    
+                                <p class="text-start" v-html="content"></p>
                             </div>
-                            <div dir="rtl" class="bottom">
-                                <div @click="like" ref="like" :class="'like ' + like_classes">
+                            <div dir="rtl" class="flex flex-none flex-wrap flex-row gap-3 mt-16 border-t-2 border-[#2929292f] pt-3">
+                                <div @click="like" ref="like" :class="'px-3 gap-10 py-2 rounded flex items-center justify-between border-2 border-[#6d6d6d] transition-all duration-300 ease-out hover:opacity-90 cursor-pointer  bg-white flex-none ' + like_classes">
                                     <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
                                     <small>{{ likes }}</small>
                                 </div>
-                                <div @click="window.location.href = '/post/' + id" class="like comment_button">
+                                <div @click="window.location.href = '/post/' + id" class="px-3 gap-10 py-2 rounded flex items-center transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none justify-between border-2 border-[#005be4] text-[#005be4] cursor-pointer  text-[#6969ff]">
                                     <i class="fi fi-rr-comment"></i>
                                     <small>{{ comment_length }}</small>
                                 </div>
-                                <div v-if="iw" @click="delete_" ref="trash" class="like trash">
+                                <div v-if="iw" @click="delete_" ref="trash" class="px-3 gap-10 py-2 rounded flex items-center border-2 border-[#6d6d6d] transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none cursor-pointer justify-center">
                                     {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
                                 </div>
                                 </a>
@@ -207,7 +207,7 @@ Title %}Booki - خانه{% endblock %} {% block content %}
     Vue.component("user", {
         props: ["img", "score", "href", "username"],
         template: `
-                        <div style="transform: scale(.7);margin-left: 23%;" dir="rtl" class="user">
+                        <div style="transform: scale(.7);margin-left: 23%;" dir="rtl" class="flex justify-start text-lg w-9/10 text-[#292929] gap-2 relative h-20 user items-center mr-5">
                                 <a :href="href">
                                     <img :src="img" />
                                 </a>

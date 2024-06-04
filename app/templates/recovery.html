@@ -2,10 +2,16 @@
 <link rel="stylesheet" href="./static/css/Login.css" />
 <link href="../static/library/Vuetify.css" rel="stylesheet" />
 {% endblock %} {% block Title %}ورود{% endblock %} {% block content %} {% raw %}
-<div id="app" dir="rtl" class="Form-box">
-    <h4 ref="des" style="line-height: normal;" class="des">لطفا یکی از کلید های بازیابی خود را وارد کنید</h4>
+<div id="app" dir="rtl" class="Form-box overflow-hidden rounded-lg relative mx-auto flex items-center flex-col mt-16 justify-around text-center">
+    <div class="flex flex-none flex-col items-center">
+        <h4 ref="des" style="line-height: normal" class="text-4xl">
+            لطفا شماره تلفن خود را وارد کنید
+        </h4>
+        <p class="texl-lg">
+            پس از ورود، می توانید رمز عبور خود را تغییر دهید
+        </p>
+    </div>
     <div class="inp-box">
-        <p>پس از ورود، می توانید رمز عبور خود را تغییر دهید</p>
         <input
             ref="usernameinput"
             @keydown="key_downed"
@@ -15,11 +21,11 @@
             style="text-align: center; font-size: 0.9rem"
             placeholder="کلید بازیابی"
             type="text"
-            class="username-inp"
+            class="username-inp text-xl p-2 rounded-lg mt-3 outline-none w-60"
         />
-        <p v-if="error" class="error">{{ error_text }}</p>
+        <p v-if="error" class="text-[#ff0000]">{{ error_text }}</p>
     </div>
-    <button @click="login()" id="username-sub">ورود</button>
+    <button @click="login()" class="transition-all duration-100 active:text-3xl text-4xl w-60 p-1 text-white rounded-3xl bg-[#4b70e2]" id="username-sub">ورود</button>
     <a href="/" class="link">بازگشت به صفحه ورود</a>
 </div>
 

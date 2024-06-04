@@ -10,9 +10,12 @@ from datetime import datetime
 from itertools import zip_longest
 import hashlib
 import random
+from http import client
 
 # library imports
 
+# Config Variables
+SMS_API_KEY = 'Kz0UCJKbjBQssj5pNUd76SGR6Qpi4Mjzguow7kcKL2U8HodrHeuUSy4hrZhl2J2W'
 
 # functions
 def verify_password(password, _hashed_password, salt):
@@ -24,6 +27,29 @@ def verify_password(password, _hashed_password, salt):
 
 def SMS(phone, sms_code):
     '''this function for SMS sending'''
+
+    # conn = client.HTTPSConnection("api.sms.ir")
+    # payload = f"""{{
+    #     "mobile": "{phone}",
+    #     "templateId": 693544,
+    #     "parameters": [
+    #             {{
+    #                 "name": "Code",
+    #                 "value": "{sms_code}"
+    #             }}
+    #         ]
+    # }}"""
+
+    # headers = {
+    #     'Content-Type': 'application/json',
+    #     'Accept': 'text/plain',
+    #     'x-api-key': SMS_API_KEY
+    # }
+
+    # conn.request("POST", "/v1/send/verify", payload, headers)
+    # res = conn.getresponse()
+    # data = res.read()
+
 
     print(sms_code)
 
@@ -197,7 +223,6 @@ def index():
         users = []
         posts = []
         # get all follower posts
-        print(followeds)
         for follow_item in followeds:
             users.append(User.query.get(follow_item.followed))
             posts += Post.query.filter_by(
@@ -309,10 +334,12 @@ def user_posts(username):
 
     # create a log
     app.logger.info("user showed")
+    posts = sorted(posts, key=lambda x: x.date, reverse=True)
     return render_template(
         "profile.html",
         user=user,
         follow=follow,
+        Follow=Follow,
         follows=len(Follow.query.filter_by(followed=user.id).all()),
         not_list=n,
         posts=posts,
@@ -452,7 +479,7 @@ def logout():
 
 @app.route("/add")
 @login_required
-@limiter.limit("5 per minute")
+# @limiter.limit("5 per minute")
 def newpost():
     """this is a function for display add new post page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
@@ -514,8 +541,58 @@ def explore():
         users=users,
         Follow=Follow,
         not_list=n,
+        explore=True
     )
 
+@app.route("/@<username>/followers")
+@login_required
+def followers(username):
+    """this function for display a user followers page"""
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+
+    users = []
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return abort(404)
+    
+    for follow in Follow.query.filter_by(followed=user.id):
+        user_id = follow.follower
+        users.append(User.query.get(user_id))
+
+    return render_template(
+        "explore.html",
+        current_user=current_user,
+        users=users,
+        Follow=Follow,
+        not_list=n,
+        explore=False,
+        title="دنبال کنندگان" + username
+    )
+
+@app.route("/@<username>/followings")
+@login_required
+def followings(username):
+    """this function for display a user followers page"""
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+
+    users = []
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return abort(404)        
+    
+    for follow in Follow.query.filter_by(follower=user.id):
+        user_id = follow.followed
+        users.append(User.query.get(user_id))
+
+    return render_template(
+        "explore.html",
+        current_user=current_user,
+        users=users,
+        Follow=Follow,
+        not_list=n,
+        explore=False,
+        title="دنبال شوندگان" + username
+    )
 
 @app.route("/notifications")
 @login_required
@@ -614,7 +691,7 @@ def delMessage():
 
 
 @app.route("/api/userValid", methods=["POST", "GET"])
-@limiter.limit("4 per minute")
+# @limiter.limit("4 per minute")
 def user_valid():
     """this function for check and login the users"""
     try:
@@ -702,7 +779,7 @@ def user_valid():
 
 @app.route("/api/add", methods=["POST", "GET"])
 @login_required
-@limiter.limit("5 per minute")
+# @limiter.limit("5 per minute")
 def addPost():
     """this function for add a post"""
     if request.method == "POST":
@@ -725,7 +802,10 @@ def addPost():
             )
 
             # find content keywords
-            tags = find_keywords(content)
+            try:
+                tags = find_keywords(content)
+            except:
+                tags = []
 
             # find hash tags
             hashtags = re.findall(r"#([\w|آ-ی]+)", content)
@@ -810,7 +890,7 @@ def delPost():
 
 
 @app.route("/api/uploadavatar", methods=["POST"])
-@limiter.limit("5 per minute")
+# @limiter.limit("5 per minute")
 def upload():
     """this function for upload avatars"""
     if "file" in request.files:
@@ -863,7 +943,7 @@ def upload():
 
 
 @app.route("/api/adduser", methods=["PUT"])
-@limiter.limit("1 per hours")
+# @limiter.limit("1 per hours")
 def addUser():
     """this api for adding users"""
     # try:
@@ -879,6 +959,7 @@ def addUser():
         bio = str(data.get("bio"))
         phone = str(data.get("phone"))
         code = str(data.get("code"))
+        name = str(data.get("name"))
 
         salt = salt_generator()
 
@@ -897,6 +978,7 @@ def addUser():
             c = Code.query.filter_by(code=code, phone=phone).first()
             if c:
                 u = User(
+                    name=name,
                     username=usr,
                     avatar=avatar,
                     password=sha256_hash(pwd, salt),
@@ -978,7 +1060,7 @@ def not_follow():
 
 
 @app.route("/api/edit", methods=["POST"])
-@limiter.limit("4 per minute")
+# @limiter.limit("4 per minute")
 @login_required
 def edit():
     """this API for edit a user"""
@@ -989,6 +1071,7 @@ def edit():
     cnty = data.get("country")
     city = data.get("city")
     avtr = data.get("avatar")
+    name = data.get("name")
 
     if bio:
         bio = re.sub(r"\n", "<br />", str(data.get("bio")))
@@ -1009,6 +1092,15 @@ def edit():
         # create a log
         app.logger.info("username changing")
         return jsonify({"success": True})
+    elif name:
+        u = User.query.filter_by(username=current_user.username).first()
+        u.name = name
+        db.session.commit()
+        
+        # create a log
+        app.logger.info("name changing")
+        return jsonify({"success": True})
+
     # changing the password
     elif pwd:
         u = User.query.filter_by(username=current_user.username).first()
@@ -1104,7 +1196,7 @@ def like():
 
 
 @app.route("/api/recovery", methods=["post"])
-@limiter.limit("3 per minute")
+# @limiter.limit("3 per minute")
 def recovery_codes_api():
     """this API to create, delete and validation the keys"""
     id = request.form.get("id")
@@ -1257,7 +1349,7 @@ def phone_validating():
     return abort(400)
 
 @app.route("/api/recovery/phone", methods=["POST"])
-@limiter.limit("3 per minute")
+# @limiter.limit("3 per minute")
 def phone_recovery_codes_api():
     """this API to acount recovering with phone"""
 
@@ -1293,17 +1385,17 @@ def phone_recovery_codes_api():
     elif phone and code:
         c = Code.query.filter_by(phone=phone, code=code).first()
 
-        days = (datetime.now() - c.date).days
-        seconds = (datetime.now() - c.date).seconds
+        if c:
+            days = (datetime.now() - c.date).days
+            seconds = (datetime.now() - c.date).seconds
 
-        if c and days == 0 and seconds <= 1000:
-            u = User.query.filter_by(phone=phone).first()
-            login_user(u)
+            if c and days == 0 and seconds <= 1000:
+                u = User.query.filter_by(phone=phone).first()
+                login_user(u)
 
-            db.session.delete(c)
-            db.session.commit()
-            return jsonify({'success': True, 'valid': True})
-
+                db.session.delete(c)
+                db.session.commit()
+                return jsonify({'success': True, 'valid': True})
         return jsonify({'success': True, 'valid': False})
 
     return abort(400)

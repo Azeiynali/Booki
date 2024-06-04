@@ -2,22 +2,21 @@
 <link rel="stylesheet" href="./static/css/Login.css" />
 <link href="../static/library/Vuetify.css" rel="stylesheet" />
 {% endblock %} {% block Title %}ورود{% endblock %} {% block content %} {% raw %}
-<div id="app" dir="rtl" class="Form-box">
-    <h3 ref="title" class="title">خوش آمدید!</h3>
-    <h4 ref="des" class="des">نام کاربری خود را وارد کنید</h4>
+<div id="app" dir="rtl" class="Form-box overflow-hidden rounded-lg relative mx-auto flex items-center flex-col mt-16 justify-around">
+    <h3 ref="title" class="text-6xl transition-all duration-500 mt-2">خوش آمدید!</h3>
+    <h4 ref="des" class="text-2xl transition-all duration-500">نام کاربری خود را وارد کنید</h4>
     <img
         ref="image"
-        class="image"
+        class="rounded-full size-60 position-all duration-500 image"
         v-show="next_"
         :src="image"
         alt="user-picture"
     />
-    <div class="inp-box">
-        <h3 v-show="next_" ref="title2" class="title2">
+    <div class="flex flex-col justify-center items-center flex-none">
+        <h3 v-show="next_" ref="title2" class="text-2xl transition-all duration-500">
             لطفا پسورد خود را وارد کنید
         </h3>
         <input
-            ref="usernameinput"
             @keydown="check_E($event)"
             dir="ltr"
             :style="style"
@@ -28,12 +27,12 @@
             name="username"
             type="text"
             id="username"
-            class="username-inp"
+            class="username-inp text-xl p-2 rounded-lg mt-3 outline-none w-60"
         />
-        <p ref="empt" v-if="error" class="error">{{ error_text }}</p>
+        <p ref="empt" v-if="error" class="text-[#c90000b2] float-right">{{ error_text }}</p>
     </div>
-    <button ref="sub" @click="check()" id="username-sub">بعدی</button>
-    <p class="register">حسابی ندارید؟ <a href="/register">یکی بسازید!</a></p>
+    <button ref="sub" @click="check()" id="username-sub" class="transition-all duration-100 active:text-3xl text-4xl w-60 p-1 text-white rounded-3xl bg-[#4b70e2]">بعدی</button>
+    <p ref="register" class="register">حسابی ندارید؟ <a class="text-[#4b70e2]" href="/register">یکی بسازید!</a></p>
 </div>
 
 <script>
@@ -160,11 +159,11 @@
             },
             next: function () {
                 // Changing the scene to the password scene
-                document.querySelector(".register").innerHTML =
-                    'رمز عبور خود را فراموش کرده اید؟ <a href="/phone_recovery">آن را بازیابی کنید</a>';
-                this.$refs.usernameinput.placeholder = "رمزعبور";
-                this.$refs.usernameinput.name = "password";
-                this.$refs.usernameinput.type = "password";
+                this.$refs.register.innerHTML =
+                    'رمز عبور خود را فراموش کرده اید؟ <a class="text-[#4b70e2]" href="/phone_recovery">آن را بازیابی کنید</a>';
+                this.$refs.username.placeholder = "رمزعبور";
+                this.$refs.username.name = "password";
+                this.$refs.username.type = "password";
 
                 this.isInvalid = true;
                 this.next_ = true;
@@ -181,6 +180,7 @@
 
                 this.$refs.des.style.position = "absolute";
                 this.$refs.des.style.marginLeft = "100%";
+
                 setTimeout(() => {
                     this.$refs.des.style.display = "none";
                 }, 450);

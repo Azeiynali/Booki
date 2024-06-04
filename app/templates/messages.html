@@ -3,19 +3,17 @@
 {% endblock %} {% block content %}
 <div id="app">
     <navbar active_item="messages"></navbar>
-    <div class="message-container">
+    <div class="flex flex-none flex-col justify-center items-center mt-20 gap-2">
         {% if notifications %} {% else %}
-        <p>empty!</p>
-        {% endif %} {% for notification in notifications %} {% if
-        notification.seened %}
-        <div class="message">
-            <div v-html="`{{ notification.content }}`"></div>{% else %}
-            <div class="message not_seened">
-                <div v-html="`{{ notification.content }}`"></div> {% endif %}
-                <small class="date">{{ fAge(notification.date) }}</small>
+        <p dir="rtl">خالی !</p>
+        {% endif %} {% for notification in notifications %} 
+        <div class="rounded {% if notification.seened %}bg-[#008cff]{% else %}bg-[#ffbb00]{% endif %} p-4 pb-8 text-white relative w-full" style="width: 95vw;" dir="rtl">
+            <div v-html="`{{ notification.content }}`">
+            </div>
+                <small class="absolute bottom-1 left-2">{{ fAge(notification.date) }}</small>
                 <div
                     onclick="delete_notification({{ notification.id }})"
-                    class="delete"
+                    class="rounded bg-none hover:bg-[#0000003d] absolute cursor-pointer w-7 h-7 pt-2 cursore-pointer flex flex-none items-center justify-center text-center transition-all duration-300 pt-2 delete"
                 >
                     <i class="fi fi-rr-trash-xmark"></i>
                 </div>
@@ -39,13 +37,6 @@
         app = new Vue({
             el: "#app",
             data: {},
-            methods: {
-                clear() {
-                    fetch("/api/messClear").then((response) => {
-                        window.location.href = "/messages";
-                    });
-                },
-            },
         });
         document.addEventListener("DOMContentLoaded", () => {
             fetch("/api/seen");

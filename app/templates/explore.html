@@ -1,26 +1,24 @@
 {% extends "base.html" %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/css/explore.css" />
 {% endblock %}
 
 
-{% block Title %}گشت و گذار{% endblock %}
+{% block Title %}{% if explore %}گشت و گذار{% else %}{{ title }}{% endif %}{% endblock %}
 
 
 {% block content %}
 <div id="app">
-    <navbar active_item="explore"></navbar>
-    <div class="user_box_container">
+    <navbar {% if explore %}active_item="explore"{% endif %}></navbar>
+    <div class="flex flex-wrap gap-20 justify-around mt-20 items-center flex-none">
         {% for user in users %}
-        <a href="/@{{ user.username }}">
-            <div class="user_box">
-                <img alt="" src="{{ user.avatar }}" />
-                <p><i class="fi fi-rr-{{ user.gender }}-head"></i> {{ user.username[:10] }}</p>
+            <div class="relative rounded-xl bg-white w-52 text-center h-80 flex flex-col items-center flex-none p-2">
+                <img class="rounded-full size-20" alt="{{ user.username }} avatar" src="{{ user.avatar }}" />
+                <p class="flex flex-none justify-center items-center gap-1"><i class="mt-2 fi fi-rr-{{ user.gender }}-head"></i> {{ user.username[:10] }}</p>
                 <small>{{ Follow.query.filter_by(followed=user.id).all() | length }}</small>
-                <p v-text="`{{ user.bio[:45] }}{% if user.bio.__len__() > 45 %}...{% endif %} `"></p>
+                <p dir="rtl" v-text="`{{ user.bio[:100] }}{% if user.bio.__len__() > 100 %}...{% endif %} `"></p>
+                <button @click="location.href = '/@{{ user.username }}'" class="hover:opacity-90 active:ring absolute bottom-2 rounded-full text-white px-5 py-1 bg-[#1975ff] text-xl">View</button>
             </div>
-        </a>
         {% endfor %}
     </div>
 </div>
@@ -29,7 +27,6 @@
 <script>
     app = new Vue({
         el: "#app",
-        data: {}
     })
 </script>
 {% endraw %}
