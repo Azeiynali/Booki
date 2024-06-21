@@ -65,11 +65,17 @@
     </div>
     <input
         type="text"
-        placeholder="نام کاربری"
+        value="{{ current_user.phone }}"
+        disabled
+        class=" input"
+    />
+    <input
+        type="text"
+        placeholder="نام نمایشی"
         class="input"
-        @blur="change_username"
-        @keydown.enter="change_username"
-        v-model="username"
+        @blur="change_name"
+        @keydown.enter="change_name"
+        v-model="name"
     />
     <textarea
         placeholder="من یک..."
@@ -100,6 +106,15 @@
     />
     <hr />
     <input
+        type="text"
+        placeholder="نام کاربری"
+        class="input"
+        @keydown.enter="change_username"
+        v-model="username"
+    />
+    <button class="bg-[#5e5eff] transition-all duration-300 ease-out rounded px-10 text-white py-2 text-lg" @click="change_username">تغییر نام کاربری</button>
+    <hr />
+    <input
         type="password"
         placeholder="رمز عبور جدید"
         class="input"
@@ -115,7 +130,10 @@
         @keydown.enter="change_password"
         v-model="password_repeat"
     />
-    <button class="bg-[#5e5eff] transition-all duration-300 ease-out rounded px-10 text-white py-2 text-lg" @click="change_password">تغییر رمز عبور</button>
+    <button class="bg-[#5e5eff] transition-all duration-300 ease-out rounded px-10 text-white py-2 text-lg" @click="change_password">
+        تغییر رمز عبور
+    </button>
+    <p>با فشردن ایندکمه</p>
     <span class="white"></span>
 </div>
 
@@ -124,6 +142,8 @@
         el: "#app",
         data: {
             username: "{{ current_user.username }}",
+            name: "{{ current_user.name }}",
+            user_name: "{{ current_user.name }}",
             user_username: "{{ current_user.username }}",
             country: "{{ current_user.country }}",
             user_country: "{{ current_user.country }}",
@@ -150,6 +170,18 @@
                     this.error_display = false;
                     this.error_text = "";
                 }, 250);
+            },
+            change_name() {
+                // this function is for change country
+                let formData = new FormData();
+                formData.append("name", this.name);
+    
+                if (this.name != this.user_name) {
+                    fetch("/api/edit", {
+                        method: "POST",
+                        body: formData,
+                    }).then((response) => (window.location.href = "/me"));
+                }
             },
             change_country() {
                 // this function is for change country

@@ -1,15 +1,11 @@
 .pbackground {
     background-repeat: no-repeat;
     background-size: cover;
-    height: 25em;
     width: 100vw;
-    position: relative;
-    overflow: visible;
     display: flex;
     background-image: url("https://wordpress.iqonic.design/product/wp/socialv/wp-content/themes/socialv-themes/assets/images/redux/default-cover.jpg");
     align-items: center;
     justify-content: center;
-    padding-top: 13em;
     flex-direction: column;
     margin-top: 50px;
 }
@@ -137,7 +133,7 @@
 .button:active {
     box-shadow: none;
 }
-.wraper {
+.wrapper {
     width: 70%;
     text-align: center;
     margin-top: 20px;

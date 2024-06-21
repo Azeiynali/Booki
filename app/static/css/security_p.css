@@ -1,14 +1,8 @@
 header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    margin-top: 50px;
-    background-color: #ffd92d;
-    color: white;
-    padding: 40px 0;
-    margin-bottom: 50px;
+    height: 20rem;
+}
+.box-shadow {
+    box-shadow: 10px 10px 10px #d1d9e6, -5px -5px 20px #f9f9f9;
 }
 .session {
     background-color: rgb(113, 103, 255);
@@ -25,22 +19,11 @@ header {
     transition: all .3s ease-out;
     margin-bottom: 50px;
 }
-.session small {
+small {
     font-size: 1rem;
-    margin-right: 3%;
-    line-height: 0;
 }
-.session img, header img {
-    float: left;
+.img, header img {
     width: 120px;
     height: 120px;
-    background-color: white;
-    border-radius: 100%;
-    padding: 20px;
-    margin-bottom: 2%;
     border: none;
-}
-.session:hover {
-    transform: scale(.97);
-    opacity: .9;
 }

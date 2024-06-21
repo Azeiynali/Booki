@@ -76,10 +76,10 @@
         </p>
         <p
             ref="characters"
-            v-if="(scene == 'phone') && info_error"
-            class="input-detail"
+            v-if="(scene == 'name') && info_error"
+            class="input-detail text-[red]"
         >
-            لطفا شماره را با صفر وارد کنید
+        نام باید حداقل 3 کاراکتر باشد
         </p>
     </div>
 
@@ -144,10 +144,17 @@
             check(ev) {
                 // this function is for input validations
                 if (this.scene == "phone") {
+                    const regex = /09\d\d\d\d\d\d\d\d\d/g;
+                    const phone = this.value.match(regex)
+
                     if (
-                        this.value.length != 11 ||
-                        this.value.slice(1, 2) != "9"
+                        !phone ||
+                        (
+                            phone &&
+                            phone[0] != this.value
+                        )
                     ) {
+
                         this.error = true;
                         this.error_text =
                             "لطفا شماره تلفن را به صورت صحیح (09xxxxxxxxx) وارد کنید";
@@ -180,8 +187,7 @@
                     }
                     this.valid();
                 } else if (this.scene == "name") {
-                    if (this.value.length < 3) {
-                        this.$refs.characters.style.color = "red";
+                    if (this.value.trim().length < 3) {
                         this.info_error = true;
 
                         return "";

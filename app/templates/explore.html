@@ -13,11 +13,11 @@
     <div class="flex flex-wrap gap-20 justify-around mt-20 items-center flex-none">
         {% for user in users %}
             <div class="relative rounded-xl bg-white w-52 text-center h-80 flex flex-col items-center flex-none p-2">
-                <img class="rounded-full size-20" alt="{{ user.username }} avatar" src="{{ user.avatar }}" />
-                <p class="flex flex-none justify-center items-center gap-1"><i class="mt-2 fi fi-rr-{{ user.gender }}-head"></i> {{ user.username[:10] }}</p>
+                <img class="rounded-full size-20" alt="{{ user.name }} avatar" src="{{ user.avatar }}" />
+                <p class="flex flex-none justify-center items-center gap-1"><i class="mt-2 fi fi-rr-{{ user.gender }}-head"></i> {{ user.name[:10] }}</p>
                 <small>{{ Follow.query.filter_by(followed=user.id).all() | length }}</small>
                 <p dir="rtl" v-text="`{{ user.bio[:100] }}{% if user.bio.__len__() > 100 %}...{% endif %} `"></p>
-                <button @click="location.href = '/@{{ user.username }}'" class="hover:opacity-90 active:ring absolute bottom-2 rounded-full text-white px-5 py-1 bg-[#1975ff] text-xl">View</button>
+                <button @click="location.href = '/@{{ user.username }}'" class="hover:opacity-90 active:ring absolute bottom-2 rounded-full text-white px-5 py-1 bg-[#1975ff] text-xl">نمایش</button>
             </div>
         {% endfor %}
     </div>

@@ -131,3 +131,7 @@ class Code(db.Model):
     phone = db.Column(db.String)
     code = db.Column(db.Integer, unique=True)
     date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
+
+class HashTag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String)

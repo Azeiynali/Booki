@@ -12,7 +12,7 @@
             </div>
                 <small class="absolute bottom-1 left-2">{{ fAge(notification.date) }}</small>
                 <div
-                    onclick="delete_notification({{ notification.id }})"
+                    onclick="delete_notification('{{ notification.id }}')"
                     class="rounded bg-none hover:bg-[#0000003d] absolute cursor-pointer w-7 h-7 pt-2 cursore-pointer flex flex-none items-center justify-center text-center transition-all duration-300 pt-2 delete"
                 >
                     <i class="fi fi-rr-trash-xmark"></i>

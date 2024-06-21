@@ -11,6 +11,7 @@ from itertools import zip_longest
 import hashlib
 import random
 from http import client
+from collections import Counter
 
 # library imports
 
@@ -348,6 +349,44 @@ def user_posts(username):
     )
 
 
+@app.route("/@<username>/comments")
+@login_required
+def user_comments(username):
+    """this is a function for display user comments"""
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+
+    # get user
+    user = User.query.filter_by(username=username.lower()).first()
+    if not user:
+        return abort(404)
+
+    # get comments
+    comments = []
+    comments += Comment.query.filter_by(user=user).all()
+
+    # if user followed
+    if Follow.query.filter_by(follower=current_user.id, followed=user.id).first():
+        follow = True
+    else:
+        follow = False
+
+    # create a log
+    app.logger.info("user showed")
+    comments = sorted(comments, key=lambda x: x.date, reverse=True)
+    return render_template(
+        "profile_cmt.html",
+        user=user,
+        follow=follow,
+        Follow=Follow,
+        follows=len(Follow.query.filter_by(followed=user.id).all()),
+        not_list=n,
+        comments=comments,
+        Post=Post,
+        fAge=format_age,
+        Like=Like,
+    )
+
+
 @app.route("/me", methods=["GET", "POST"])
 @login_required
 def me():
@@ -365,12 +404,26 @@ def search():
     """this is a function for display search page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
+    hashtags = HashTag.query.all()
+
+    # Extract the text of each hashtag and count occurrences
+    hashtag_texts = [hashtag.text for hashtag in hashtags]
+    hashtag_counter = Counter(hashtag_texts)
+
+    # Convert the Counter to a list of tuples and sort by count in descending order
+    sorted_hashtags = sorted(hashtag_counter.items(), key=lambda x: x[1], reverse=True)
+
+    # Display the sorted hashtags
+    hashtags = [text for text, count in sorted_hashtags]
+
     # if not a search value
     if not request.args.get("q"):
         # create a log
         app.logger.info("search showed")
+
         return render_template(
             "search.html",
+            hashtags=hashtags,
             current_user=current_user,
             not_list=n,
             search=False,
@@ -407,6 +460,7 @@ def search():
 
         return render_template(
             "search.html",
+            hashtags=hashtags,
             current_user=current_user,
             not_list=n,
             search=True,
@@ -566,7 +620,7 @@ def followers(username):
         Follow=Follow,
         not_list=n,
         explore=False,
-        title="دنبال کنندگان" + username
+        title=" دنبال کنندگان " + username
     )
 
 @app.route("/@<username>/followings")
@@ -807,8 +861,14 @@ def addPost():
             except:
                 tags = []
 
-            # find hash tags
+            # hash tags
             hashtags = re.findall(r"#([\w|آ-ی]+)", content)
+
+            for hashtag in hashtags:
+                h = HashTag(text=hashtag)
+                db.session.add(h)
+            db.session.commit()
+
             content =  re.sub(r"#([\w|آ-ی]+)", r'<a href="/search?q=%23\1">#\1</a>', content)
             content =  re.sub(r'@(\w+)', r'<a href="@\1">\1@</a>', content)
 

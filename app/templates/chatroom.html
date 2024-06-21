@@ -20,7 +20,7 @@ block Title %}گفتگو{% endblock %} {% block content %}
             id="{{ i.id }}"
             date="{{ i.date }}"
             message="{{ i.content }}"
-            user='{"image_src": "{{ i.writer.avatar }}", "username": "{{ i.writer.username }}", "url":"/@{{ i.writer.username }}"}'
+            user='{"image_src": "{{ i.writer.avatar }}", "username": "{{ i.writer.name }}", "url":"/@{{ i.writer.name }}"}'
         ></messageL>
         {% endif %} {% endfor %}
     </div>

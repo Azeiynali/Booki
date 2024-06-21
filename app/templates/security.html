@@ -1,29 +1,43 @@
-{% extends "base.html" %}
-
-{% block head %}
+{% extends "base.html" %} {% block head %}
 <link rel="stylesheet" href="/static/css/security_p.css" />
-{% endblock %}
-
-
-{% block Title %}امنیت{% endblock %}
-
-
-{% block content %}
+{% endblock %} {% block Title %}امنیت{% endblock %} {% block content %}
 <div id="app">
     <navbar></navbar>
-    <header>
-        <img src="https://cdn-icons-png.flaticon.com/512/1040/1040247.png" alt="Security image">
-        <h1>امنیت حساب خود را افزایش دهید</h1>
+    <header
+        class="w-full mb-3 text-white bg-[#3273ff] flex flex-none items-center justify-center text-white flex-col mt-15 pt-4"
+    >
+        <h1 class="text-3xl">امنیت حساب خود را افزایش دهید</h1>
     </header>
-    <div @click="location.href = '/me#passwordB'" class="session">
-        تغییر رمز عبور<br />
-        <small>رمز عبور خود را تغییر دهید</small>
-        <img src="https://cdn-icons-png.flaticon.com/512/10473/10473528.png" alt="Password">
+    <div
+        class="box-shadow w-4/5 p-2 flex items-center flex-none flex-row justify-around overflow-hidden rounded-lg relative mx-auto flex-row-reverse items-center mt-16 justify-around bg-white mb-5"
+    >
+        <div class="w-2/3 text-end text-2xl select-none flex flex-none justify-center items-end flex-col">
+            تغییر رمز عبور<br />
+            <small>رمز عبور خود را تغییر دهید</small>
+            <button @click="location.href = '/password'" class="bg-[#3273ff] rounded p-1 px-5 text-2xl hover:opacity-90 text-white mt-6">تغییر</button>
+        </div>
+        <img
+            class="float-left img"
+            src="https://cdn-icons-png.flaticon.com/512/10473/10473528.png"
+            alt="Password"
+        />
     </div>
-    <div @click="location.href = '/recodes'" class="session">
-        مدیریت کلید های بازیابی<br />
-        <small>اگر رمز عبور حساب خود را فراموش کردید، با استفاده از این کلید ها، آن را بازیابی کنید</small>
-        <img src="https://cdn-icons-png.flaticon.com/512/3039/3039427.png" alt="Security Keys">
+    <div
+        class="box-shadow w-4/5 p-2 flex items-center flex-none flex-row justify-around overflow-hidden rounded-lg relative mx-auto flex-row-reverse items-center mt-7 justify-around bg-white mb-5"
+    >
+        <div class="w-2/3 text-end text-2xl select-none flex flex-none justify-center items-end flex-col">
+            مدیریت کلید های بازیابی<br />
+            <small
+            >اگر رمز عبور حساب خود را فراموش کردید، با استفاده از این کلید ها،
+            آن را بازیابی کنید</small
+        >
+            <button @click="location.href = '/recodes'" class="bg-[#3273ff] rounded p-1 px-5 text-2xl hover:opacity-90 text-white mt-6">کلید های بازیابی</button>
+        </div>
+        <img
+            class="float-left img"
+            src="https://cdn-icons-png.flaticon.com/512/3039/3039427.png"
+            alt="Security Keys"
+        />
     </div>
 </div>
 
@@ -31,8 +45,7 @@
 <script>
     app = new Vue({
         el: "#app",
-        data: {}
-    })
+        data: {},
+    });
 </script>
-{% endraw %}
-{% endblock %}
+{% endraw %} {% endblock %}

@@ -56,27 +56,26 @@
         </div>
     </div>
     <div class="select-none flex gap-16 flex-none flex-row-reverse justify-center items-center w-4/5 w-full mt-10 mb-10">
-        <a class="flex flex-none flex-col items-center justify-center gap-1 text-center text-lg text-[#3f93ca]">
+        <a href="/@{{ user.username }}/posts" class="flex flex-none flex-col items-center justify-center cursor-pointer gap-1 text-center text-lg text-[#6d6d6d]">
             <i class="text-4xl fi fi-rr-apps"></i>
             پست ها
         </a>
-        <a href="/@{{ user.username }}/comments" class="flex flex-none flex-col items-center justify-center cursor-pointer gap-1 text-center text-lg text-[#6d6d6d]">
+        <a class="flex flex-none flex-col items-center justify-center gap-1 text-center text-lg text-[#3f93ca]">
             <i class="text-4xl fi fi-rr-comments"></i>
             نظرات
         </a>
     </div>
     <div class="flex mt-4 flex-col gap-10 items-center mb-16">
-        {% for post in posts %}
-            <post {% if post.writer==current_user %} iw="True" {% endif %}
-                content="{{ post.content }}" id="{{ post.id }}"
-                image="{{ post.img }}"
-                username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
-                classes="post img-container min-h-40 rounded-xl mb-5 p-3 bg-[#fefefe] w-4/5" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
-                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ post.comments | length }}">
-            </post>
+        {% for comment in comments %}
+            <comment {% if comment.writer==current_user %} iw="True" {% endif %}
+                post_author="{{ comment.post.writer.name }}"
+                post_id="{{ comment.post.id }}"
+                content="{{ comment.content }}" id="{{ comment.id }}"
+                username="{{ comment.user.username }}" avatar="{{ comment.user.avatar }}" date="{{ fAge(comment.date) }}">
+            </comment>
         {% endfor %}
-        {% if not posts %}
-        <p class="mt-2 text-[#6d6d6d]">هیچ پستی یافت نشد</p>
+        {% if not comments %}
+        <p class="mt-2 text-[#6d6d6d]">هیچ نظری یافت نشد</p>
         {% endif %}
     </div>
 </div>
@@ -102,8 +101,86 @@
                         `,
     });
 
+    Vue.component("comment", {
+        props: ["username", "id", "content", "date", "avatar", "iw", "post_author", "post_id"],
+        data() {
+            return {
+                is: true,
+                delete_button: "حذف",
+            };
+        },
+        methods: {
+            delete_() {
+                if (
+                    this.$refs.itrash.getAttribute("class") ===
+                    "fi fi-rr-check"
+                ) {
+                    var myHeaders = new Headers();
+                    myHeaders.append(
+                        "Content-Type",
+                        "application/x-www-form-urlencoded"
+                    );
+
+                    var urlencoded = new URLSearchParams();
+                    urlencoded.append("id", this.id);
+                    var requestOptions = {
+                        method: "POST",
+                        headers: myHeaders,
+                        body: urlencoded,
+                        redirect: "follow",
+                    };
+
+                    fetch("/api/comment/del", requestOptions)
+                        .then((response) => response.text())
+
+                        .then((result) => {
+                            this.is = false;
+                        })
+                        .catch((error) => console.log("error", error));
+                } else {
+                    this.$refs.itrash.setAttribute(
+                        "class",
+                        "fi fi-rr-check"
+                    );
+                    this.$refs.trash.setAttribute(
+                        "class",
+                        "mb-3 px-3 gap-10 py-2 rounded flex items-center border-2 border-[#6d6d6d] transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none cursor-pointer justify-center liked"
+                    );
+                    this.delete_button = "مطمئنید؟";
+                }
+            },
+        },
+        template: `<div v-if="is" class="bg-white w-4/5 flex flex-none justify-start items-center gap-4 relative flex-row-reverse mt-5 rounded-xl">
+                    <div dir="rtl" class="p-3 rounded-xl flex flex-none text-center items-center flex-col">
+                        <a :href="'/post/' + post_id" class="mb-4 link mr-20 absolute inline-block top-1 right-10 w-90">بر روی پستی از {{ post_author }}</a>
+                        <a :href="'\@' + username">
+                            <img :src="avatar" class="size-20 rounded-full" />
+                        </a>
+                        <a :href="'\@' + username">
+                            <div>
+                                <p  class="text-black">
+                                    {{ username }}
+
+                                </p>
+                                <small class="text-black">{{ date }}</small>
+                            </div>
+                        </a>
+                    </div>
+                    <div dir="rtl" class="content">
+                        <p v-html="content"></p>
+                    </div>
+                    <div v-if="iw" dir="rtl" class="bottom inline-block absolute bottom-1 left-10">
+                        <div @click="delete_" ref="trash" class="mb-3 px-3 gap-10 py-2 rounded flex items-center border-2 border-[#6d6d6d] transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none cursor-pointer justify-center">
+                            {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
+                        </div>
+                        </a>
+                    </div>
+                </div>`,
+    });
+        
+
+
     // {% endraw %}
-    {% include "inc/post.js" %}
     new Vue({
         el: "#app",
         data: {

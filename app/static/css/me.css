@@ -24,6 +24,11 @@ img.avatar {
     border: 2px solid var(--blue);
     text-align: center;
 }
+.input[disabled] {
+    user-select: none;
+    border: 2px solid #6d6d6d;
+    color: #6d6d6d;
+}
 textarea.input {
     font-size: 0.7rem;
 }
