@@ -17,26 +17,24 @@
     z-index: -111;
 }
 .message.right::after {
-    background-color: #ff6464;
+    background-color: #a0a0a0;
     transform: skewY(30deg);
     right: 0;
 }
 .message.left::after {
     left: 0;
     transform: skewY(-30deg);
-    background-color: #54baff;
+    background-color: white;
 }
-.message .date {
+.date {
     position: absolute;
     font-size: 0.7rem;
-    color: #ffffff98;
-    bottom: 2px;
-    left: 12px;
+    bottom: -1rem;
+    left: 2px;
 }
 .message i {
     position: absolute;
     font-size: 0.7rem;
-    color: #ffffff98;
     bottom: 2px;
     right: 10px;
 }
@@ -106,4 +104,11 @@ h4 {
 .white {
     width: 100vw;
     height: 30px;
+}
+.ove-s {
+    overflow-x: scroll !important;
+}
+.ove-s::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
 }

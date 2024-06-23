@@ -106,9 +106,9 @@ block Title %}گفتگو{% endblock %} {% block content %}
         template: `
     <div class="mess-container">
         <div>
-            <div @contextmenu.prevent="contextmenu" @click.stop="contextmenu" class="message overflow-visible left px-3 rounded-lg text-white bg-[#54baff] mb-3 relative inline-block overflow-visible ml-3">
+            <div @contextmenu.prevent="contextmenu" @click.stop="contextmenu" class="message overflow-visible left px-3 rounded-lg text-white pt-1 pb-4 text-[#2b2b2b] bg-[#fff] mb-3 relative inline-block overflow-visible ml-3">
                 <pre v-html="text"></pre>
-                <div class="date">{{ date }}</div>
+                <div class="date text-[#2b2b2b]">{{ date }}</div>
                 <i class="fi fi-rr-check"></i>
             </div>
             <img @click="GoToUser" class="user-pic-mess cursor-pointer size-10 absolute rounded-full" :src="image_src" />
@@ -179,7 +179,7 @@ block Title %}گفتگو{% endblock %} {% block content %}
                     "FFRRWETER%^%$TYER%#%$R#$%$#^54643643%$#%$#f"
                 );
                 // {% endraw %}
-                urlencoded.append("user_id", {{ current_user.id }});
+                urlencoded.append("user_id", parseInt('{{ current_user.id }}'));
                 // {% raw %}
                 var requestOptions = {
                     method: "DELETE",
@@ -198,31 +198,30 @@ block Title %}گفتگو{% endblock %} {% block content %}
             },
         },
         template: `
-    <div v-if="is" class="mess-container">
-        <div dir="rtl">
-            <div @click.stop="contextmenu($event)" @contextmenu.prevent="contextmenu" class="message overflow-visible right px-3 rounded-lg text-white bg-[#ff6464] mb-3 relative inline-block overflow-visible ml-3">
-                <pre v-html="text"></pre>
-                <div class="date">{{ date }}</div>
-                <i class="fi fi-rr-check"></i>
-            </div>
-        </div>
-        <div ref="cx" id="contextMenu" class="context-menu z-50" style="display: none">
-            <ul class="flex flex-col gap-2 bg-white rounded p-3 relative ">
-                <li @click.stop="copy">
-                    <a dir="rtl" class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="copy" href="#"
-                    ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> کپی
-                    </a>
-                </li>
-                <li @click.stop="remove" class="trash">
-                    <a dir="rtl" class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="remove" href="#"
-                        ><i @click.stop="remove" class="fi fi-rr-trash-xmark" aria-hidden="true"></i>
-                        حذف</a
-                    >
-                </li>
-            </ul>
-        </div>
-    </div>
-        `,
+                <div v-if="is" class="mess-container">
+                    <div dir="rtl">
+                        <div @click.stop="contextmenu($event)" @contextmenu.prevent="contextmenu" class="message overflow-visible right pt-1 pb-4 px-3 rounded-lg bg-[#a0a0a0] text-[#fff] mb-3 relative inline-block overflow-visible ml-3">
+                            <pre v-html="text"></pre>
+                            <div class="date text-[#2a2a2a] ">{{ date }}</div>
+                            <i class="fi fi-rr-check text-[#ffffff98]"></i>
+                        </div>
+                    </div>
+                    <div ref="cx" id="contextMenu" class="context-menu z-50" style="display: none">
+                        <ul class="flex flex-col gap-2 bg-white rounded p-3 relative ">
+                            <li @click.stop="copy">
+                                <a dir="rtl" class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="copy" href="#"
+                                ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> کپی
+                                </a>
+                            </li>
+                            <li @click.stop="remove" class="trash">
+                                <a dir="rtl" class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="remove" href="#"
+                                    ><i @click.stop="remove" class="fi fi-rr-trash-xmark" aria-hidden="true"></i>
+                                    حذف</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                </div>`,
     });
 
     // send input Vue component
@@ -275,10 +274,62 @@ block Title %}گفتگو{% endblock %} {% block content %}
             },
         },
         template: `
-    <div class="send-input border-t border-[#b6b6b6]  w-full bottom-0 h-16 fixed flex items-center justify-center w-9/10 text-center bg-white">
-        <input dir="rtl" @keyup.enter="send" v-model="message" type="text" class="send-input-text border-0 text-lg h-full bg-white" placeholder="پیامی بنویسید...">
-        <i @click="send" :class="{ 'fi fi-rr-paper-plane-top text-[#696969]': true, 'send-active': message.trim() }"></i>
-    </div>`,
+            <div class="flex flex-col bottom-0 fixed w-full">
+                <div class="flex gap-2 flex-row-reverse ove-s items-ceter justify-start w-full flex-none [&>*]:flex-none [&>*]:cursor-pointer [&>*]:text-3xl [&>*]:flex [&>*]:items-center [&>*]:h-10 [&>*]:justify-center">
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😂</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">❤️</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😍</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤣</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😅</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😭</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😢</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😊</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😘</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🙏</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">💕</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">👍</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">👏</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😁</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤔</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😡</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😹</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😐</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😑</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">💔</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🔥</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤩</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😰</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤗</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">👌</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🙄</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">💖</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">💯</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">❌</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🙃</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">💃</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😜</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤪</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤓</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😥</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🎵</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤞</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤟</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😛</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">👊</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😱</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">✅</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">❗</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🧐</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🤑</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">😗</div>
+                    <div @click="(ev) => message = message + ev.target.innerText + ' '">🚀</div>
+                </div>
+                <div class="send-input flex-none w-full h-16 flex items-center justify-center w-9/10 text-center bg-white">
+                    <input dir="rtl" @keyup.enter="send" v-model="message" type="text" class="send-input-text border-0 text-lg h-full bg-white" placeholder="پیامی بنویسید...">
+                    <i @click="send" :class="{ 'fi fi-rr-paper-plane-top text-[#696969]': true, 'send-active': message.trim() }"></i>
+                </div>
+            </div>
+        `,
     });
 
     // root instance
