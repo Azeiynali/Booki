@@ -60,6 +60,7 @@
             src="https://cdn-icons-png.flaticon.com/512/2716/2716054.png"
             data-upload="1"
             title="upload avatar"
+            id="upload"
             alt="upload profile"
         />
     </div>
@@ -273,6 +274,10 @@
                             let formData = new FormData();
                             formData.append("file", file);
 
+                            upload_image = document.getElementById('upload')
+                            upload_image.src = "/static/pictures/loading.png"
+                            upload_image.classList.add('animate-spin')
+
                             fetch("/api/uploadavatar", {
                                 method: "POST",
                                 body: formData,
@@ -281,7 +286,9 @@
                                     if (response.status == 429) {
                                         throw new Error("429");
                                     }
-                                    window.location.href = "/me";
+                                    setTimeout(()=>{
+                                        window.location.href = "/me";
+                                    }, 1000)
                                 })
                                 .catch((error) => {
                                     this.error(

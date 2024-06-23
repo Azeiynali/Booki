@@ -297,7 +297,9 @@
                     if (fileType === "image/jpeg" || fileType === "image/png") {
                         var formData = new FormData();
                         formData.append("file", file);
+
                         this.on_upload = true;
+                        
                         fetch("/api/uploadavatar", {
                             method: "POST",
                             body: formData,
