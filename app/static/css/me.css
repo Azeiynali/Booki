@@ -60,6 +60,6 @@ textarea.input {
     transform: scale(0.9);
     opacity: 0.8;
 }
-button:hover {
+button:hover, a.transition-all:hover {
     transform: scale(.9);
 }

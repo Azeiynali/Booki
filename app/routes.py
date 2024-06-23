@@ -485,6 +485,25 @@ def recovery():
     else:
         return redirect(url_for("index"))
 
+@app.route("/chpassword", methods=["POST"])
+@login_required
+def change_password():
+    """this is a function to display recovery acount page"""
+    password = request.form.get('password')
+
+    code = generate_code(6, only_numbers=True)
+
+    while Code.query.filter_by(code=code).first():
+        code = generate_code(6, only_numbers=True)
+
+    c = Code(phone=current_user.phone, code=code)
+    db.session.add(c)
+    db.session.commit()
+    
+    SMS(current_user.phone, code)
+
+    return render_template("chpassword.html", password=password)
+
 @app.route("/phone_recovery")
 def phone_recovery():
     """this is a function to display recovery acount page"""
@@ -1127,7 +1146,6 @@ def edit():
     data = request.form
     usr = data.get("username")
     bio = data.get("bio")
-    pwd = data.get("password")
     cnty = data.get("country")
     city = data.get("city")
     avtr = data.get("avatar")
@@ -1161,15 +1179,6 @@ def edit():
         app.logger.info("name changing")
         return jsonify({"success": True})
 
-    # changing the password
-    elif pwd:
-        u = User.query.filter_by(username=current_user.username).first()
-        u.password = sha256_hash(pwd, u.salt)
-
-        db.session.commit()
-        # create a log
-        app.logger.warning("password changing")
-        return jsonify({"success": True})
     elif bio:
         u = User.query.filter_by(username=current_user.username).first()
         u.bio = bio
@@ -1398,11 +1407,12 @@ def phone_validating():
     elif phone and code:
         c = Code.query.filter_by(phone=phone, code=code).first()
 
-        days = (datetime.now() - c.date).days
-        seconds = (datetime.now() - c.date).seconds
+        if c:
+            days = (datetime.now() - c.date).days
+            seconds = (datetime.now() - c.date).seconds
 
-        if c and days == 0 and seconds <= 1000:
-            return jsonify({'success': True, 'valid': True}) 
+            if days == 0 and seconds <= 1000:
+                return jsonify({'success': True, 'valid': True}) 
 
         return jsonify({'success': True, 'valid': False})
 
@@ -1449,7 +1459,7 @@ def phone_recovery_codes_api():
             days = (datetime.now() - c.date).days
             seconds = (datetime.now() - c.date).seconds
 
-            if c and days == 0 and seconds <= 1000:
+            if days == 0 and seconds <= 1000:
                 u = User.query.filter_by(phone=phone).first()
                 login_user(u)
 
@@ -1460,7 +1470,33 @@ def phone_recovery_codes_api():
 
     return abort(400)
 
+@app.route('/api/chp', methods=['POST'])
+# @limiter.limit("3 per hours")
+def change_password_code_validation():
+    code = request.form.get('code')
+    pwd = request.form.get('password')
 
+    if code:
+        c = Code.query.filter_by(phone=current_user.phone, code=code).first()
+
+        if c:
+            days = (datetime.now() - c.date).days
+            seconds = (datetime.now() - c.date).seconds
+
+            if days == 0 and seconds <= 1000:
+                # changing the password
+                u = User.query.filter_by(username=current_user.username).first()
+                u.password = sha256_hash(pwd, u.salt)
+
+                db.session.commit()
+                # create a log
+                app.logger.warning("password changing")
+
+                return jsonify({'success': True, 'valid': True})
+
+        return jsonify({'success': True, 'valid': False})
+
+    return abort(400)
 
 
 

@@ -117,8 +117,8 @@ block Title %}گفتگو{% endblock %} {% block content %}
         <div ref="cx" id="contextMenu" class="context-menu" style="display: none">
             <ul class="flex flex-col gap-2 bg-white rounded p-3 relative ">
                 <li @click.stop="copy">
-                    <a class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="copy" href="#"
-                        ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
+                    <a dir="rtl" class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="copy" href="#"
+                        ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> کپی
                     </a>
                 </li>
             </ul>
@@ -209,14 +209,14 @@ block Title %}گفتگو{% endblock %} {% block content %}
         <div ref="cx" id="contextMenu" class="context-menu z-50" style="display: none">
             <ul class="flex flex-col gap-2 bg-white rounded p-3 relative ">
                 <li @click.stop="copy">
-                    <a class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="copy" href="#"
-                    ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> Copy
+                    <a dir="rtl" class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="copy" href="#"
+                    ><i @click.stop="copy" class="fi fi-rr-copy-alt" aria-hidden="true"></i> کپی
                     </a>
                 </li>
                 <li @click.stop="remove" class="trash">
-                    <a class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="remove" href="#"
+                    <a dir="rtl" class="w-full flex items-center relative transition-all liner duration-500 text-black hover:text-[#0084ff] gap-1" @click.stop="remove" href="#"
                         ><i @click.stop="remove" class="fi fi-rr-trash-xmark" aria-hidden="true"></i>
-                        Delete</a
+                        حذف</a
                     >
                 </li>
             </ul>

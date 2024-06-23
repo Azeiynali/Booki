@@ -2,9 +2,17 @@
 <link rel="stylesheet" href="./static/css/Login.css" />
 <link href="../static/library/Vuetify.css" rel="stylesheet" />
 {% endblock %} {% block Title %}ورود{% endblock %} {% block content %} {% raw %}
-<div id="app" dir="rtl" class="Form-box overflow-hidden rounded-lg relative mx-auto flex items-center flex-col mt-16 justify-around">
-    <h3 ref="title" class="text-6xl transition-all duration-500 mt-2">خوش آمدید!</h3>
-    <h4 ref="des" class="text-2xl transition-all duration-500">نام کاربری خود را وارد کنید</h4>
+<div
+    id="app"
+    dir="rtl"
+    class="Form-box overflow-hidden rounded-lg relative mx-auto flex items-center flex-col mt-16 justify-around"
+>
+    <h3 ref="title" class="text-6xl transition-all duration-500 mt-2">
+        خوش آمدید!
+    </h3>
+    <h4 ref="des" class="text-2xl transition-all duration-500">
+        نام کاربری خود را وارد کنید
+    </h4>
     <img
         ref="image"
         class="rounded-full size-60 position-all duration-500 image"
@@ -13,7 +21,11 @@
         alt="user-picture"
     />
     <div class="flex flex-col justify-center items-center flex-none">
-        <h3 v-show="next_" ref="title2" class="text-2xl transition-all duration-500">
+        <h3
+            v-show="next_"
+            ref="title2"
+            class="text-2xl transition-all duration-500"
+        >
             لطفا پسورد خود را وارد کنید
         </h3>
         <input
@@ -29,16 +41,28 @@
             id="username"
             class="username-inp text-xl p-2 rounded-lg mt-3 outline-none w-60"
         />
-        <p ref="empt" v-if="error" class="text-[#c90000b2] float-right">{{ error_text }}</p>
+        <p ref="empt" v-if="error" class="text-[#c90000b2] float-right">
+            {{ error_text }}
+        </p>
     </div>
-    <button ref="sub" @click="check()" id="username-sub" class="transition-all duration-100 active:text-3xl text-4xl w-60 p-1 text-white rounded-3xl bg-[#4b70e2]">بعدی</button>
-    <p ref="register" class="register">حسابی ندارید؟ <a class="text-[#4b70e2]" href="/register">یکی بسازید!</a></p>
+    <button
+        ref="sub"
+        @click="handle(handle_text)"
+        id="username-sub"
+        class="transition-all duration-100 active:text-3xl text-4xl w-60 p-1 text-white rounded-3xl bg-[#4b70e2]"
+    >
+        بعدی
+    </button>
+    <p ref="register" class="register">
+        حسابی ندارید؟ <a class="text-[#4b70e2]" href="/register">یکی بسازید!</a>
+    </p>
 </div>
 
 <script>
     new Vue({
         el: "#app",
         data: {
+            handle_text: 'check',
             value: "",
             error_text: "",
             next_: false,
@@ -61,204 +85,214 @@
                     this.style = "";
                 }
             },
-            login: function () {
-                // this function to validate password and login
-                var myHeaders = new Headers();
-                myHeaders.append(
-                    "Content-Type",
-                    "application/x-www-form-urlencoded"
-                );
+            handle: function (x) {
+                if (x == "login") {
+                    // this function to validate password and login
+                    var myHeaders = new Headers();
+                    myHeaders.append(
+                        "Content-Type",
+                        "application/x-www-form-urlencoded"
+                    );
 
-                var urlencoded = new URLSearchParams();
-                urlencoded.append("password", this.value);
-                urlencoded.append("username", this.this_username);
+                    var urlencoded = new URLSearchParams();
+                    urlencoded.append("password", this.value);
+                    urlencoded.append("username", this.this_username);
 
-                var requestOptions = {
-                    method: "POST",
-                    headers: myHeaders,
-                    body: urlencoded,
-                    redirect: "follow",
-                };
+                    var requestOptions = {
+                        method: "POST",
+                        headers: myHeaders,
+                        body: urlencoded,
+                        redirect: "follow",
+                    };
 
-                // if value not empty
-                if (this.value != "") {
-                    // password validation
-                    fetch("/api/userValid", requestOptions)
-                        .then((response) => {
-                            if (response.status == 429) {
-                                throw new Error("429");
-                            }
-                            return response.text();
-                        })
-                        .then((data) => {
-                            console.log(JSON.parse(data));
-                            if (JSON.parse(data).success) {
-                                if (JSON.parse(data).valid) {
-                                    var response_json = data;
-                                    this.error_show(false);
-                                    let href = "/";
-                                    // set a login notification (send ip to backend)
-                                    fetch("https://api.ipify.org?format=json")
-                                        .then((response) => response.json())
-                                        .then((data) => {
-                                            if (data.ip) {
-                                                fetch(
-                                                    href + "?login=" + data.ip
-                                                );
-                                            }
-                                        });
-                                    var nextURL = "";
-                                    try {
-                                        const nextParam = window.location.search
-                                            .split("?")[1]
-                                            .split("&")
-                                            .find((param) =>
-                                                param.startsWith("next=")
-                                            );
-                                        const nextValue = nextParam
-                                            ? nextParam.split("=")[1]
-                                            : "";
+                    // if value not empty
+                    if (this.value != "") {
+                        // password validation
+                        fetch("/api/userValid", requestOptions)
+                            .then((response) => {
+                                if (response.status == 429) {
+                                    throw new Error("429");
+                                }
+                                return response.text();
+                            })
+                            .then((data) => {
+                                console.log(JSON.parse(data));
+                                if (JSON.parse(data).success) {
+                                    if (JSON.parse(data).valid) {
+                                        var response_json = data;
+                                        this.error_show(false);
+                                        let href = "/";
+                                        // set a login notification (send ip to backend)
+                                        fetch(
+                                            "https://api.ipify.org?format=json"
+                                        )
+                                            .then((response) => response.json())
+                                            .then((data) => {
+                                                if (data.ip) {
+                                                    fetch(
+                                                        href +
+                                                            "?login=" +
+                                                            data.ip
+                                                    );
+                                                }
+                                            });
+                                        var nextURL = "";
+                                        try {
+                                            const nextParam =
+                                                window.location.search
+                                                    .split("?")[1]
+                                                    .split("&")
+                                                    .find((param) =>
+                                                        param.startsWith(
+                                                            "next="
+                                                        )
+                                                    );
+                                            const nextValue = nextParam
+                                                ? nextParam.split("=")[1]
+                                                : "";
 
-                                        var nextURL =
-                                            nextValue &&
-                                            `${window.location.origin}/${nextValue}`;
-                                    } catch {
+                                            var nextURL =
+                                                nextValue &&
+                                                `${window.location.origin}/${nextValue}`;
+                                        } catch {
+                                            window.location.reload();
+                                        }
+                                        if (nextURL) {
+                                            window.location.href = nextURL;
+                                            return null;
+                                        }
                                         window.location.reload();
+                                    } else {
+                                        this.error_show("رمزعبور غلط است");
                                     }
-                                    if (nextURL) {
-                                        window.location.href = nextURL;
-                                        return null;
-                                    }
-                                    window.location.reload();
                                 } else {
-                                    this.error_show("رمزعبور غلط است");
+                                    console.log('error 3')
+                                    this.error_show(
+                                        "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                    );
                                 }
-                            } else {
-                                this.error_show(
-                                    "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
-                                );
-                            }
-                        })
-                        .catch((error) => {
-                            if (error == "Error: 429") {
-                                this.error_show(
-                                    "درخواست های بیش از حد، کمی بعد دوباره تلاش کنید"
-                                );
-                            } else {
-                                this.error_show(
-                                    "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
-                                );
-                            }
-                            console.log("error", error);
-                        });
-                } else {
-                    if (this.value == "") {
-                        this.error_show("رمز عبور خالی است");
+                            })
+                            .catch((error) => {
+                                if (error == "Error: 429") {
+                                    this.error_show(
+                                        "درخواست های بیش از حد، کمی بعد دوباره تلاش کنید"
+                                    );
+                                } else {
+                                    console.log('error 4')
+                                    this.error_show(
+                                        "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                    );
+                                }
+                                console.log("error", error);
+                            });
+                    } else {
+                        if (this.value == "") {
+                            this.error_show("رمز عبور خالی است");
+                        }
                     }
-                }
-            },
-            next: function () {
-                // Changing the scene to the password scene
-                this.$refs.register.innerHTML =
-                    'رمز عبور خود را فراموش کرده اید؟ <a class="text-[#4b70e2]" href="/phone_recovery">آن را بازیابی کنید</a>';
-                this.$refs.username.placeholder = "رمزعبور";
-                this.$refs.username.name = "password";
-                this.$refs.username.type = "password";
+                } else if (x == "next") {
+                    // Changing the scene to the password scene
+                    this.$refs.register.innerHTML =
+                        'رمز عبور خود را فراموش کرده اید؟ <a class="text-[#4b70e2]" href="/phone_recovery">آن را بازیابی کنید</a>';
+                    this.$refs.username.placeholder = "رمزعبور";
+                    this.$refs.username.name = "password";
+                    this.$refs.username.type = "password";
 
-                this.isInvalid = true;
-                this.next_ = true;
+                    this.isInvalid = true;
+                    this.next_ = true;
 
-                this.isEmpty = false;
-                this.style = "";
+                    this.isEmpty = false;
+                    this.style = "";
 
-                this.$refs.title.style.position = "absolute";
-                this.$refs.title.style.marginLeft = "100%";
+                    this.$refs.title.style.position = "absolute";
+                    this.$refs.title.style.marginLeft = "100%";
 
-                setTimeout(() => {
-                    this.$refs.title.style.display = "none";
-                }, 450);
+                    setTimeout(() => {
+                        this.$refs.title.style.display = "none";
+                    }, 450);
 
-                this.$refs.des.style.position = "absolute";
-                this.$refs.des.style.marginLeft = "100%";
+                    this.$refs.des.style.position = "absolute";
+                    this.$refs.des.style.marginLeft = "100%";
 
-                setTimeout(() => {
-                    this.$refs.des.style.display = "none";
-                }, 450);
-                setTimeout(() => {
-                    this.$refs.title2.style.marginRight = "0";
-                }, 50);
-                setTimeout(() => {
-                    this.$refs.image.style.marginRight = "0";
-                }, 50);
+                    setTimeout(() => {
+                        this.$refs.des.style.display = "none";
+                    }, 450);
+                    setTimeout(() => {
+                        this.$refs.title2.style.marginRight = "0";
+                    }, 50);
+                    setTimeout(() => {
+                        this.$refs.image.style.marginRight = "0";
+                    }, 50);
 
-                this.$refs.sub.textContent = "ورود";
-                this.$refs.sub.removeEventListener("click", this.check);
-                this.$refs.sub.addEventListener("click", this.login);
-                this.input = "رمز ورود";
-                this.value = "";
-                this.error_show(false);
-            },
-            check: function () {
-                // username validation
-                var myHeaders = new Headers();
-                myHeaders.append(
-                    "Content-Type",
-                    "application/x-www-form-urlencoded"
-                );
+                    this.$refs.sub.textContent = "ورود";
+                    this.handle_text = 'login'
+                    this.input = "رمز ورود";
+                    this.value = "";
+                    this.error_show(false);
+                } else if (x == "check") {
+                    // username validation
+                    var myHeaders = new Headers();
+                    myHeaders.append(
+                        "Content-Type",
+                        "application/x-www-form-urlencoded"
+                    );
 
-                var urlencoded = new URLSearchParams();
-                urlencoded.append("username", this.value);
+                    var urlencoded = new URLSearchParams();
+                    urlencoded.append("username", this.value);
 
-                var requestOptions = {
-                    method: "POST",
-                    headers: myHeaders,
-                    body: urlencoded,
-                    redirect: "follow",
-                };
+                    var requestOptions = {
+                        method: "POST",
+                        headers: myHeaders,
+                        body: urlencoded,
+                        redirect: "follow",
+                    };
 
-                if (this.value != "") {
-                    fetch("/api/userValid", requestOptions)
-                        .then((response) => {
-                            if (response.status == 429) {
-                                console.log(response.status);
-                                throw new Error("429");
-                            }
-                            return response.text();
-                        })
-                        .then((data) => {
-                            console.log(JSON.parse(data));
-                            if (JSON.parse(data).success) {
-                                if (JSON.parse(data).valid) {
-                                    // change the username and avatar
-                                    this.this_username = this.value;
-                                    this.image = JSON.parse(data).avatar;
-                                    var response_json = data;
-                                    this.error_show(false);
-                                    this.next();
-                                } else {
-                                    this.error_show("نام کاربری غلط است");
+                    if (this.value != "") {
+                        fetch("/api/userValid", requestOptions)
+                            .then((response) => {
+                                if (response.status == 429) {
+                                    console.log(response.status);
+                                    throw new Error("429");
                                 }
-                            } else {
-                                this.error_show(
-                                    "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
-                                );
-                            }
-                        })
-                        .catch((error) => {
-                            if (error == "Error: 429") {
-                                this.error_show(
-                                    "درخواست های بیش از حد، کمی بعد دوباره تلاش کنید"
-                                );
-                            } else {
-                                this.error_show(
-                                    "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
-                                );
-                            }
-                            console.log("error", error);
-                        });
-                } else {
-                    if (this.value == "") {
-                        this.error_show("نام کاربری را وارد کنید");
+                                return response.text();
+                            })
+                            .then((data) => {
+                                console.log(JSON.parse(data));
+                                if (JSON.parse(data).success) {
+                                    if (JSON.parse(data).valid) {
+                                        // change the username and avatar
+                                        this.this_username = this.value;
+                                        this.image = JSON.parse(data).avatar;
+                                        var response_json = data;
+                                        this.error_show(false);
+                                        this.handle('next');
+                                    } else {
+                                        this.error_show("نام کاربری غلط است");
+                                    }
+                                } else {
+                                    console.log('error 1')
+                                    this.error_show(
+                                        "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                    );
+                                }
+                            })
+                            .catch((error) => {
+                                if (error == "Error: 429") {
+                                    this.error_show(
+                                        "درخواست های بیش از حد، کمی بعد دوباره تلاش کنید"
+                                    );
+                                } else {
+                                    console.log('error 2')
+                                    this.error_show(
+                                        "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
+                                    );
+                                }
+                                console.log("error", error);
+                            });
+                    } else {
+                        if (this.value == "") {
+                            this.error_show("نام کاربری را وارد کنید");
+                        }
                     }
                 }
             },
@@ -266,9 +300,9 @@
                 // to handle enters
                 if ($event.keyCode == 13) {
                     if (this.next_) {
-                        this.login();
+                        this.handle('login');
                     } else {
-                        this.check();
+                        this.handle('check');
                     }
                 } else if ($event.keyCode == 32) {
                     $event.preventDefault();

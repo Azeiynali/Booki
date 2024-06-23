@@ -67,7 +67,7 @@
         type="text"
         value="{{ current_user.phone }}"
         disabled
-        class=" input"
+        class="input"
     />
     <input
         type="text"
@@ -112,7 +112,12 @@
         @keydown.enter="change_username"
         v-model="username"
     />
-    <button class="bg-[#5e5eff] transition-all duration-300 ease-out rounded px-10 text-white py-2 text-lg" @click="change_username">تغییر نام کاربری</button>
+    <button
+        class="bg-[#5e5eff] transition-all duration-300 ease-out rounded px-10 text-white py-2 text-lg"
+        @click="change_username"
+    >
+        تغییر نام کاربری
+    </button>
     <hr />
     <input
         type="password"
@@ -130,10 +135,15 @@
         @keydown.enter="change_password"
         v-model="password_repeat"
     />
-    <button class="bg-[#5e5eff] transition-all duration-300 ease-out rounded px-10 text-white py-2 text-lg" @click="change_password">
+    <button
+        class="bg-[#5e5eff] inline-block transition-all duration-300 ease-out rounded px-10 text-white py-2 text-lg"
+        @click="change_password"
+    >
         تغییر رمز عبور
     </button>
-    <p>با فشردن ایندکمه</p>
+    <p class="text-[#535353] text-center">
+        با فشردن این دکمه کدی به شماره تلفن <br />شما ارسال می شود
+    </p>
     <span class="white"></span>
 </div>
 
@@ -175,7 +185,7 @@
                 // this function is for change country
                 let formData = new FormData();
                 formData.append("name", this.name);
-    
+
                 if (this.name != this.user_name) {
                     fetch("/api/edit", {
                         method: "POST",
@@ -319,22 +329,24 @@
                         return null;
                     }
 
-                    fetch("/api/edit", {
-                        method: "POST",
-                        body: formData,
-                    })
-                        .then((response) => {
-                            if (response.status == 429) {
-                                throw new Error("429");
-                            }
-                            location.reload();
-                        })
-                        .catch((error) => {
-                            this.error(
-                                "مشکلی پیش آمده است، کمی بعد دوباره امتحان کنید"
-                            );
-                        });
+                    this.redirectPost("/chpassword", {
+                        password: this.password_repeat,
+                    });
                 }
+            },
+            redirectPost(url, data) {
+                var form = document.createElement("form");
+                document.body.appendChild(form);
+                form.method = "post";
+                form.action = url;
+                for (var name in data) {
+                    var input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = name;
+                    input.value = data[name];
+                    form.appendChild(input);
+                }
+                form.submit();
             },
             change_username() {
                 // this function is for change username
