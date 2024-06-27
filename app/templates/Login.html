@@ -62,7 +62,7 @@
     new Vue({
         el: "#app",
         data: {
-            handle_text: 'check',
+            handle_text: "check",
             value: "",
             error_text: "",
             next_: false,
@@ -84,6 +84,20 @@
                     this.error_text = "";
                     this.style = "";
                 }
+            },
+            redirectPost(url, data) {
+                var form = document.createElement("form");
+                document.body.appendChild(form);
+                form.method = "post";
+                form.action = url;
+                for (var name in data) {
+                    var input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = name;
+                    input.value = data[name];
+                    form.appendChild(input);
+                }
+                form.submit();
             },
             handle: function (x) {
                 if (x == "login") {
@@ -119,54 +133,73 @@
                                 console.log(JSON.parse(data));
                                 if (JSON.parse(data).success) {
                                     if (JSON.parse(data).valid) {
-                                        var response_json = data;
-                                        this.error_show(false);
-                                        let href = "/";
-                                        // set a login notification (send ip to backend)
-                                        fetch(
-                                            "https://api.ipify.org?format=json"
-                                        )
+                                        // 2FA
+                                        fetch("/api/2FA", requestOptions)
                                             .then((response) => response.json())
                                             .then((data) => {
-                                                if (data.ip) {
+                                                if (data._2FA) {
+                                                    this.redirectPost("/2FA", {
+                                                        username:
+                                                            this.this_username,
+                                                        password: this.value,
+                                                    });
+                                                } else {
+                                                    var response_json = data;
+                                                    this.error_show(false);
+                                                    let href = "/";
+                                                    // set a login notification (send ip to backend)
                                                     fetch(
-                                                        href +
-                                                            "?login=" +
-                                                            data.ip
-                                                    );
+                                                        "https://api.ipify.org?format=json"
+                                                    )
+                                                        .then((response) =>
+                                                            response.json()
+                                                        )
+                                                        .then((data) => {
+                                                            if (data.ip) {
+                                                                fetch(
+                                                                    href +
+                                                                        "?login=" +
+                                                                        data.ip
+                                                                );
+                                                            }
+                                                        });
+                                                    var nextURL = "";
+                                                    try {
+                                                        const nextParam =
+                                                            window.location.search
+                                                                .split("?")[1]
+                                                                .split("&")
+                                                                .find((param) =>
+                                                                    param.startsWith(
+                                                                        "next="
+                                                                    )
+                                                                );
+                                                        const nextValue =
+                                                            nextParam
+                                                                ? nextParam.split(
+                                                                      "="
+                                                                  )[1]
+                                                                : "";
+
+                                                        var nextURL =
+                                                            nextValue &&
+                                                            `${window.location.origin}/${nextValue}`;
+                                                    } catch {
+                                                        window.location.reload();
+                                                    }
+                                                    if (nextURL) {
+                                                        window.location.href =
+                                                            nextURL;
+                                                        return null;
+                                                    }
+                                                    window.location.reload();
                                                 }
                                             });
-                                        var nextURL = "";
-                                        try {
-                                            const nextParam =
-                                                window.location.search
-                                                    .split("?")[1]
-                                                    .split("&")
-                                                    .find((param) =>
-                                                        param.startsWith(
-                                                            "next="
-                                                        )
-                                                    );
-                                            const nextValue = nextParam
-                                                ? nextParam.split("=")[1]
-                                                : "";
-
-                                            var nextURL =
-                                                nextValue &&
-                                                `${window.location.origin}/${nextValue}`;
-                                        } catch {
-                                            window.location.reload();
-                                        }
-                                        if (nextURL) {
-                                            window.location.href = nextURL;
-                                            return null;
-                                        }
-                                        window.location.reload();
                                     } else {
                                         this.error_show("رمزعبور غلط است");
                                     }
                                 } else {
-                                    console.log('error 3')
+                                    console.log("error 3");
                                     this.error_show(
                                         "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
                                     );
@@ -178,7 +211,7 @@
                                         "درخواست های بیش از حد، کمی بعد دوباره تلاش کنید"
                                     );
                                 } else {
-                                    console.log('error 4')
+                                    console.log("error 4");
                                     this.error_show(
                                         "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
                                     );
@@ -225,7 +258,7 @@
                     }, 50);
 
                     this.$refs.sub.textContent = "ورود";
-                    this.handle_text = 'login'
+                    this.handle_text = "login";
                     this.input = "رمز ورود";
                     this.value = "";
                     this.error_show(false);
@@ -265,12 +298,12 @@
                                         this.image = JSON.parse(data).avatar;
                                         var response_json = data;
                                         this.error_show(false);
-                                        this.handle('next');
+                                        this.handle("next");
                                     } else {
                                         this.error_show("نام کاربری غلط است");
                                     }
                                 } else {
-                                    console.log('error 1')
+                                    console.log("error 1");
                                     this.error_show(
                                         "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
                                     );
@@ -282,7 +315,7 @@
                                         "درخواست های بیش از حد، کمی بعد دوباره تلاش کنید"
                                     );
                                 } else {
-                                    console.log('error 2')
+                                    console.log("error 2");
                                     this.error_show(
                                         "مشکلی پیش آمده است، لطفا بعدا تلاش کنید"
                                     );
@@ -300,9 +333,9 @@
                 // to handle enters
                 if ($event.keyCode == 13) {
                     if (this.next_) {
-                        this.handle('login');
+                        this.handle("login");
                     } else {
-                        this.handle('check');
+                        this.handle("check");
                     }
                 } else if ($event.keyCode == 32) {
                     $event.preventDefault();

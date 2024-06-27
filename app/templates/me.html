@@ -70,14 +70,19 @@
         disabled
         class="input"
     />
-    <input
-        type="text"
-        placeholder="نام نمایشی"
-        class="input"
-        @blur="change_name"
-        @keydown.enter="change_name"
-        v-model="name"
-    />
+    <div class="flex flex-col items-center">
+        <label for="show_name">نام نمایشی</label>
+        <input
+            type="text"
+            placeholder="نام نمایشی"
+            class="input mt-0"
+            @blur="change_name"
+            @keydown.enter="change_name"
+            v-model="name"
+            id="show_name"
+            maxlength="15"
+        />
+    </div>
     <textarea
         placeholder="من یک..."
         class="input"
@@ -274,9 +279,9 @@
                             let formData = new FormData();
                             formData.append("file", file);
 
-                            upload_image = document.getElementById('upload')
-                            upload_image.src = "/static/pictures/loading.png"
-                            upload_image.classList.add('animate-spin')
+                            upload_image = document.getElementById("upload");
+                            upload_image.src = "/static/pictures/loading.png";
+                            upload_image.classList.add("animate-spin");
 
                             fetch("/api/uploadavatar", {
                                 method: "POST",
@@ -286,9 +291,9 @@
                                     if (response.status == 429) {
                                         throw new Error("429");
                                     }
-                                    setTimeout(()=>{
+                                    setTimeout(() => {
                                         window.location.href = "/me";
-                                    }, 1000)
+                                    }, 1000);
                                 })
                                 .catch((error) => {
                                     this.error(

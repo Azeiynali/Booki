@@ -49,7 +49,7 @@
         {% for data in mess_data %}
         <div
             @click="location.href = '/chat/{{ data.username }}'"
-            class="flex relative gap-2 {% if data.in %}bg-[#1975ff] text-white{% else %}bg-white{% endif %} w-full p-2 flex-none justify-center border-white border-b-2 cursor-pointer border-solid border-[#858585]"
+            class="flex relative gap-2 {% if data.in %}bg-[#1975ff] text-white{% else %}bg-white{% endif %} w-full p-2 flex-none justify-center border-[#e0e1e2] border-b-2 cursor-pointer border-solid border-[#858585]"
         >
             {% if not data.sa %}
             <span
@@ -484,6 +484,7 @@
             fetch("/chatContent", { method: "GET" })
                 .then((response) => response.text())
                 .then((result) => {
+                    console.log(result)
                     app.change(result);
                     setTimeout(fetchData, 5000);
                 });

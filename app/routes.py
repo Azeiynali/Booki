@@ -477,6 +477,19 @@ def login():
     return redirect(url_for("index"))
 
 
+@app.route("/2FA", methods=['POST'])
+def login_with_2FA():
+    """this is a function for display 2FA login page"""
+
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    print(username)
+    print(password)
+
+    return render_template('2FA.html', username=username, password=password)
+
+
 @app.route("/recovery")
 def recovery():
     """this is a function to display recovery acount page"""
@@ -551,9 +564,9 @@ def chat():
 
         _is = False
         for data_ in data:
-            for data__ in data:
-                if data_['username'] == data__['username']:
-                    _is = True
+            if data_['username'] == user.username:
+                _is = True
+                break
 
         if not _is:
             data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
@@ -573,9 +586,9 @@ def chat():
         
         _is = False
         for data_ in data:
-            for data__ in data:
-                if data_['username'] == data__['username']:
-                    _is = True
+            if data_['username'] == user.username:
+                _is = True
+                break
 
         if not _is:
             data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
@@ -619,9 +632,9 @@ def chat_with(username):
 
         _is = False
         for data_ in data:
-            for data__ in data:
-                if data_['username'] == data__['username']:
-                    _is = True
+            if data_['username'] == user.username:
+                _is = True
+                break
 
         if not _is:
             data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
@@ -641,9 +654,9 @@ def chat_with(username):
         
         _is = False
         for data_ in data:
-            for data__ in data:
-                if data_['username'] == data__['username']:
-                    _is = True
+            if data_['username'] == user.username:
+                _is = True
+                break
 
         if not _is:
             data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
@@ -705,7 +718,9 @@ def chatContent():
 
         db.session.commit()
 
-        classMessages = Message.query.filter_by(writer=current_user, to_id=user.id).all() + Message.query.filter_by(writer=user, to_id=current_user.id).all()
+        classMessages = Message.query.filter_by(writer=current_user, to_id=user.id).all()
+        if user != current_user:
+            classMessages += Message.query.filter_by(writer=user, to_id=current_user.id).all()
         messages = []
 
         for i in classMessages:
@@ -860,6 +875,8 @@ def addMessage():
         # pin is a pin for add messages
         PIN = data.get("pin")
 
+        print(content)
+
         # get referer for security
         referer = request.headers.get("Referer")
         if (
@@ -869,8 +886,11 @@ def addMessage():
             and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
             and to_id
         ):
+            sa = False
+            if current_user == User.query.get(to_id):
+                sa = True
             # add message
-            mess = Message(writer=User.query.get(current_user.id), content=content, to_id=to_id)
+            mess = Message(writer=User.query.get(current_user.id), content=content, to_id=to_id, sa=sa)
             db.session.add(mess)
             db.session.commit()
             # create a log
@@ -910,7 +930,7 @@ def delMessage():
 
 
 @app.route("/api/userValid", methods=["POST", "GET"])
-# @limiter.limit("4 per minute")
+# @limiter.limit("5 per minute")
 def user_valid():
     """this function for check and login the users"""
     try:
@@ -918,6 +938,7 @@ def user_valid():
             data = request.form
             usr = data.get("username")
             pwd = data.get("password")
+            code = data.get("code")
             # lower the username
             usr = usr.lower()
 
@@ -955,11 +976,31 @@ def user_valid():
             elif pwd and usr:
                 # getting user
                 user = User.query.filter_by(username=usr).first()
+                print(usr)
                 if user:
                     if verify_password(pwd, user.password, user.salt):
                         # login user
                         if not current_user.is_authenticated:
-                            login_user(user)
+                            if not user._2FA:
+                                login_user(user)
+                            elif code:
+                                c = Code.query.filter_by(code=code).first()
+                                if c:
+                                    days = (datetime.now() - c.date).days
+                                    seconds = (datetime.now() - c.date).seconds
+
+                                    if days == 0 and seconds <= 1000:
+                                        login_user(user)
+
+                                        db.session.delete(c)
+                                        db.session.commit()
+                                        return jsonify(
+                                                {
+                                                    "success": True,
+                                                    "valid": True,
+                                                    "message": "code is valid",
+                                                }
+                                            )
                         elif "me" in referer:
                             pass
                         else:
@@ -1269,18 +1310,19 @@ def follow():
 def not_follow():
     """this API for unfollow a follower"""
     if "id" in request.form:
-        id = request.form["id"]
-        # delete follower
-        f = Follow.query.filter_by(follower=current_user.id, followed=id).first()
-        db.session.delete(f)
-        db.session.commit()
-        username = User.query.get(current_user.id).username
-        # add unfollow notification
-        add_notification(
-            id, f'<a href="/@{username}">{username}</a> دیگر شما را دنبال نمیکند'
-        )
+        id = int(request.form["id"])
+        if id != 1:
+            # delete follower
+            f = Follow.query.filter_by(follower=current_user.id, followed=id).first()
+            db.session.delete(f)
+            db.session.commit()
+            username = User.query.get(current_user.id).username
+            # add unfollow notification
+            add_notification(
+                id, f'<a href="/@{username}">{username}</a> دیگر شما را دنبال نمیکند'
+            )
 
-        return jsonify({"success": True})
+            return jsonify({"success": True})
     return jsonify({"success": False})
 
 
@@ -1640,6 +1682,45 @@ def change_password_code_validation():
 
     return abort(400)
 
+@app.route('/api/2FA', methods=['POST'])
+# @limiter.limit("3 per hours")
+def _2FA_Factor_Auth():
+    username = request.form.get('username').lower()
+    user = User.query.filter_by(username=username).first()
+    phone = user.phone
+
+    if user and user._2FA:
+            code = generate_code(6, only_numbers=True)
+
+            while Code.query.filter_by(code=code).first():
+                code = generate_code(6, only_numbers=True)
+
+            c = Code(phone=phone, code=code)
+            db.session.add(c)
+            db.session.commit()
+
+            SMS(phone, code)
+
+            return jsonify({'_2FA': True})
+    elif user:
+        return jsonify({'_2FA': False})
+
+    return abort(400)
+
+@app.route('/api/2FA-state')
+@login_required
+def _2FA_State():
+    try:
+        current_user._2FA = not current_user._2FA
+        db.session.commit()
+
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+
+
+
 
 @app.route('/api/dontSaMessage')
 @login_required
@@ -1647,6 +1728,7 @@ def is_dont_sa_messages():
     message = Message.query.filter_by(to_id=current_user.id, sa=False).all()
 
     return jsonify({'if': bool(message)})
+
 
 
 

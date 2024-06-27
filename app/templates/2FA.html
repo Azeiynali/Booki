@@ -1,0 +1,106 @@
+{% extends "base.html" %} {% block head %}
+<link rel="stylesheet" href="./static/css/Login.css" />
+{% endblock %} {% block Title %}تغییر رمز عبور{% endblock %} {% block content %}
+{% raw %}
+<div
+    id="app"
+    dir="rtl"
+    class="Form-box overflow-hidden rounded-lg relative mx-auto flex items-center flex-col mt-16 justify-around text-center"
+>
+    <div class="flex flex-none flex-col items-center">
+        <p class="texl-lg">کد تایید ارسال شده را وارد کنید</p>
+    </div>
+    <div class="text-center">
+        <input
+            ref="usernameinput"
+            @keypress="key_downed"
+            @keypress.enter="valid()"
+            dir="ltr"
+            :style="style"
+            v-model="value"
+            style="text-align: center; font-size: 0.9rem"
+            placeholder="کد تایید"
+            type="text"
+            class="username-inp text-xl p-2 rounded-lg mt-3 outline-none w-60"
+        />
+        <p v-if="error" class="text-[#ff0000]">{{ error_text }}</p>
+    </div>
+    <button
+        class="transition-all duration-100 active:text-3xl text-2xl w-60 p-1 text-white rounded-3xl bg-[#4b70e2]"
+        @click="valid()"
+        id="username-sub"
+    >
+        ورود
+    </button>
+</div>
+
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            value: "",
+            error_text: "",
+            error: "",
+            style: "",
+            // {% endraw %}
+            username: "{{ username }}",
+            password: "{{ password }}",
+            // {% raw %}
+        },
+        methods: {
+            key_downed() {
+                // this function is for close errors
+                this.error = false;
+                this.error_text = "";
+                style = "";
+            },
+            valid() {
+                if (this.value.length != 6) {
+                    this.error = true;
+                    this.error_text = "لطفا کد را به درستی وارد کنید";
+                    style = "border: 2px solid red";
+                } else {
+                    let data = new FormData();
+                    data.append("username", this.username);
+                    data.append("password", this.password);
+                    data.append("code", this.value);
+
+                    fetch("/api/userValid", {
+                        method: "POST",
+                        body: data,
+                    })
+                        .then((response) => {
+                            if (response.status == 429) {
+                                throw new Error("429");
+                            }
+                            return response.json();
+                        })
+                        .then((data) => {
+                            if (data.success) {
+                                if (data.valid) {
+                                    location.href = "/";
+                                } else {
+                                    this.error = true;
+                                    this.error_text =
+                                        " کد تابید وارد شده نامعتبر است";
+                                    style = "border: 2px solid red";
+                                }
+                            } else {
+                                this.error = true;
+                                this.error_text =
+                                    "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
+                                style = "border: 2px solid red";
+                            }
+                        })
+                        .catch((error) => {
+                            this.error = true;
+                            this.error_text =
+                                "مشکلی پیش آمده، کمی بعد دوباره تلاش کنید";
+                            style = "border: 2px solid red";
+                        });
+                }
+            },
+        },
+    });
+</script>
+{% endraw %} {% endblock %}

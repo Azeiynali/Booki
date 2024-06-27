@@ -29,6 +29,7 @@ class User(db.Model, UserMixin):
     bio = db.Column(db.String, unique=False, default="")
     # man, woman
     gender = db.Column(db.String, unique=False)
+    _2FA = db.Column(db.Boolean, default=False)
 
     posts = db.relationship("Post", backref="writer", lazy=True)
     messages = db.relationship("Message", backref="writer", lazy=True)
