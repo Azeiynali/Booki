@@ -76,15 +76,13 @@ class Post(db.Model):
 # messages
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(
-        db.String(),
-        default=str(re.findall(r"(\d+:\d+):\d+", str(datetime.now()))[0]),
-        nullable=False,
-        unique=False,
-    )
+    date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
+    hour = db.Column(db.String(), default=str(re.findall(r"(\d+:\d+):\d+", str(datetime.now()))[0]))
     content = db.Column(db.String, nullable=False)
+    to_id = db.Column(db.Integer, nullable=False)
+    sa = db.Column(db.Boolean, default=False)
     
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.id} ---> {self.date})"
@@ -135,3 +133,13 @@ class Code(db.Model):
 class HashTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String)
+
+class Mute(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    muter = db.Column(db.Integer)
+    muted = db.Column(db.Integer)
+
+class MessagesNotif(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    giver = db.Column(db.Integer)
+    messages_of = db.Column(db.Integer)

@@ -532,10 +532,138 @@ def chat():
     """this is a function for display chat page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
+    
+
     # get all messages
-    messages = Message.query.all()
+    messages = list(Message.query.filter_by(writer=current_user).all())
+    data = []
+
+    for message in messages:
+        user = User.query.get(message.to_id)
+        last = sorted(list(Message.query.filter_by(writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
+        last = last[-1]
+        
+        sa = sorted(list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
+        if sa:
+            sa = sa[0].sa
+        else:
+            sa = False
+
+        _is = False
+        for data_ in data:
+            for data__ in data:
+                if data_['username'] == data__['username']:
+                    _is = True
+
+        if not _is:
+            data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
+    
+    messages = list(Message.query.filter_by(to_id=current_user.id).all())
+
+    for message in messages:
+        user = message.writer
+        last = sorted(list(Message.query.filter_by(writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
+        last = last[-1]
+        
+        sa = sorted(list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
+        if sa:
+            sa = sa[0].sa
+        else:
+            sa = False
+        
+        _is = False
+        for data_ in data:
+            for data__ in data:
+                if data_['username'] == data__['username']:
+                    _is = True
+
+        if not _is:
+            data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
+
     return render_template(
-        "chatroom.html", messages=messages, current_user=current_user, not_list=n
+        "chatroom.html", current_user=current_user, not_list=n, mess_data=data, in_chat=False
+    )
+
+@app.route("/chat/<username>")
+@login_required
+def chat_with(username):
+    """this is a function for display chat page"""
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+    this_user = User.query.filter_by(username=username).first()
+
+    # change seen state
+    for message in Message.query.filter_by(writer=this_user, to_id=current_user.id, sa=False).all():
+        message.sa = True
+
+    if not this_user:
+        return abort(404)
+
+
+    db.session.commit()
+
+    # get all messages
+        # get all messages
+    messages = list(Message.query.filter_by(writer=current_user).all())
+    data = []
+
+    for message in messages:
+        user = User.query.get(message.to_id)
+        last = sorted(list(Message.query.filter_by(writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
+        last = last[-1]
+
+        sa = sorted(list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
+        if sa:
+            sa = sa[0].sa
+        else:
+            sa = False
+
+        _is = False
+        for data_ in data:
+            for data__ in data:
+                if data_['username'] == data__['username']:
+                    _is = True
+
+        if not _is:
+            data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
+    
+    messages = list(Message.query.filter_by(to_id=current_user.id).all())
+
+    for message in messages:
+        user = message.writer
+        last = sorted(list(Message.query.filter_by(writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
+        last = last[-1]
+
+        sa = sorted(list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
+        if sa:
+            sa = sa[0].sa
+        else:
+            sa = False
+        
+        _is = False
+        for data_ in data:
+            for data__ in data:
+                if data_['username'] == data__['username']:
+                    _is = True
+
+        if not _is:
+            data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
+
+
+    _is = False
+    for data_ in data:
+        if data_['username'] == this_user.username:
+            data_['in'] = True
+            _is = True
+            break
+    
+    if not _is:
+        data.append({'username': this_user.username, 'avatar': this_user.avatar, 'name': this_user.name, 'last': '', 'sa': True, 'in': True})
+
+    messages = sorted(list(Message.query.filter_by(writer=current_user, to_id=this_user.id).all() + Message.query.filter_by(writer=this_user, to_id=current_user.id).all()), key=lambda x: x.date)
+
+    return render_template(
+        "chatroom.html", messages=messages, current_user=current_user, not_list=n, mess_data=data,
+        in_chat=True, user=this_user
     )
 
 
@@ -564,21 +692,37 @@ def newpost():
 @login_required
 def chatContent():
     """this function for display all messages for reload the chat page"""
-    classMessages = Message.query.all()
-    messages = []
+    referer = request.headers.get("Referer")
+    referer = re.sub('%2F', r'\/', referer)
+    
+    username = referer.split('/')[-1]
+    user = User.query.filter_by(username=username).first()
 
-    for i in classMessages:
-        message = {
-            "content": i.content,
-            "id": i.id,
-            "type": "right" if i.writer.id == current_user.id else "left",
-            "date": i.date,
-            "avatar": i.writer.avatar if i.writer.id != current_user.id else None,
-            "username": i.writer.username if i.writer.id != current_user.id else None,
-        }
-        messages.append(message)
+    if user:
+        # change seen state
+        for message in Message.query.filter_by(writer=user, to_id=current_user.id, sa=False).all():
+            message.sa = True
 
-    return jsonify({"all": messages})
+        db.session.commit()
+
+        classMessages = Message.query.filter_by(writer=current_user, to_id=user.id).all() + Message.query.filter_by(writer=user, to_id=current_user.id).all()
+        messages = []
+
+        for i in classMessages:
+            message = {
+                "content": i.content,
+                "id": i.id,
+                "type": "right" if i.writer.id == current_user.id else "left",
+                "hour": i.hour,
+                "date": i.date
+            }
+            messages.append(message)
+
+        messages = sorted(list(messages), key=lambda x: x['date'])
+
+        return jsonify({"all": messages})
+    else:
+        return ""
 
 
 @app.route("/explore")
@@ -712,6 +856,7 @@ def addMessage():
     if request.method == "POST":
         data = request.form
         content = data.get("content")
+        to_id = int(data.get("to_id"))
         # pin is a pin for add messages
         PIN = data.get("pin")
 
@@ -722,14 +867,15 @@ def addMessage():
             and referer
             and root_url in referer
             and encode_md5(PIN) == "ca1c05cca13ed2c33341d47ccd91ba07"
+            and to_id
         ):
             # add message
-            mess = Message(writer=User.query.get(current_user.id), content=content)
+            mess = Message(writer=User.query.get(current_user.id), content=content, to_id=to_id)
             db.session.add(mess)
             db.session.commit()
             # create a log
             app.logger.info("a message added")
-            return jsonify({"id": mess.id, "date": str(mess.date)})
+            return jsonify({"id": mess.id, "hour": str(mess.hour)})
 
     return abort(403)
 
@@ -1433,14 +1579,11 @@ def phone_recovery_codes_api():
     print('-'*20)
 
     if phone and not code:
-        print(1)
         if User.query.filter_by(phone=phone).first():
             code = generate_code(6, only_numbers=True)
 
             while Code.query.filter_by(code=code).first():
                 code = generate_code(6, only_numbers=True)
-            print(2)
-
 
             c = Code(phone=phone, code=code)
             db.session.add(c)
@@ -1448,7 +1591,6 @@ def phone_recovery_codes_api():
 
             SMS(phone, code)
 
-            print(3)
             return jsonify({'success': True, 'valid': True})
         return jsonify({'success': True, 'valid': False})
 
@@ -1499,6 +1641,12 @@ def change_password_code_validation():
     return abort(400)
 
 
+@app.route('/api/dontSaMessage')
+@login_required
+def is_dont_sa_messages():
+    message = Message.query.filter_by(to_id=current_user.id, sa=False).all()
+
+    return jsonify({'if': bool(message)})
 
 
 

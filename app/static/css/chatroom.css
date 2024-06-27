@@ -1,12 +1,20 @@
 * {
     overflow: hidden !important;
 }
-.profile-nav, nav {
+.profile-nav,
+nav {
     overflow: visible !important;
 }
 .message {
     min-height: 54px;
     overflow: visible !important;
+}
+.mess-container,
+.mess-container div {
+    overflow: visible !important;
+}
+.mess-container {
+    padding-right: 0.5rem;
 }
 .message::after {
     width: 30px;
@@ -16,7 +24,7 @@
     bottom: 0;
     z-index: -111;
 }
-.message.right::after {
+/* .message.right::after {
     background-color: #a0a0a0;
     transform: skewY(30deg);
     right: 0;
@@ -25,12 +33,12 @@
     left: 0;
     transform: skewY(-30deg);
     background-color: white;
-}
+} */
 .date {
     position: absolute;
     font-size: 0.7rem;
-    bottom: -1rem;
-    left: 2px;
+    bottom: 0.1rem;
+    left: 0.4rem;
 }
 .message i {
     position: absolute;
@@ -41,14 +49,6 @@
 .content {
     overflow-y: auto !important;
     height: calc(100vh - 200px);
-    width: 98vw;
-}
-.mess-container {
-    width: 93vw;
-}
-.mess-container div:nth-child(1) {
-    position: relative;
-    padding-left: 45px;
 }
 .user-pic-mess {
     bottom: 1px;
@@ -76,13 +76,12 @@ i.send-active {
     font-size: 1.5rem;
     cursor: pointer;
     width: 5%;
-    margin-top: .8rem;
+    margin-top: 0.8rem;
 }
 ul {
     list-style: none;
 }
 .context-menu {
-    position: absolute;
     box-shadow: 3px 3px 10px #0000004d;
 }
 nav.nav {
@@ -109,6 +108,22 @@ h4 {
     overflow-x: scroll !important;
 }
 .ove-s::-webkit-scrollbar {
-    width: 0px;
     background: transparent; /* make scrollbar transparent */
+}
+.right {
+    width: 85vw;
+}
+.left {
+    width: 15vw;
+}
+.top_bar { 
+    display: none;
+}
+@media screen and (max-width: 1100px) {
+    .left {
+        width: 25vw;
+    }
+    .right {
+        width: 75vw;
+    }
 }

@@ -3,7 +3,10 @@
 {% endblock %} {% block Title %}افزودن{% endblock %} {% block content %}
 <div id="app">
     <navbar active_item="add"></navbar>
-    <div style="min-height: 98vh;" class="container gap-20 flex mt-12 justify-center items-center w-full">
+    <div
+        style="min-height: 98vh"
+        class="container gap-20 flex mt-12 justify-center items-center w-full"
+    >
         <div class="flex items-center justify-center w-1/2">
             <img
                 alt="post_picture"
@@ -13,7 +16,9 @@
                 class="select"
             />
         </div>
-        <div class="w-1/2 justify-center flex flex-col gap-4 h-full items-center">
+        <div
+            class="w-1/2 justify-center flex flex-col gap-4 h-full items-center"
+        >
             <textarea
                 placeholder="اینجا بنویسید"
                 ref="content"
@@ -51,6 +56,10 @@
                         var formData = new FormData();
                         formData.append("file", file);
 
+                        this.$refs.image.src = "/static/pictures/loading.png";
+                        this.$refs.image.classList.add("animate-spin");
+                        this.$refs.image.classList.add("size-10");
+
                         fetch("/api/image", {
                             method: "POST",
                             body: formData,
@@ -67,6 +76,8 @@
                                 console.log(data);
                                 if (data.success) {
                                     this.Ravatar = data.url;
+                                    this.$refs.image.classList.remove("animate-spin");
+                                    this.$refs.image.classList.remove("size-10");
                                     this.$refs.image.src = data.url;
                                 }
                             })

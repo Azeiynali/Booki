@@ -115,12 +115,13 @@
     align-items: center;
     justify-content: center;
     height: 40px;
+    flex-wrap: wrap;
+    width: 80%;
     gap: 40px;
 }
 .button {
     border-radius: 6px;
     cursor: pointer;
-    box-shadow: 5px 5px 10px #3535356c, -5px -5px 5px #e6e6e6;
     width: 200px;
     font-size: 2rem;
     transition: all 0.3s;

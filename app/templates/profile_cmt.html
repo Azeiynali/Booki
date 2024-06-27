@@ -42,17 +42,20 @@
                     <p class="text-xl">دنبال شونده</p>
                 </a>
             </div>
-            {% if user.username != 'booki' and current_user != user %}
             <div class="buttons">
-                <div @click="follow" ref="follow" style="background-color: var(--blue)" class="button" v-if="!followed">
-                    دنبال کردن
-                </div>
-                <div @click="follow" ref="follow" style="background-color: var(--red)" v-if="followed" class="button">
-                    دنبال نکردن
+                {% if user.username != 'booki' and current_user != user %}
+                    <div @click="follow" ref="follow" style="background-color: var(--blue);box-shadow: 5px 5px 10px #3535356c, -5px -5px 5px #e6e6e6;" class="button" v-if="!followed">
+                        دنبال کردن
+                    </div>
+                    <div @click="follow" ref="follow" style="background-color: var(--red);box-shadow: 5px 5px 10px #3535356c, -5px -5px 5px #e6e6e6;" v-if="followed" class="button">
+                        دنبال نکردن
+                    </div>
+                {% endif %}
+                <div @click="location.href = '/chat/{{ user.username }}'" class="button border-2 border-solid border-black text-black">
+                    {% if current_user != user %}گفتگو{% else %}پیام های شخصی{% endif %}
                 </div>
             </div>
             <span class="white"></span>
-            {% endif %}
         </div>
     </div>
     <div class="select-none flex gap-16 flex-none flex-row-reverse justify-center items-center w-4/5 w-full mt-10 mb-10">
