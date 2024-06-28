@@ -1,33 +1,85 @@
 {% extends "base.html" %}
+{% block head %} 
+<link rel="stylesheet" href="/static/css/home.css">
 
-{% block head %}
 {% endblock %}
 
 
-{% block Title %}{% if explore %}گشت و گذار{% else %}{{ title }}{% endif %}{% endblock %}
-
-
+{% block Title %} {% if explore %}گشت و گذار{% else %}{{ title }}{% endif %} {% endblock %} 
 {% block content %}
 <div id="app">
-    <navbar {% if explore %}active_item="explore"{% endif %}></navbar>
-    <div class="flex flex-wrap gap-20 justify-around mt-20 items-center flex-none">
-        {% for user in users %}
-            <div class="relative rounded-xl bg-white w-52 text-center h-80 flex flex-col items-center flex-none p-2">
-                <img class="rounded-full size-20" alt="{{ user.name }} avatar" src="{{ user.avatar }}" />
-                <p class="flex flex-none justify-center items-center gap-1"><i class="mt-2 fi fi-rr-{{ user.gender }}-head"></i> {{ user.name[:10] }}</p>
-                <small>{{ Follow.query.filter_by(followed=user.id).all() | length }}</small>
-                <p dir="rtl" v-html="`{{ user.bio[:100] }}{% if user.bio.__len__() > 100 %}...{% endif %} `"></p>
-                <button @click="location.href = '/@{{ user.username }}'" class="hover:opacity-90 active:ring absolute bottom-2 rounded-full text-white px-5 py-1 bg-[#1975ff] text-xl">نمایش</button>
+    <navbar {% if explore %}active_item="explore" {% endif %}></navbar>
+    {% if posts %}
+        <div class="flex items-center flex-col w-full">
+            <div class="flex gap-2 items-center [&>*]:transition-all [&>*]:duration-300 [&>*]:flex-none [&>*]:px-3 [&>*]:cursor-pointer w-fit py-1 px-3 [&>*]:rounded-3xl mt-20 rounded-3xl bg-white text-2xl">
+                <div @click="scene = 'user'" :class="scene == 'user' ? 'bg-[#2c5dff] text-white': ''">کاربران</div>
+                <div @click="scene = 'post'" :class="scene == 'post' ? 'bg-[#2c5dff] text-white': ''">پست ها</div>
             </div>
+            <div v-if="scene == 'post'" class="flex flex-none justify-center" style="width: 95vw;">
+                <div class="w-3/4 mx-50 my-auto text-center mt-10">
+                    {% for post in posts %}
+                    <post {% if post.writer==current_user %} iw="True" {% endif %}
+                        content="{{ post.content }}" id="{{ post.id }}"
+                        image="{{ post.img }}"
+                        username="{{ post.writer.name }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
+                        classes="post img-container min-h-40 rounded-xl mb-5 p-3 bg-[#fefefe]" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+                        like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ post.comments | length }}">
+                    </post>
+                    {% endfor %}
+                    {% if posts | length > 50 %}
+                        <!-- <a class="inline-block bg-[#005be4] px-5 py-1 rounded text-white text-lg mx-auto hover:text-xl transition-all duration-300 ease-out" href="/page/{{ pagination + 1 }}">بارگذاری بیشتر</a> -->
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div
+        class="flex flex-wrap gap-20 justify-center mt-6 items-center flex-none"
+    >
+        {% for user in users %}
+        <div
+            v-if="scene == 'user'"
+            class="relative rounded-xl bg-white w-52 text-center h-80 flex flex-col items-center flex-none p-2"
+        >
+            <img
+                class="rounded-full size-20"
+                alt="{{ user.name }} avatar"
+                src="{{ user.avatar }}"
+            />
+            <p class="flex flex-none justify-center items-center gap-1">
+                <i class="mt-2 fi fi-rr-{{ user.gender }}-head"></i> {{
+                user.name[:10] }}
+            </p>
+            <small
+                >{{ Follow.query.filter_by(followed=user.id).all() | length
+                }}</small
+            >
+            <p
+                dir="rtl"
+                v-html="`{{ user.bio[:100] }}{% if user.bio.__len__() > 100 %}...{% endif %} `"
+            ></p>
+            <button
+                @click="location.href = '/@{{ user.username }}'"
+                class="hover:opacity-90 active:ring absolute bottom-2 rounded-full text-white px-5 py-1 bg-[#1975ff] text-xl"
+            >
+                نمایش
+            </button>
+        </div>
         {% endfor %}
     </div>
 </div>
 
 {% raw %}
 <script>
+    // {% endraw %}
+    {% include "inc/post.js" %}
+    // {% raw %}
+
     app = new Vue({
         el: "#app",
-    })
+        data: {
+            scene: 'post'
+        }
+    });
 </script>
-{% endraw %}
-{% endblock %}
+{% endraw %} {% endblock %}

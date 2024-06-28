@@ -40,9 +40,12 @@
             <p class="ml-3 font-medium">{{ user.name }}</p>
         </div>
 
-        <i @click="location.href='/chat'" class="z-10 fi fi-rr-angle-small-right leading-3 text-2xl cursor-pointer p-1"></i>
+        <i
+            @click="location.href='/chat'"
+            class="z-10 fi fi-rr-angle-small-right leading-3 text-2xl cursor-pointer p-1"
+        ></i>
     </div>
-    {% endif %} {% if mess_data %}
+    {% else %} {% endif %} {% if mess_data %}
     <div
         class="left mt-14 flex items-center flex-col absolute left-0 border-r-2 border-solid border-white h-full"
     >
@@ -51,7 +54,7 @@
             @click="location.href = '/chat/{{ data.username }}'"
             class="flex relative gap-2 {% if data.in %}bg-[#1975ff] text-white{% else %}bg-white{% endif %} w-full p-2 flex-none justify-center border-[#e0e1e2] border-b-2 cursor-pointer border-solid border-[#858585]"
         >
-            {% if not data.sa %}
+            {% if not data.sa and data.last.writer != current_user %}
             <span
                 class="animate-ping absolute top-1 opacity-75 right-1 inline-flex rounded-full h-3 w-3 bg-red-500"
             ></span>
@@ -103,7 +106,22 @@
             ></messageL>
             {% endif %} {% endfor %}
         </div>
-        <sendInput ref="send" @new-message="addMessage"></sendInput>
+        <div
+            v-if="!parseInt(messages)"
+            class="text-center right absolute top-20 h-fit"
+        >
+            <p>
+                <i class="fi fi-rr-lock text-2xl"></i> <br />
+                پیام های شما کاملا رمزگذاری شده <br />
+                و در محیطی امن ارسال می شوند،
+                <a class="link" href="/privacy">بیشتر بدانید</a>
+            </p>
+        </div>
+        <sendInput
+            ref="send"
+            @new-message="addMessage"
+            @messages_change="messages_change"
+        ></sendInput>
     </div>
     {% endif %} {% raw %}
     <script>
@@ -238,7 +256,6 @@
                         });
                 },
                 remove() {
-                    console.log(11);
                     // this function to remove the message
                     document
                         .querySelectorAll(".context-menu")
@@ -273,12 +290,11 @@
 
                     fetch("/api/delMessage", requestOptions)
                         .then((response) => response.text())
-
                         .then((result) => {
                             this.is = false;
                         })
                         .catch((error) => console.log("error", error));
-                },
+                    },
             },
             template: `
                 <div v-if="is" class="mess-container">
@@ -345,6 +361,7 @@
                             .then((response) => response.text())
 
                             .then((result) => {
+                                this.$emit("messages_change", 1);
                                 this.$emit(
                                     "new-message",
                                     this.message,
@@ -361,7 +378,7 @@
             },
             template: `
             <div class="right flex flex-col bottom-0 fixed">
-                <div class="right flex gap-2 flex-row-reverse ove-s items-ceter justify-start flex-none [&>*]:flex-none [&>*]:cursor-pointer [&>*]:text-3xl [&>*]:flex [&>*]:items-center [&>*]:h-10 [&>*]:justify-center">
+                <div class="right py-1 pr-1 flex gap-3 flex-row-reverse ove-s items-ceter justify-start flex-none [&>*]:flex-none [&>*]:cursor-pointer [&>*]:text-3xl [&>*]:flex [&>*]:items-center [&>*]:h-10 [&>*]:justify-center">
                     <div @click="(ev) => message = message + ev.target.innerText + ' '">😂</div>
                     <div @click="(ev) => message = message + ev.target.innerText + ' '">❤️</div>
                     <div @click="(ev) => message = message + ev.target.innerText + ' '">😍</div>
@@ -421,11 +438,17 @@
         // root instance
         var app = new Vue({
             el: "#app",
-            data: {},
-            mounted() {
-                this.$refs.content.scrollTop = this.$refs.content.scrollHeight;
+            data: {
+                // {% endraw %}
+                messages: "{{ messages | length }}",
+                // {% raw %}
             },
             methods: {
+                messages_change(x) {
+                    this.messages = parseInt(this.messages);
+                    this.messages += x;
+                    console.log(this.messages);
+                },
                 addMessage(message, date, id) {
                     const messagerComponent = Vue.extend({
                         template:
@@ -484,7 +507,7 @@
             fetch("/chatContent", { method: "GET" })
                 .then((response) => response.text())
                 .then((result) => {
-                    console.log(result)
+                    console.log(result);
                     app.change(result);
                     setTimeout(fetchData, 5000);
                 });

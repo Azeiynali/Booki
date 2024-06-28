@@ -6,7 +6,7 @@ from app.models import *
 from flask_login import login_user, login_required, current_user, logout_user
 from app.functions import *
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import zip_longest
 import hashlib
 import random
@@ -29,27 +29,27 @@ def verify_password(password, _hashed_password, salt):
 def SMS(phone, sms_code):
     '''this function for SMS sending'''
 
-    # conn = client.HTTPSConnection("api.sms.ir")
-    # payload = f"""{{
-    #     "mobile": "{phone}",
-    #     "templateId": 693544,
-    #     "parameters": [
-    #             {{
-    #                 "name": "Code",
-    #                 "value": "{sms_code}"
-    #             }}
-    #         ]
-    # }}"""
+    conn = client.HTTPSConnection("api.sms.ir")
+    payload = f"""{{
+        "mobile": "{phone}",
+        "templateId": 693544,
+        "parameters": [
+                {{
+                    "name": "Code",
+                    "value": "{sms_code}"
+                }}
+            ]
+    }}"""
 
-    # headers = {
-    #     'Content-Type': 'application/json',
-    #     'Accept': 'text/plain',
-    #     'x-api-key': SMS_API_KEY
-    # }
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'text/plain',
+        'x-api-key': SMS_API_KEY
+    }
 
-    # conn.request("POST", "/v1/send/verify", payload, headers)
-    # res = conn.getresponse()
-    # data = res.read()
+    conn.request("POST", "/v1/send/verify", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
 
 
     print(sms_code)
@@ -131,7 +131,7 @@ def changeScore(score):
 
 
 # !
-root_url = "127"
+root_url = "1"
 # !
 
 
@@ -539,6 +539,14 @@ def register():
         return render_template("register.html")
 
 
+@app.route("/edit/<id>")
+@login_required
+def edit_post(id):
+    post = Post.query.get_or_404(id)
+    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
+
+    return render_template('add.html', post=post, current_user=current_user, not_list=n,)
+
 @app.route("/chat")
 @login_required
 def chat():
@@ -698,7 +706,7 @@ def newpost():
     """this is a function for display add new post page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
-    return render_template("add.html", current_user=current_user, not_list=n)
+    return render_template("add.html", current_user=current_user, not_list=n, post="")
 
 
 @app.route("/chatContent")
@@ -749,31 +757,44 @@ def explore():
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
     users = []
-    if current_user.bio:
-        _users = []
+    _users = []
 
-        # add users and similarity of their bio to the current user to the users list
-        for user in User.query.all():
+    # add users and similarity of their bio to the current user to the users list
+    for user in User.query.all():
+        try:
             _users.append(
                 [user, float(text_similarity(current_user.bio, user.bio)) > 0.4]
             )
+        except:
+            pass
 
-        # sort users
-        _users = sorted(_users, key=lambda x: x[1], reverse=True)
+    # sort users
+    _users = sorted(_users, key=lambda x: x[1], reverse=True)
 
+    if _users:
         for user in _users:
             users.append(user[0])
         del _users
     else:
-        users = User.query.all()
+        users = sorted(list(User.query.all()), key= lambda x: len(list(Follow.query.filter_by(followed=x.id).all())))
+        del _users
+
+
+    today = datetime.utcnow()
+    days_ago = today - timedelta(days=10)
+    
+    posts = sorted(Post.query.all(), key=lambda x: len(list(Like.query.filter(Like.date >= days_ago, Like.liked == x.id).all())))
 
     return render_template(
         "explore.html",
         current_user=current_user,
         users=users,
+        posts=posts,
         Follow=Follow,
         not_list=n,
-        explore=True
+        explore=True,
+        fAge=format_age,
+        Like=Like
     )
 
 @app.route("/@<username>/followers")
@@ -1046,19 +1067,18 @@ def addPost():
         data = request.form
         # getting the image and content
         img = data.get("image")
-        content = data.get("content")
+        content_ = data.get("content")
         group = data.get("group")
-
-        print(content)
+        id = data.get("id")
 
         # getting the Referer
         referer = request.headers.get("Referer")
-        if content and referer and root_url in referer:
+        if content_ and referer and root_url in referer:
             # change url(s) to "a" tag
             content = re.sub(
                 r"(https:\/\/|www\.|http:\/\/)(.*)(\..*)(\s|$)",
                 r'<a target="_blank" href="https://\2\3">\2\3 </a>',
-                content,
+                content_,
             )
 
             # find content keywords
@@ -1093,26 +1113,33 @@ def addPost():
 
             tags = _tags.copy()
 
-            # creating the post
-            pos = Post(
-                writer=User.query.get(current_user.id),
-                img=img,
-                content=content,
-                tags=str(tags),
-                group=group,
-                description=content[:50],
-            )
-            # adding post
-            db.session.add(pos)
+            if not id:
+                # creating the post
+                pos = Post(
+                    writer=User.query.get(current_user.id),
+                    img=img,
+                    content=content,
+                    tags=str(tags),
+                    group=group,
+                    raw=content_,
+                )
+                # adding post
+                db.session.add(pos)
+            else:
+                # editing the post
+                
+                pos = Post.query.get_or_404(id)
+                if pos.writer == current_user:
+                    pos.img = img
+                    pos.content = content
+                    pos.tags = str(tags)
+                    pos.raw = content_
+                
             db.session.commit()
-
-            # add 5 scores
-            changeScore(5)
 
             # create a log
             app.logger.info("post adding")
             return jsonify({"success": True})
-
     return abort(403)
 
 
@@ -1234,7 +1261,10 @@ def addUser():
             bio = re.sub(r"\"", '\\"', bio)
 
         if bio:
-            tags = "، ".join(find_keywords(bio))
+            try:
+                tags = "، ".join(find_keywords(bio))
+            except:
+                tags = ''
         else:
             tags = ""
         usr = usr.lower()
@@ -1343,7 +1373,10 @@ def edit():
         bio = re.sub(r"\n", "<br />", str(data.get("bio")))
         bio = re.sub(r"\"", '\\"', str(bio))
 
-        tags = "، ".join(find_keywords(bio))
+        try:
+            tags = "، ".join(find_keywords(bio))
+        except:
+            tags = ''
     else:
         tags = ""
     usr = data.get("username")
@@ -1420,7 +1453,8 @@ def upload_image():
         return jsonify(
             {
                 "success": True,
-                "url": url_for("static", filename="pictures/posts/" + filename),
+                # "url": url_for("static", filename="pictures/posts/" + filename),
+                "url": "/static/pictures/posts/" + filename,
             }
         )
 

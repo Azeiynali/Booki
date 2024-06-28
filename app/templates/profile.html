@@ -38,7 +38,7 @@
                     <p class="text-xl">دنبال کننده</p>
                 </a>
                 <a href="/@{{ user.username }}/followings" class="text-3xl flex flex-none flex-col items-center select-none">
-                    <p>{{ Follow.query.filter_by(followed=user.id).all() | length }}</p>
+                    <p>{{ Follow.query.filter_by(follower=user.id).all() | length }}</p>
                     <p class="text-xl">دنبال شونده</p>
                 </a>
             </div>

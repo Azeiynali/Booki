@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% block head %}
 <link rel="stylesheet" href="/static/css/security.css" />
-{% endblock %} {% block Title %}کلید های بازیابی{% endblock %} {% block content %}
+{% endblock %} {% block Title %}کلید های بازیابی{% endblock %} {% block content
+%}
 <div id="app">
     <navbar></navbar>
 
@@ -73,28 +74,23 @@
                         })
                         .then((data) => {
                             if (data.success) {
-                                navigator.clipboard
-                                    .writeText(data.code)
-                                    .then(() => {
-                                        document.querySelector(
-                                            ".copy_message"
-                                        ).style.opacity = "1";
-                                        setTimeout(() => {
-                                            document.querySelector(
-                                                ".copy_message"
-                                            ).style.opacity = "0";
-                                        }, 4000);
-                                    })
-                                    .catch((err) => {
-                                        console.error(
-                                            "خطا در کپی کردن متن :",
-                                            err
-                                        );
-                                        this.error = true;
-                                        setTimeout(() => {
-                                            this.error = false;
-                                        }, 3000);
-                                    });
+                                let inp = document.createElement('input')
+                                inp.style.opacity = "0"
+                                document.body.appendChild(inp)
+                                inp.value = data.code
+                                inp.select()
+                                document.execCommand("copy")
+                                inp.remove()
+
+                                document.querySelector(
+                                    ".copy_message"
+                                ).style.opacity = "1";
+                                setTimeout(() => {
+                                    document.querySelector(
+                                        ".copy_message"
+                                    ).style.opacity = "0";
+                                }, 4000);
+
                                 div.setAttribute("data-id", data.id);
                                 keys.appendChild(div);
                                 setTimeout(() => location.reload(), 500);
@@ -102,7 +98,7 @@
                             }
                         })
                         .catch((error) => {
-                            console.log(error)
+                            console.log(error);
                             this.error = true;
                             setTimeout(() => {
                                 this.error = false;

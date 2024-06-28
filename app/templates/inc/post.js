@@ -118,7 +118,7 @@ Vue.component("post", {
                             </a>
                         </div>
                         <div dir="rtl" class="flex gap-3 items-center justofy-center flex-col">
-                            <img @dblclick="like" v-if="image != 'http://127.0.0.1:5000/static/pictures/select_post_image.png'" class="img" :src="image" />
+                            <img @dblclick="like" v-if="!image.endsWith('/static/pictures/select_post_image.png')" class="img" :src="image" />
                             <p class="text-start" v-html="content"></p>
                         </div>
                         <div dir="rtl" class="flex flex-none flex-wrap flex-row gap-3 mt-16 border-t-2 border-[#2929292f] pt-3">
@@ -126,14 +126,16 @@ Vue.component("post", {
                                 <i ref="like_icon" class="fi fi-rr-circle-heart"></i>
                                 <small>{{ likes }}</small>
                             </div>
-                            <div v-if="comment_show" @click="window.location.href = '/post/' + id" class="px-3 gap-10 py-2 rounded flex items-center transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none justify-between border-2 border-[#005be4] text-[#005be4] cursor-pointer  text-[#6969ff]">
+                            <div v-if="comment_show" @click="window.location.href = '/post/' + id" class="px-3 gap-10 py-2 rounded flex items-center transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none justify-between border-2 border-[#005be4] cursor-pointer text-[#6969ff]">
                                 <i class="fi fi-rr-comment"></i>
                                 <small>{{ comment_length }}</small>
+                            </div>
+                            <div v-if="iw" @click="location.href = '/edit/' + id" class="px-3 gap-10 py-2 rounded text-[#ffc140] flex items-center border-2 border-[#ffc140] transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none cursor-pointer justify-center">
+                                <i ref="itrash" class="fi fi-rr-edit"></i>
                             </div>
                             <div v-if="iw" @click="delete_" ref="trash" class="px-3 gap-10 py-2 rounded flex items-center border-2 border-[#6d6d6d] transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none cursor-pointer justify-center">
                                 {{ delete_button }} <i ref="itrash" class="fi fi-rr-trash-xmark"></i>
                             </div>
-                            </a>
                         </div>
                     </div>
                 `

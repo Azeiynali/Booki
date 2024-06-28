@@ -71,7 +71,7 @@
         class="input"
     />
     <div class="flex flex-col items-center">
-        <label for="show_name">نام نمایشی</label>
+        <label for="show_name select-none">نام نمایشی</label>
         <input
             type="text"
             placeholder="نام نمایشی"
@@ -83,14 +83,17 @@
             maxlength="15"
         />
     </div>
-    <textarea
-        placeholder="من یک..."
-        class="input"
-        @blur="change_bio"
-        v-model="bio"
-        dir="rtl"
-        rows="4"
-    ></textarea>
+    <div class="flex flex-col items-center select-none">
+        <label for="show_name">بیوگرافی</label>
+        <textarea
+            placeholder="من یک..."
+            class="input"
+            @blur="change_bio"
+            v-model="bio"
+            dir="rtl"
+            rows="4"
+        ></textarea>
+    </div>
     <hr />
     <input
         type="text"

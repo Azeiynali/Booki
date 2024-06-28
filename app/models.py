@@ -16,7 +16,6 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     name = db.Column(db.String, unique=False, nullable=False)
-    gems = db.Column(db.Integer, default=0)
     phone = db.Column(db.String, unique=True)
     password = db.Column(db.String, unique=False)
     avatar = db.Column(db.String, unique=False)
@@ -63,8 +62,8 @@ class Post(db.Model):
     date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
     content = db.Column(db.Text, nullable=False)
     tags = db.Column(db.String, unique=False)
-    description = db.Column(db.String, unique=False)
     group = db.Column(db.String, unique=False)
+    raw = db.Column(db.String)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
@@ -102,6 +101,7 @@ class Follow(db.Model):
 # likes
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
     liker = db.Column(db.Integer)
     liked = db.Column(db.Integer)
 

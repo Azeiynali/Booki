@@ -18,6 +18,10 @@ a {
     width: 70px !important;
     height: 70px !important;
 }
+.transition-all i {
+    line-height: .75rem;
+    font-size: 1.2rem;
+}
 .liked {
     border: 2px solid red !important;
     color: var(--red) !important; 

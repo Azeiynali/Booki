@@ -12,7 +12,11 @@
                 alt="post_picture"
                 ref="image"
                 @click="image"
-                src="/static/pictures/select_post_image.png"
+                {% if post %}
+                    src="{{ post.img }}"
+                {% else %}
+                    src="/static/pictures/select_post_image.png"
+                {% endif %}
                 class="select"
             />
         </div>
@@ -21,11 +25,12 @@
         >
             <textarea
                 placeholder="اینجا بنویسید"
+                
                 ref="content"
                 type="text"
                 dir="rtl"
                 class="input resize-none p-3 w-4/5 h-72 rounded-lg text-[#1f1f1f] bg-[#e1e8e9] transition-all duration-300"
-            ></textarea>
+            >{% if post %}{{ post.raw }}{% endif %}</textarea>
             <v-btn @click="save" color="blue" elevation="5" x-large
                 >دخیره و انتشار</v-btn
             >
@@ -76,9 +81,13 @@
                                 console.log(data);
                                 if (data.success) {
                                     this.Ravatar = data.url;
-                                    this.$refs.image.classList.remove("animate-spin");
-                                    this.$refs.image.classList.remove("size-10");
                                     this.$refs.image.src = data.url;
+                                    this.$refs.image.classList.remove(
+                                        "size-10"
+                                    );
+                                    this.$refs.image.classList.remove(
+                                        "animate-spin"
+                                    );
                                 }
                             })
                             .catch((error) => {
@@ -94,13 +103,20 @@
                 var formData = new FormData();
                 formData.append("image", this.$refs.image.src);
                 formData.append("content", this.$refs.content.value);
+                
+                // {% endraw %}{% if post %}
+                formData.append("id", "{{ post.id }}");
+                // {% endif %}{% raw %}
 
-                fetch("/api/add", {
+                fetch('/api/add', {
                     method: "POST",
                     body: formData,
-                }).then((response) => {
-                    window.location.href = "/";
-                });
+                }).then((response) => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = "/";
+                    }
+                })
             },
         },
     });
