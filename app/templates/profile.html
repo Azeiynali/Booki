@@ -30,7 +30,7 @@
             </div>
             <div class="flex flex-none gap-8 justify-center items-end mt-5 select-none flex-row-reverse">
                 <div class="text-3xl flex flex-none flex-col items-center">
-                    <p>{{ user.posts | length }}</p>
+                    <p>{{ Post.query.filter_by(writer=user, deleted=False).all() | length }}</p>
                     <p>پست</p>
                 </div>
                 <a href="/@{{ user.username }}/followers" class="text-3xl flex flex-none flex-col items-center select-none">

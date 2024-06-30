@@ -46,9 +46,9 @@
         el: "#app",
         data: {
             // {% if post %}
+                image_: "{{ post.img }}",
+            // {% else %}
                 image_: "/static/pictures/select_post_image.png",
-                // {% else %}
-                image_: "{{ post.img }}"
             // {% endif %} {% raw %}
         },
         methods: {

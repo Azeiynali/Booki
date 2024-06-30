@@ -41,7 +41,11 @@
         <input
             placeholder="none"
             @keydown.enter.stop="check"
-            @paste.prevent
+            @paste="(ev) => {
+                if (scene == 'password') {
+                    ev.preventDefault()
+                }
+            }"
             ref="input_2"
             maxlength="30"
             :type="type_2"

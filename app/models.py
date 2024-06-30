@@ -64,6 +64,7 @@ class Post(db.Model):
     tags = db.Column(db.String, unique=False)
     group = db.Column(db.String, unique=False)
     raw = db.Column(db.String)
+    deleted = db.Column(db.Boolean, default=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
@@ -81,6 +82,7 @@ class Message(db.Model):
     content = db.Column(db.String, nullable=False)
     to_id = db.Column(db.Integer, nullable=False)
     sa = db.Column(db.Boolean, default=False)
+    deleted = db.Column(db.Boolean, default=False)
     
     sender_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
@@ -120,6 +122,7 @@ class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, default=datetime.now, nullable=False, unique=False)
     content = db.Column(db.String, nullable=False, unique=False)
+    deleted = db.Column(db.Boolean, default=False)
     
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey("post.id"), nullable=False)

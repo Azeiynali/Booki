@@ -217,10 +217,10 @@ def index():
         for follow_item in followeds:
             users.append(User.query.get(follow_item.followed))
             posts += Post.query.filter_by(
-                writer=User.query.get(follow_item.followed)
+                writer=User.query.get(follow_item.followed), deleted=False
             ).all()
         # add follower posts to the post list
-        posts += Post.query.filter_by(writer=current_user).all()
+        posts += Post.query.filter_by(writer=current_user, deleted=False).all()
 
         # unique the post list
         posts = list(set(posts))
@@ -259,10 +259,10 @@ def posts_pagination(num_: int):
     for follow_item in followeds:
         users.append(User.query.get(follow_item.followed))
         posts += Post.query.filter_by(
-            writer=User.query.get(follow_item.followed)
+            writer=User.query.get(follow_item.followed), deleted=False
         ).all()
     # add follower posts to the post list
-    posts += Post.query.filter_by(writer=current_user).all()
+    posts += Post.query.filter_by(writer=current_user, deleted=False).all()
 
     # unique the post list
     posts = list(set(posts))
@@ -292,9 +292,10 @@ def user(username):
 @login_required
 def post(id):
     p = Post.query.get_or_404(int(id))
+    if p.deleted:
+        return abort(404)
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     content = p.id
-    
     
     comments = sorted(p.comments, key=lambda x: x.date, reverse=True)
 
@@ -315,7 +316,7 @@ def user_posts(username):
 
     # get posts
     posts = []
-    posts += Post.query.filter_by(writer=user).all()
+    posts += Post.query.filter_by(writer=user, deleted=False).all()
 
     # if user followed
     if Follow.query.filter_by(follower=current_user.id, followed=user.id).first():
@@ -346,6 +347,7 @@ def user_posts(username):
         posts=posts,
         fAge=format_age,
         Like=Like,
+        Post=Post
     )
 
 
@@ -362,7 +364,7 @@ def user_comments(username):
 
     # get comments
     comments = []
-    comments += Comment.query.filter_by(user=user).all()
+    comments += Comment.query.filter_by(user=user, deleted=False).all()
 
     # if user followed
     if Follow.query.filter_by(follower=current_user.id, followed=user.id).first():
@@ -444,7 +446,7 @@ def search():
         list_result = list()
 
         # search in all posts
-        for post in Post.query.all():
+        for post in Post.query.filter_by(deleted=False).all():
             # search_score in app/functions
             score = (
                 search_score(
@@ -557,6 +559,8 @@ def register():
 @login_required
 def edit_post(id):
     post = Post.query.get_or_404(id)
+    if post.deleted:
+        return abort(404)
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
 
     return render_template('add.html', post=post, current_user=current_user, not_list=n,)
@@ -570,15 +574,15 @@ def chat():
     
 
     # get all messages
-    messages = list(Message.query.filter_by(writer=current_user).all())
+    messages = list(Message.query.filter_by(deleted=False, writer=current_user).all())
     data = []
 
     for message in messages:
         user = User.query.get(message.to_id)
-        last = sorted(list(Message.query.filter_by(writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
+        last = sorted(list(Message.query.filter_by(deleted=False, writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
         last = last[-1]
         
-        sa = sorted(list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
+        sa = sorted(list(Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
         if sa:
             sa = sa[0].sa
         else:
@@ -593,14 +597,14 @@ def chat():
         if not _is:
             data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
     
-    messages = list(Message.query.filter_by(to_id=current_user.id).all())
+    messages = list(Message.query.filter_by(deleted=False, to_id=current_user.id).all())
 
     for message in messages:
         user = message.writer
-        last = sorted(list(Message.query.filter_by(writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
+        last = sorted(list(Message.query.filter_by(deleted=False, writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
         last = last[-1]
         
-        sa = sorted(list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
+        sa = sorted(list(Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
         if sa:
             sa = sa[0].sa
         else:
@@ -627,7 +631,7 @@ def chat_with(username):
     this_user = User.query.filter_by(username=username).first()
 
     # change seen state
-    for message in Message.query.filter_by(writer=this_user, to_id=current_user.id, sa=False).all():
+    for message in Message.query.filter_by(deleted=False, writer=this_user, to_id=current_user.id, sa=False).all():
         message.sa = True
 
     if not this_user:
@@ -638,15 +642,15 @@ def chat_with(username):
 
     # get all messages
         # get all messages
-    messages = list(Message.query.filter_by(writer=current_user).all())
+    messages = list(Message.query.filter_by(deleted=False, writer=current_user).all())
     data = []
 
     for message in messages:
         user = User.query.get(message.to_id)
-        last = sorted(list(Message.query.filter_by(writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
+        last = sorted(list(Message.query.filter_by(deleted=False, writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
         last = last[-1]
 
-        sa = sorted(list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
+        sa = sorted(list(Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
         if sa:
             sa = sa[0].sa
         else:
@@ -661,14 +665,14 @@ def chat_with(username):
         if not _is:
             data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
     
-    messages = list(Message.query.filter_by(to_id=current_user.id).all())
+    messages = list(Message.query.filter_by(deleted=False, to_id=current_user.id).all())
 
     for message in messages:
         user = message.writer
-        last = sorted(list(Message.query.filter_by(writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
+        last = sorted(list(Message.query.filter_by(deleted=False, writer=current_user, to_id=user.id).all()) + list(Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id).all()), key=lambda x: x.date)
         last = last[-1]
 
-        sa = sorted(list(Message.query.filter_by(writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
+        sa = sorted(list(Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id).all()), key=lambda x: x.date, reverse=True)
         if sa:
             sa = sa[0].sa
         else:
@@ -694,7 +698,7 @@ def chat_with(username):
     if not _is:
         data.append({'username': this_user.username, 'avatar': this_user.avatar, 'name': this_user.name, 'last': '', 'sa': True, 'in': True})
 
-    messages = sorted(list(Message.query.filter_by(writer=current_user, to_id=this_user.id).all() + Message.query.filter_by(writer=this_user, to_id=current_user.id).all()), key=lambda x: x.date)
+    messages = sorted(list(Message.query.filter_by(deleted=False, writer=current_user, to_id=this_user.id).all() + Message.query.filter_by(deleted=False, writer=this_user, to_id=current_user.id).all()), key=lambda x: x.date)
 
     return render_template(
         "chatroom.html", messages=messages, current_user=current_user, not_list=n, mess_data=data,
@@ -735,12 +739,12 @@ def chatContent():
 
     if user:
         # change seen state
-        for message in Message.query.filter_by(writer=user, to_id=current_user.id, sa=False).all():
+        for message in Message.query.filter_by(deleted=False, writer=user, to_id=current_user.id, sa=False).all():
             message.sa = True
 
         db.session.commit()
 
-        classMessages = Message.query.filter_by(writer=current_user, to_id=user.id).all()
+        classMessages = Message.query.filter_by(deleted=False, writer=current_user, to_id=user.id).all()
         if user != current_user:
             classMessages += Message.query.filter_by(writer=user, to_id=current_user.id).all()
         messages = []
@@ -797,7 +801,7 @@ def explore():
     today = datetime.utcnow()
     days_ago = today - timedelta(days=10)
     
-    posts = sorted(Post.query.all(), key=lambda x: len(list(Like.query.filter(Like.date >= days_ago, Like.liked == x.id).all())), reverse=True)
+    posts = sorted(Post.query.filter_by(deleted=False).all(), key=lambda x: len(list(Like.query.filter(Like.date >= days_ago, Like.liked == x.id).all())), reverse=True)
 
     return render_template(
         "explore.html",
@@ -913,6 +917,8 @@ def addMessage():
         to_id = int(data.get("to_id"))
         # pin is a pin for add messages
         PIN = data.get("pin")
+        # if for edit
+        id = int(data.get(id))
 
         print(content)
 
@@ -928,13 +934,24 @@ def addMessage():
             sa = False
             if current_user == User.query.get(to_id):
                 sa = True
+
+            x = False
             # add message
-            mess = Message(writer=User.query.get(current_user.id), content=content, to_id=to_id, sa=sa)
-            db.session.add(mess)
-            db.session.commit()
-            # create a log
-            app.logger.info("a message added")
-            return jsonify({"id": mess.id, "hour": str(mess.hour)})
+            if not id:
+                mess = Message(writer=current_user, content=content, to_id=to_id, sa=sa)
+                db.session.add(mess)
+                x = True
+            else:
+                mess = Message.query.get(id)
+                if mess and mess.writer == current_user and not mess.deleted:
+                    mess.content = content
+
+                    x = True
+            if x:
+                db.session.commit()
+                # create a log
+                app.logger.info("a message added")
+                return jsonify({"id": mess.id, "hour": str(mess.hour)})
 
     return abort(403)
 
@@ -957,8 +974,10 @@ def delMessage():
         ):
             # delete the message or abort 404
             mess = Message.query.get_or_404(mess_id)
+            if mess.deleted:
+                return abort(404)
             if mess.writer.id == current_user.id:
-                db.session.delete(mess)
+                mess.deleted = True
                 db.session.commit()
 
                 # create a log
@@ -1091,8 +1110,10 @@ def addPost():
         # getting the Referer
         referer = request.headers.get("Referer")
         if content_ and referer and root_url in referer:
+
+            content = content_
             if current_user.username != "booki":
-                content = re.sub(r'&', "&amp;", content_)
+                content = re.sub(r'&', "&amp;", content)
                 content = re.sub(r'<', "&lt;", content)
                 content = re.sub(r'>', "&gt;", content)
 
@@ -1151,7 +1172,7 @@ def addPost():
                 # editing the post
                 
                 pos = Post.query.get_or_404(id)
-                if pos.writer == current_user:
+                if pos.writer == current_user and not pos.deleted:
                     pos.img = img
                     pos.content = content
                     pos.tags = str(tags)
@@ -1178,19 +1199,19 @@ def delPost():
             # select the post
             pos = Post.query.get_or_404(id)
             # هf the author of the post was the current user
-            if pos.writer.id == current_user.id:
+            if pos.writer.id == current_user.id and not pos.deleted:
                 # delete post likes
                 likes = Like.query.filter_by(liked=pos.id).all()
                 for like in likes:
                     db.session.delete(like)
                 
                 # delete post comments
-                comments = Comment.query.filter_by(post=pos).all()
+                comments = Comment.query.filter_by(post=pos, deleted=False).all()
                 for comment in comments:
-                    db.session.delete(comment)
+                    comment.deleted = True
 
                 # delete the post
-                db.session.delete(pos)
+                pos.deleted = True
 
                 # commit
                 db.session.commit()
@@ -1601,11 +1622,13 @@ def add_comment():
     content = data.get('content')
     post = Post.query.get_or_404(int(data.get('id')))
 
-    cm = Comment(post=post, content=content, user=current_user)
-    db.session.add(cm)
-    db.session.commit()
+    if not post.deleted:
+        cm = Comment(post=post, content=content, user=current_user)
+        db.session.add(cm)
+        db.session.commit()
 
-    return jsonify({"success": True})
+        return jsonify({"success": True})
+    return abort(400)
 
 @app.route("/api/comment/del", methods=["POST"])
 @login_required
@@ -1615,7 +1638,7 @@ def delete_comment():
 
     cm = Comment.query.get(id)
     if cm.user == current_user:
-        db.session.delete(cm)
+        cm.deleted = True
         db.session.commit()
 
         return jsonify({"success": True})
@@ -1779,7 +1802,7 @@ def _2FA_State():
 @app.route('/api/dontSaMessage')
 @login_required
 def is_dont_sa_messages():
-    message = Message.query.filter_by(to_id=current_user.id, sa=False).all()
+    message = Message.query.filter_by(deleted=False, to_id=current_user.id, sa=False).all()
 
     return jsonify({'if': bool(message)})
 
