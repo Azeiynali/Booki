@@ -226,6 +226,8 @@ def index():
         posts = list(set(posts))
         # sort as the date
         posts.sort(key=lambda x: x.date, reverse=True)
+        users = sorted(users, key=lambda x: sorted(list(Post.query.filter_by(writer=x, deleted=False).all()), reverse=True)[0].date, reverse=True)
+
         return render_template(
             "index.html",
             fAge=format_age,
@@ -570,7 +572,10 @@ def edit_post(id):
 def chat():
     """this is a function for display chat page"""
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
-
+    users = []
+    for follow in Follow.query.filter_by(follower=current_user.id):
+        users.append(User.query.get(follow.followed))
+    users = sorted(users, key=lambda x: sorted(list(Post.query.filter_by(writer=x, deleted=False).all()), reverse=True)[0].date, reverse=True)
     
 
     # get all messages
@@ -620,7 +625,7 @@ def chat():
             data.append({'username': user.username, 'avatar': user.avatar, 'name': user.name, 'last': last, 'sa': sa, 'in': False})
 
     return render_template(
-        "chatroom.html", current_user=current_user, not_list=n, mess_data=data, in_chat=False
+        "chatroom.html", current_user=current_user, not_list=n, mess_data=data, in_chat=False, users=users
     )
 
 @app.route("/chat/<username>")

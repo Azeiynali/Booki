@@ -48,7 +48,19 @@
             class="z-10 fi fi-rr-angle-small-right leading-3 text-2xl cursor-pointer p-1"
         ></i>
     </div>
-    {% else %} {% endif %} {% if mess_data %}
+    {% elif not mess_data %}
+            <site-header items='
+                [
+                    {% for user in users %}
+                        {"user_img": "{{ user.avatar }}",
+                        "user_href": "/chat/{{ user.username }}",
+                        "username": "{{ user.name[:8] }}"},
+                    {% endfor %}
+                ]
+            '>
+            </site-header>
+            <p dir="rtl" class="text-center mt-2">شما تا به حال گفتگویی نداشته اید!</p>
+    {% endif %} {% if mess_data %}
     <div
         class="left mt-14 flex items-center flex-col absolute left-0 border-r-2 border-solid border-white h-full"
     >
@@ -87,8 +99,6 @@
         </div>
         {% endfor %}
     </div>
-    {% elif not in_chat %}
-    <p dir="rtl" class="text-center mt-20">شما تا به حال گفتگویی نداشته اید!</p>
     {% endif %} {% if in_chat %}
     <div class="right absolute right-0 bottom-0 h-full">
         <div
@@ -224,6 +234,23 @@
                         `,
         });
 
+        Vue.component("site-header", {
+        props: ["items"],
+        data() {
+            return {
+                items_dict: eval(this.items),
+            };
+        },
+        template: `
+            <header style="overflow: auto !important" ref="root" class="flex flex-none mt-24 justify-center mx-auto mt-16 w-4/5 p-2 right-0">
+                <a :href="item.user_href" v-for="item in items_dict" class="relative flex items-center justify-center flex-col flex-none">
+                    <img :src="item.user_img" class="flex justify-s\\tart text-lg w-9/10 text-[#292929] gap-2 relative h-20 rounded-full user items-center mx-3" />
+                    <p class="text-xl">{{ item.username }}</p>
+                </a>
+            </header>
+                    `,
+    });
+
         Vue.component("messager", {
             props: {
                 message: {},
@@ -297,7 +324,7 @@
                             this.is = false;
                         })
                         .catch((error) => console.log("error", error));
-                    },
+                },
             },
             template: `
                 <div v-if="is" class="mess-container">
