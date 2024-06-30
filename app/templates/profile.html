@@ -38,7 +38,7 @@
                     <p class="text-xl">دنبال کننده</p>
                 </a>
                 <a href="/@{{ user.username }}/followings" class="text-3xl flex flex-none flex-col items-center select-none">
-                    <p>{{ Follow.query.filter_by(follower=user.id).all() | length }}</p>
+                    <p>{{ Follow.query.filter_by(follower=user.id).all() | length - 1 }}</p>
                     <p class="text-xl">دنبال شونده</p>
                 </a>
             </div>
@@ -73,6 +73,7 @@
             <post {% if post.writer==current_user %} iw="True" {% endif %}
                 content="{{ post.content }}" id="{{ post.id }}"
                 image="{{ post.img }}"
+                name="{{ post.writer.name }}"
                 username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
                 classes="post img-container min-h-40 rounded-xl mb-5 p-3 bg-[#fefefe] w-4/5" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
                 like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ post.comments | length }}">

@@ -41,11 +41,16 @@
 <script src="/static/library/vuetify.js"></script>
 <!-- Vuetify -->
 
-{% raw %}
 <script>
     app = new Vue({
         el: "#app",
-        data: {},
+        data: {
+            // {% if post %}
+                image_: "/static/pictures/select_post_image.png",
+                // {% else %}
+                image_: "{{ post.img }}"
+            // {% endif %} {% raw %}
+        },
         methods: {
             image() {
                 /* upload the post image */
@@ -78,10 +83,10 @@
                                 }
                             })
                             .then((data) => {
-                                console.log(data);
                                 if (data.success) {
                                     this.Ravatar = data.url;
                                     this.$refs.image.src = data.url;
+                                    this.image_ = data.url;
                                     this.$refs.image.classList.remove(
                                         "size-10"
                                     );
@@ -101,9 +106,9 @@
             save() {
                 /* save and send post to server */
                 var formData = new FormData();
-                formData.append("image", this.$refs.image.src);
+                formData.append("image", this.image_);
                 formData.append("content", this.$refs.content.value);
-                
+
                 // {% endraw %}{% if post %}
                 formData.append("id", "{{ post.id }}");
                 // {% endif %}{% raw %}

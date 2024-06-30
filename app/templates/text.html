@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block Title %}پیام ها{% endblock %} {% block head%}
+<style>
+    body {
+        background-color: white;
+    }
+</style>
+{% endblock %} {% block content %}
+<div id="app">
+    <div dir="rtl" class="text-center p-10 w-full h-fit mt-20">
+        {% if text == 'privacy' %}
+        <i class="fi fi-rr-lock text-4xl"></i> <br />
+        بوکی پیام های ارسالی شما را توسط تکنولوژی HTTPS کاملا رمزگذاری کرده و در درخواست هایی امن، به محیط امن سرور، دور از دسترسی ربات ها و هکر ها در امنیت کامل ارسال و ذخیره می کند. 
+        <p class="text-[#db3b3b]">بوکی مسئولیتی در قبال پیام های لو رفته توسط هکر ها، ربات ها یا... ندارد</p>
+        {% endif %}
+        {% if back %}
+            <button @click="history.back();" class="text-white bg-[#4b70e2] mt-6 px-5 text-xl py-2 rounded-lg">بازگشت</button>
+        {% endif %}
+    </div>
+
+    <script>
+        app = new Vue({
+            el: "#app",
+            data: {},
+        });
+    </script>
+    {% endblock %}
+</div>

@@ -26,13 +26,13 @@ def verify_password(password, _hashed_password, salt):
     else:
         return False
 
-def SMS(phone, sms_code):
+def SMS(phone, sms_code, template_code):
     '''this function for SMS sending'''
 
     conn = client.HTTPSConnection("api.sms.ir")
     payload = f"""{{
         "mobile": "{phone}",
-        "templateId": 693544,
+        "templateId": {template_code},
         "parameters": [
                 {{
                     "name": "Code",
@@ -118,16 +118,6 @@ def seened_notification():
         for notification in Notification.query.filter_by(user=current_user).all():
             notification.seened = True
             db.session.commit()
-
-
-def changeScore(score):
-    """this function for change current user score
-    usage: changeScore(score: int)"""
-    with app.app_context():
-        u = User.query.get(current_user.id)
-
-        u.gems = u.gems + score
-        db.session.commit()
 
 
 # !
@@ -336,12 +326,22 @@ def user_posts(username):
     # create a log
     app.logger.info("user showed")
     posts = sorted(posts, key=lambda x: x.date, reverse=True)
+
+    follows = 0 
+    for follow in Follow.query.filter_by(followed=user.id).all():
+        print(follow)
+        print(follow.follower)
+        print(follow.followed)
+        print(follow.followed != follow.followed)
+        if follow.follower != follow.followed:
+            follows += 1
+
     return render_template(
         "profile.html",
         user=user,
         follow=follow,
+        follows=follows,
         Follow=Follow,
-        follows=len(Follow.query.filter_by(followed=user.id).all()),
         not_list=n,
         posts=posts,
         fAge=format_age,
@@ -373,12 +373,22 @@ def user_comments(username):
     # create a log
     app.logger.info("user showed")
     comments = sorted(comments, key=lambda x: x.date, reverse=True)
+
+    follows = 0 
+    for follow in Follow.query.filter_by(followed=user.id).all():
+        print(follow)
+        print(follow.follower)
+        print(follow.followed)
+        print(follow.followed != follow.followed)
+        if follow.follower != follow.followed:
+            follows += 1
+
     return render_template(
         "profile_cmt.html",
         user=user,
         follow=follow,
         Follow=Follow,
-        follows=len(Follow.query.filter_by(followed=user.id).all()),
+        follows=follows,
         not_list=n,
         comments=comments,
         Post=Post,
@@ -477,15 +487,19 @@ def login():
     return redirect(url_for("index"))
 
 
+@app.route("/privacy")
+def messages_privacy():
+    """this is a function for display login page"""
+
+    return render_template('text.html', text="privacy", back=True)
+
+
 @app.route("/2FA", methods=['POST'])
 def login_with_2FA():
     """this is a function for display 2FA login page"""
 
     username = request.form.get('username')
     password = request.form.get('password')
-
-    print(username)
-    print(password)
 
     return render_template('2FA.html', username=username, password=password)
 
@@ -513,7 +527,7 @@ def change_password():
     db.session.add(c)
     db.session.commit()
     
-    SMS(current_user.phone, code)
+    SMS(current_user.phone, code, 867348)
 
     return render_template("chpassword.html", password=password)
 
@@ -783,7 +797,7 @@ def explore():
     today = datetime.utcnow()
     days_ago = today - timedelta(days=10)
     
-    posts = sorted(Post.query.all(), key=lambda x: len(list(Like.query.filter(Like.date >= days_ago, Like.liked == x.id).all())))
+    posts = sorted(Post.query.all(), key=lambda x: len(list(Like.query.filter(Like.date >= days_ago, Like.liked == x.id).all())), reverse=True)
 
     return render_template(
         "explore.html",
@@ -810,7 +824,9 @@ def followers(username):
     
     for follow in Follow.query.filter_by(followed=user.id):
         user_id = follow.follower
-        users.append(User.query.get(user_id))
+        u = User.query.get(user_id)
+        if u != user:
+            users.append(u)
 
     return render_template(
         "explore.html",
@@ -835,7 +851,9 @@ def followings(username):
     
     for follow in Follow.query.filter_by(follower=user.id):
         user_id = follow.followed
-        users.append(User.query.get(user_id))
+        u = User.query.get(user_id)
+        if u != user and u.username != 'booki':
+            users.append(u)
 
     return render_template(
         "explore.html",
@@ -844,7 +862,7 @@ def followings(username):
         Follow=Follow,
         not_list=n,
         explore=False,
-        title="دنبال شوندگان" + username
+        title="دنبال شوندگان " + username
     )
 
 @app.route("/notifications")
@@ -997,7 +1015,6 @@ def user_valid():
             elif pwd and usr:
                 # getting user
                 user = User.query.filter_by(username=usr).first()
-                print(usr)
                 if user:
                     if verify_password(pwd, user.password, user.salt):
                         # login user
@@ -1074,11 +1091,16 @@ def addPost():
         # getting the Referer
         referer = request.headers.get("Referer")
         if content_ and referer and root_url in referer:
+            if current_user.username != "booki":
+                content = re.sub(r'&', "&amp;", content_)
+                content = re.sub(r'<', "&lt;", content)
+                content = re.sub(r'>', "&gt;", content)
+
             # change url(s) to "a" tag
             content = re.sub(
                 r"(https:\/\/|www\.|http:\/\/)(.*)(\..*)(\s|$)",
                 r'<a target="_blank" href="https://\2\3">\2\3 </a>',
-                content_,
+                content,
             )
 
             # find content keywords
@@ -1172,9 +1194,6 @@ def delPost():
 
                 # commit
                 db.session.commit()
-
-                # Subtract 5 Scores
-                changeScore(-5)
 
                 # create a log
                 app.logger.warning("post deletion")
@@ -1450,6 +1469,7 @@ def upload_image():
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], "posts/" + filename))
         # create a log
         app.logger.info("image uploading")
+
         return jsonify(
             {
                 "success": True,
@@ -1623,7 +1643,7 @@ def phone_validating():
         db.session.add(c)
         db.session.commit()
         
-        sms_sended = SMS(phone, code)
+        sms_sended = SMS(phone, code, 693544)
         return jsonify({'success': True, 'valid': True})
 
     elif phone and code:
@@ -1665,7 +1685,7 @@ def phone_recovery_codes_api():
             db.session.add(c)
             db.session.commit()
 
-            SMS(phone, code)
+            SMS(phone, code, 100000)
 
             return jsonify({'success': True, 'valid': True})
         return jsonify({'success': True, 'valid': False})
@@ -1733,7 +1753,7 @@ def _2FA_Factor_Auth():
             db.session.add(c)
             db.session.commit()
 
-            SMS(phone, code)
+            SMS(phone, code, 693544)
 
             return jsonify({'_2FA': True})
     elif user:

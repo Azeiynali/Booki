@@ -7,6 +7,9 @@
         .top_bar {
             display: flex;
         }
+        .top-20 {
+            top: 9rem !important;
+        }
         .content {
             padding-top: 2rem;
         }
@@ -203,7 +206,7 @@
                     <div class="mess-container">
                         <div class="flex gap-5">
                             <div @contextmenu.prevent="contextmenu" @click.stop="contextmenu" class="flex-none message w-fit overflow-visible px-3 pl-10 rounded-lg text-white pt-1 pb-4 text-[#2b2b2b] bg-[#fff] mb-5 relative inline-block overflow-visible ml-3">
-                                <pre v-html="text"></pre>
+                                <pre v-text="text"></pre>
                                 <div class="date text-[#2b2b2b]">{{ date }}</div>
                                 <i class="fi fi-rr-check"></i>
                             </div>
@@ -300,7 +303,7 @@
                 <div v-if="is" class="mess-container">
                     <div dir="rtl" class="flex w-full justify-start">
                         <div @click.stop="contextmenu($event)" @contextmenu.prevent="contextmenu" class="h-fit flex-none message w-fit overflow-visible right pt-1 pb-4 px-3 pr-10 rounded-lg bg-[#a0a0a0] text-[#fff] mb-5 relative inline-block overflow-visible ml-3">
-                            <pre v-html="text"></pre>
+                            <pre v-text="text"></pre>
                             <div class="date text-[#ffffff98] ">{{ date }}</div>
                             <i class="fi fi-rr-check text-[#ffffff98]"></i>
                         </div>

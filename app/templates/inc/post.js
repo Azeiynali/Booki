@@ -5,6 +5,7 @@ Vue.component("post", {
         comment_length: {},
         content: {},
         username: {},
+        name: {},
         img: {},
         image: {},
         avatar: {},
@@ -110,7 +111,7 @@ Vue.component("post", {
                             <a :href="'\@' + username">
                                 <div>
                                     <p>
-                                        {{ username }}
+                                        {{ name }}
 
                                     </p>
                                     <small>{{ date }}</small>

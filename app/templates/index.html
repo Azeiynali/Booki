@@ -30,7 +30,8 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                 <post {% if post.writer==current_user %} iw="True" {% endif %}
                     content="{{ post.content }}" id="{{ post.id }}"
                     image="{{ post.img }}"
-                    username="{{ post.writer.name }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
+                    name="{{ post.writer.name }}"
+                    username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
                     classes="post img-container min-h-40 rounded-xl mb-5 p-3 bg-[#fefefe]" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
                     like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ post.comments | length }}">
                 </post>
