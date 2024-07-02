@@ -3,6 +3,7 @@ Vue.component("post", {
     props: {
         id: {},
         comment_length: {},
+        in: { default: false },
         content: {},
         username: {},
         name: {},
@@ -11,7 +12,7 @@ Vue.component("post", {
         avatar: {},
         date: "",
         like_classes: {
-            default: ""
+            default: "",
         },
         likes: {
             default: 0,
@@ -35,41 +36,44 @@ Vue.component("post", {
             // if not liked
             if (this.like_classes) {
                 var data = new FormData();
-                data.append('postId', this.id)
-                fetch('/api/unlike', {
+                data.append("postId", this.id);
+                fetch("/api/unlike", {
                     method: "POST",
                     body: data,
-                }).then((response) => { return response.json() }).then(
-                    (data) => {
+                })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
                         if (data.success) {
-                            this.$refs.like_icon.style.color = "black"
+                            this.$refs.like_icon.style.color = "black";
                             this.like_classes = "";
                             this.likes--;
                         }
-                    })
-            // if liked
+                    });
+                // if liked
             } else {
                 var data = new FormData();
-                data.append('postId', this.id)
-                fetch('/api/like', {
+                data.append("postId", this.id);
+                fetch("/api/like", {
                     method: "POST",
                     body: data,
-                }).then((response) => { return response.json() }).then(
-                    (data) => {
+                })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
                         if (data.success) {
-                            this.$refs.like_icon.style.color = "var(--red)"
+                            this.$refs.like_icon.style.color = "var(--red)";
                             this.like_classes = "liked";
                             this.likes++;
                         }
-                    })
+                    });
             }
         },
         delete_() {
             // this function to delete the post
-            if (
-                this.$refs.itrash.getAttribute("class") ===
-                "fi fi-rr-check"
-            ) {
+            if (this.$refs.itrash.getAttribute("class") === "fi fi-rr-check") {
                 var myHeaders = new Headers();
                 myHeaders.append(
                     "Content-Type",
@@ -93,12 +97,12 @@ Vue.component("post", {
                     })
                     .catch((error) => console.log("error", error));
             } else {
-                this.$refs.itrash.setAttribute(
+                this.$refs.itrash.setAttribute("class", "fi fi-rr-check");
+                this.$refs.trash.setAttribute(
                     "class",
-                    "fi fi-rr-check"
+                    "px-3 gap-10 py-2 rounded flex items-center border-2 border-[#6d6d6d] transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none cursor-pointer justify-center liked"
                 );
-                this.$refs.trash.setAttribute("class", "px-3 gap-10 py-2 rounded flex items-center border-2 border-[#6d6d6d] transition-all duration-300 ease-out hover:opacity-90 bg-white flex-none cursor-pointer justify-center liked");
-                this.delete_button = "مطمئنید؟"
+                this.delete_button = "مطمئنید؟";
             }
         },
     },
@@ -112,7 +116,6 @@ Vue.component("post", {
                                 <div>
                                     <p>
                                         {{ name }}
-
                                     </p>
                                     <small>{{ date }}</small>
                                 </div>
@@ -139,6 +142,6 @@ Vue.component("post", {
                             </div>
                         </div>
                     </div>
-                `
+                `,
 });
 // {% endraw %}

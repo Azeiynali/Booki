@@ -1,29 +1,28 @@
 {% extends "base.html" %} {% block head %}
 <link rel="stylesheet" href="/static/css/home.css" />
 <link rel="stylesheet" href="/static/css/post.css" />
-{% endblock %} {% block Title %}{{ post.writer.username }} -- {{ content }} {%
+{% endblock %} {% block Title %}{{ post.writer.name }} -- {{ post.raw[:20] }}{% if post.raw | length > 19 %}...{% endif %} {%
 endblock %} {% block content %}
 <div id="app">
     <navbar></navbar>
-    <div class="flex flex-none flex-col items-center gap-10">
+    <div class="flex flex-none flex-col items-center gap-10 pb-16">
         <post {% if post.writer==current_user %} iw="True" {% endif %}
                 content="{{ post.content }}" id="{{ post.id }}"
                 image="{{ post.img }}"
+                :in="true"
+                name="{{ post.writer.name }}"
                 username="{{ post.writer.username }}" avatar="{{ post.writer.avatar }}" date="{{ fAge(post.date) }}"
-                classes="post img-container min-h-40 rounded-xl mb-5 p-3 bg-[#fefefe]" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
-                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ post.comments | length }}"
+                classes="mt-12 post img-container w-full px-10 min-h-40 mb-4 p-3 bg-[#fefefe]" {% if Like.query.filter_by(liked=post.id, liker=current_user.id).all() %}
+                like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="0"
                 :comment_show="false">
             </post>
-        <div class="flex flex-none flex-col items-center w-full">
-            <div class="flex flex-none justify-center gap-2 items-center flex-row-reverse">
-                <div @click="text_ar" class="exam">پست شما بسیار زیبا بود، اما</div>
-                <div @click="text_ar" class="exam">بسیار لذت بردم</div>
-                <div @click="text_ar" class="exam">این پست بسیار عمیق بود</div>
-                <div @click="text_ar" class="exam">این پست می توانست بهتر از این باشد اگر</div>
-                <div @click="text_ar" class="exam">اولین کامنت!</div>
+        <div class="flex flex-none flex-col items-center w-full ">
+            <div class="text-2xl z-50 right-0 flex flex-col bottom-0 fixed w-full border-t-2 border-[#e0e1e2]">
+                <div class="z-50 pr-2 flex-none h-16 flex items-center justify-end gap-3 w-full text-center bg-white">
+                    <input dir="rtl" @keyup.enter="add_comment" v-model="text" type="text" class="border-0 outline-0 w-full text-xl h-full bg-white" placeholder="به نظر من...">
+                    <i @click="add_comment" :class="{ 'cursor-pointer fi fi-rr-paper-plane-top text-[#696969] mt-2 z-50': true, 'text-[#2c5dff]': text.trim() }"></i>
+                </div>
             </div>
-            <textarea placeholder="به نظر من..." dir="rtl" class="resize-none bg-white rounded-lg w-4/5 p-2 border-solid border-2 border-[#808080] gray-shadow"></textarea>
-            <button class="bg-white w-4/5 rounded-lg border-2 border-solid border-[#808080] p-2 mb-2 mt-2 position-all duration-300 send" @click="add_comment">ارسال</button>
             {% for comment in comments %}
                 <comment
                     {% if comment.user == current_user %}
@@ -92,7 +91,7 @@ endblock %} {% block content %}
                     }
                 },
             },
-            template: `<div v-if="is" class="bg-white w-4/5 flex flex-none justify-start items-center gap-4 relative flex-row-reverse mt-5 rounded-xl">
+            template: `<div v-if="is" class="bg-white w-full flex flex-none justify-start items-center gap-4 relative flex-row-reverse border-t-2 border-[#e0e1e2]">
                         <div dir="rtl" class="p-3 rounded-xl flex flex-none text-center items-center flex-col">
                             <a :href="'\@' + username">
                                 <img :src="avatar" class="size-20 rounded-full" />
@@ -120,21 +119,18 @@ endblock %} {% block content %}
         });
         
         // {% endraw %}
-        {% include "inc/post.js" %}
+        // {% include "inc/post.js" %}
         // {% raw %}
 
 
         app = new Vue({
             el: "#app",
-            data: {},
+            data: {
+                text: ""
+            },
             methods :{
-                text_ar(ev) {
-                    let text = document.querySelector('textarea')
-                    text.innerHTML = ev.target.innerText
-                },
                 add_comment() {
-                    let text = document.querySelector('textarea')
-                    if (text.value){
+                    if (this.text){
                         var myHeaders = new Headers();
                             myHeaders.append(
                                 "Content-Type",
@@ -142,7 +138,7 @@ endblock %} {% block content %}
                             );
 
                             var urlencoded = new URLSearchParams();
-                            urlencoded.append("content", text.value);
+                            urlencoded.append("content", this.text);
                             // {% endraw %}
                             urlencoded.append("id", "{{ post.id }}");
                             // {% raw %}

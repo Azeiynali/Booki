@@ -17,6 +17,11 @@ from collections import Counter
 
 # Config Variables
 SMS_API_KEY = 'Kz0UCJKbjBQssj5pNUd76SGR6Qpi4Mjzguow7kcKL2U8HodrHeuUSy4hrZhl2J2W'
+SMS_TEMPS = {
+    '100000': 'کد تایید #CODE#',
+    '867348': "کد شما برای تغییر رمزعبور حساب بوکی: #CODE# \n این کد را امن نگه دارید!",
+    '693544': 'به بوکی خوش آمدید! \n code: #CODE# \n این کد را در اختیار کسی قرار ندهید'
+}
 
 # functions
 def verify_password(password, _hashed_password, salt):
@@ -29,30 +34,29 @@ def verify_password(password, _hashed_password, salt):
 def SMS(phone, sms_code, template_code):
     '''this function for SMS sending'''
 
-    conn = client.HTTPSConnection("api.sms.ir")
-    payload = f"""{{
-        "mobile": "{phone}",
-        "templateId": {template_code},
-        "parameters": [
-                {{
-                    "name": "Code",
-                    "value": "{sms_code}"
-                }}
-            ]
-    }}"""
+    # conn = client.HTTPSConnection("api.sms.ir")
+    # payload = f"""{{
+    #     "mobile": "{phone}",
+    #     "templateId": {template_code},
+    #     "parameters": [
+    #             {{
+    #                 "name": "Code",
+    #                 "value": "{sms_code}"
+    #             }}
+    #         ]
+    # }}"""
 
-    headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'text/plain',
-        'x-api-key': SMS_API_KEY
-    }
+    # headers = {
+    #     'Content-Type': 'application/json',
+    #     'Accept': 'text/plain',
+    #     'x-api-key': SMS_API_KEY
+    # }
 
-    conn.request("POST", "/v1/send/verify", payload, headers)
-    res = conn.getresponse()
-    data = res.read()
+    # conn.request("POST", "/v1/send/verify", payload, headers)
+    # res = conn.getresponse()
+    # data = res.read()
 
-
-    print(sms_code)
+    print(phone, "\n", SMS_TEMPS[str(template_code)].replace('#CODE#', sms_code))
 
     return True
 
@@ -226,7 +230,7 @@ def index():
         posts = list(set(posts))
         # sort as the date
         posts.sort(key=lambda x: x.date, reverse=True)
-        users = sorted(users, key=lambda x: sorted(list(Post.query.filter_by(writer=x, deleted=False).all()), reverse=True)[0].date, reverse=True)
+        users = sorted(users, key=lambda x: sorted(list(Post.query.filter_by(writer=x, deleted=False).all()), key=lambda x: x.date, reverse=True)[0].date, reverse=True)
 
         return render_template(
             "index.html",
@@ -237,7 +241,8 @@ def index():
             current_user=current_user,
             not_list=n,
             Like=Like,
-            pagination=1
+            pagination=1,
+            Comment=Comment
         )
     else:
         # if not logged in, display login page
@@ -279,7 +284,8 @@ def posts_pagination(num_: int):
         current_user=current_user,
         not_list=n,
         Like=Like,
-        pagination=num
+        pagination=num,
+        Comment=Comment
     )
 
 
@@ -299,7 +305,7 @@ def post(id):
     n = len(Notification.query.filter_by(user=current_user, seened=False).all())
     content = p.id
     
-    comments = sorted(p.comments, key=lambda x: x.date, reverse=True)
+    comments = sorted([comment for comment in p.comments if not comment.deleted], key=lambda x: x.date, reverse=True)
 
     return render_template('post.html', comments=comments, current_user=current_user, post=p, not_list=n, content=content, fAge=format_age, Like=Like)
 
@@ -332,10 +338,6 @@ def user_posts(username):
 
     follows = 0 
     for follow in Follow.query.filter_by(followed=user.id).all():
-        print(follow)
-        print(follow.follower)
-        print(follow.followed)
-        print(follow.followed != follow.followed)
         if follow.follower != follow.followed:
             follows += 1
 
@@ -349,7 +351,8 @@ def user_posts(username):
         posts=posts,
         fAge=format_age,
         Like=Like,
-        Post=Post
+        Post=Post,
+        Comment=Comment
     )
 
 
@@ -380,10 +383,6 @@ def user_comments(username):
 
     follows = 0 
     for follow in Follow.query.filter_by(followed=user.id).all():
-        print(follow)
-        print(follow.follower)
-        print(follow.followed)
-        print(follow.followed != follow.followed)
         if follow.follower != follow.followed:
             follows += 1
 
@@ -575,7 +574,7 @@ def chat():
     users = []
     for follow in Follow.query.filter_by(follower=current_user.id):
         users.append(User.query.get(follow.followed))
-    users = sorted(users, key=lambda x: sorted(list(Post.query.filter_by(writer=x, deleted=False).all()), reverse=True)[0].date, reverse=True)
+    users = sorted(users, key=lambda x: sorted(list(Post.query.filter_by(writer=x, deleted=False).all()), key=lambda x: x.date, reverse=True)[0].date, reverse=True)
     
 
     # get all messages
@@ -817,7 +816,8 @@ def explore():
         not_list=n,
         explore=True,
         fAge=format_age,
-        Like=Like
+        Like=Like,
+        Comment=Comment
     )
 
 @app.route("/@<username>/followers")
@@ -924,8 +924,6 @@ def addMessage():
         PIN = data.get("pin")
         # if for edit
         id = int(data.get(id))
-
-        print(content)
 
         # get referer for security
         referer = request.headers.get("Referer")
@@ -1136,11 +1134,12 @@ def addPost():
                 tags = []
 
             # hash tags
-            hashtags = re.findall(r"#([\w|آ-ی]+)", content)
+            hashtags = re.findall(r"#([\w|آ-ی]+)", content)[6]
 
             for hashtag in hashtags:
                 h = HashTag(text=hashtag)
                 db.session.add(h)
+
             db.session.commit()
 
             content =  re.sub(r"#([\w|آ-ی]+)", r'<a href="/search?q=%23\1">#\1</a>', content)
@@ -1695,12 +1694,6 @@ def phone_recovery_codes_api():
 
     phone = request.form.get("phone")
     code = request.form.get("code")
-
-    print('-'*20)
-    print(phone)
-    print('-'*20)
-    print(code)
-    print('-'*20)
 
     if phone and not code:
         if User.query.filter_by(phone=phone).first():
