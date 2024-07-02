@@ -12,8 +12,6 @@ Title %}Booki - خانه{% endblock %} {% block content %}
 <div id="app">
     <navbar active_item="home" avatar="{{ current_user.avatar }}"
         message_count="{{ not_list }}"></navbar>
-        {% for user in users %}
-        {% endfor %}
     <site-header items='
                 [
                     {% for user in users %}
@@ -24,9 +22,9 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                 ]
             '>
     </site-header>
-    <div class="flex flex-none justify-center" style="width: 95vw;">
-        <div class="w-3/4 mx-50 my-auto text-center mt-10">
-            {% for post in posts[:50] %}
+    <div class="flex flex-none justify-center flex-center flex-col w-full">
+        <div ref="content" class="w-3/4 mx-50 mx-auto text-center mt-10">
+            {% for post in posts[:20] %}
                 <post {% if post.writer==current_user %} iw="True" {% endif %}
                     content="{{ post.content }}" id="{{ post.id }}"
                     image="{{ post.img }}"
@@ -36,14 +34,15 @@ Title %}Booki - خانه{% endblock %} {% block content %}
                     like_classes="liked" {% endif %} likes="{{ Like.query.filter_by(liked=post.id).all() | length }}" comment_length="{{ Comment.query.filter_by(post=post, deleted=False).all() | length }}">
                 </post>
             {% endfor %}
-            {% if posts_length > 50 %}
-            <a class="inline-block bg-[#005be4] px-5 py-1 rounded text-white text-lg mx-auto hover:text-xl transition-all duration-300 ease-out" href="/page/{{ pagination + 1 }}">بارگذاری بیشتر</a>
-            {% endif %}
         </div>
+        {% if posts | length > 20 %}
+            <button ref="more" @click="load_more" class="cursor-pointer inline-bloc mt-10 px-5 py-1 rounded text-[#1975ff] opacity-85 text-xl mx-auto mb-10 hover:bg-[#98c0e340] transition-all duration-300 ease-out">بارگذاری بیشتر</button>
+        {% endif %}
     </div>
 </div>
 
 {% raw %}
+<script src="/static/library/axios.js"></script>
 <script>
     // this is site header with all followers
     Vue.component("site-header", {
@@ -92,6 +91,46 @@ Title %}Booki - خانه{% endblock %} {% block content %}
 
     new Vue({
         el: "#app",
+        data: {
+            page: 1
+        },
+        methods: {
+            load_more() {
+                axios.get(`/api/page?num=${this.page += 1}`)
+                    .then((response) => {
+                        let data = response.data
+                        for (const post of data.posts) {
+                                const postCM = Vue.extend({
+                                    template:
+                                        `
+                                        <post 
+                                            :iw="iw"
+                                            :content="content"
+                                            :id="id"
+                                            :image="image"
+                                            :name="writer.name"
+                                            :username="writer.username"
+                                            :avatar="writer.avatar"
+                                            :date="date"
+                                            classes="post img-container min-h-40 rounded-xl mb-5 p-3 bg-[#fefefe]" 
+                                            :like_classes="liked ? 'liked' : ''"
+                                            :likes="likes"
+                                            :comment_length="comment_length">
+                                        </post>
+                                        `,
+                                    data() {
+                                        return post
+                                    },
+                                });
+                                const vm = new postCM().$mount();
+                                this.$refs.content.appendChild(vm.$el);
+                        }
+                        
+                        if (!data.if_more) this.$refs.more.remove()
+                    }
+                )
+            }
+        }
     });
 </script>
 {% endraw %} {% endblock %}

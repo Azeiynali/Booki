@@ -234,8 +234,7 @@ def index():
             "index.html",
             fAge=format_age,
             users=users,
-            posts=posts[:50],
-            posts_length=len(posts),
+            posts=posts,
             current_user=current_user,
             not_list=n,
             Like=Like,
@@ -247,45 +246,6 @@ def index():
         # create a log
         app.logger.info("login page showed")
         return render_template("login.html")
-
-@app.route("/page/<num_>")
-@login_required
-def posts_pagination(num_: int):
-    num = int(num_)
-    # n is the number of notifications
-    n = len(Notification.query.filter_by(user=current_user, seened=False).all())
-
-    # followers is the current user Followers
-    followeds = Follow.query.filter_by(follower=current_user.id).all()
-
-    users = []
-    posts = []
-    # get all follower posts
-    for follow_item in followeds:
-        users.append(User.query.get(follow_item.followed))
-        posts += Post.query.filter_by(
-            writer=User.query.get(follow_item.followed), deleted=False
-        ).all()
-    # add follower posts to the post list
-    posts += Post.query.filter_by(writer=current_user, deleted=False).all()
-
-    # unique the post list
-    posts = list(set(posts))
-    # sort as the date
-    posts.sort(key=lambda x: x.date, reverse=True)
-    return render_template(
-        "index.html",
-        fAge=format_age,
-        users=users,
-        posts=posts[num*50:num*50 + 50],
-        posts_length=len(posts),
-        current_user=current_user,
-        not_list=n,
-        Like=Like,
-        pagination=num,
-        Comment=Comment
-    )
-
 
 @app.route("/@<username>")
 @login_required
@@ -478,6 +438,7 @@ def search():
             result=list(result),
             fAge=format_age,
             Like=Like,
+            Comment=Comment,
             search_value=request.args.get("q"),
         )
 
@@ -920,8 +881,6 @@ def addMessage():
         to_id = int(data.get("to_id"))
         # pin is a pin for add messages
         PIN = data.get("pin")
-        # if for edit
-        id = int(data.get(id))
 
         # get referer for security
         referer = request.headers.get("Referer")
@@ -936,23 +895,14 @@ def addMessage():
             if current_user == User.query.get(to_id):
                 sa = True
 
-            x = False
-            # add message
-            if not id:
-                mess = Message(writer=current_user, content=content, to_id=to_id, sa=sa)
-                db.session.add(mess)
-                x = True
-            else:
-                mess = Message.query.get(id)
-                if mess and mess.writer == current_user and not mess.deleted:
-                    mess.content = content
+            mess = Message(writer=current_user, content=content, to_id=to_id, sa=sa)
 
-                    x = True
-            if x:
-                db.session.commit()
-                # create a log
-                app.logger.info("a message added")
-                return jsonify({"id": mess.id, "hour": str(mess.hour)})
+            db.session.add(mess)
+            db.session.commit()
+            
+            # create a log
+            app.logger.info("a message added")
+            return jsonify({"id": mess.id, "hour": str(mess.hour)})
 
     return abort(403)
 
@@ -1132,7 +1082,7 @@ def addPost():
                 tags = []
 
             # hash tags
-            hashtags = re.findall(r"#([\w|آ-ی]+)", content)[6]
+            hashtags = re.findall(r"#([\w|آ-ی]+)", content)[:6]
 
             for hashtag in hashtags:
                 h = HashTag(text=hashtag)
@@ -1591,6 +1541,58 @@ def delete_notification():
 
         return jsonify({"success": True})
     return abort(400)
+
+
+@app.route("/api/page")
+@login_required
+def pagination():
+    num = int(request.args.get('num'))
+
+    # followers is the current user Followers
+    followeds = Follow.query.filter_by(follower=current_user.id).all()
+
+    posts = []
+
+    # get all follower posts
+    for follow_item in followeds:
+        posts += Post.query.filter_by(
+            writer=User.query.get(follow_item.followed), deleted=False
+        ).all()
+    # add follower posts to the post list
+    posts += Post.query.filter_by(writer=current_user, deleted=False).all()
+
+    # unique the post list
+    posts = list(set(posts))
+
+    # sort as the date
+    posts.sort(key=lambda x: x.date, reverse=True)
+
+    # json data
+    data = {'posts': []}
+
+    for post in posts[ (num - 1) * 20 : num * 20 ]:
+        data['posts'].append(
+            {
+                'id': post.id,
+                'image': post.img,
+                'writer': {
+                    'name': post.writer.name,
+                    'username': post.writer.username,
+                    'avatar': post.writer.avatar
+                },
+                'content': post.content,
+                'comment_length': len(Comment.query.filter_by(post=post, deleted=False).all()),
+                'likes': len(Like.query.filter_by(liked=post.id).all()),
+                'iw': current_user == post.writer if 'true' else '',
+                'date': format_age(post.date),
+                'liked': bool(Like.query.filter_by(liker=current_user.id, liked=post.id).first()),
+            }
+        )
+    data['if_more'] = len(posts) > num * 20
+
+    return jsonify(data)
+
+
 
 
 @app.route("/api/unlike", methods=["POST"])

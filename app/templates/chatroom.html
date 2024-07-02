@@ -20,6 +20,13 @@
             width: 100vw;
         }
         /* {% else %} */
+        header {
+            display: flex !important;
+            transform: scale(.7);
+        }
+        .mt-14 {
+            margin-top: 0 !important;
+        }
         .left {
             width: 100vw;
         }
@@ -34,33 +41,38 @@
 
 <div id="app">
     <navbar active_item="chat"></navbar>
+    {% if not in_chat %}
+        <site-header
+        
+        items='
+            [
+                {% for user in users %}
+                    {"user_img": "{{ user.avatar }}",
+                    "user_href": "/chat/{{ user.username }}",
+                    "username": "{{ user.name[:8] }}"},
+                {% endfor %}
+            ]
+        '>
+        </site-header>
+    {% endif %}
     {% if in_chat %}
-    <div
-        class="top_bar items-center justify-start absolute top-12 pb-2 pt-3 bg-white h-15 w-full px-7"
-    >
-        <div class="flex justify-start items-center">
-            <img src="{{ user.avatar }}" alt="" class="size-10 rounded-full" />
-            <p class="ml-3 font-medium">{{ user.name }}</p>
-        </div>
+        <div
+            class="top_bar items-center justify-start absolute top-12 pb-2 pt-3 bg-white h-15 w-full px-7"
+        >
+            <div class="flex justify-start items-center">
+                <img src="{{ user.avatar }}" alt="" class="size-10 rounded-full" />
+                <p class="ml-3 font-medium">{{ user.name }}</p>
+            </div>
 
-        <i
-            @click="location.href='/chat'"
-            class="z-10 fi fi-rr-angle-small-right leading-3 text-2xl cursor-pointer p-1"
-        ></i>
-    </div>
+            <i
+                @click="location.href='/chat'"
+                class="z-10 fi fi-rr-angle-small-right leading-3 text-2xl cursor-pointer p-1"
+            ></i>
+        </div>
     {% elif not mess_data %}
-            <site-header items='
-                [
-                    {% for user in users %}
-                        {"user_img": "{{ user.avatar }}",
-                        "user_href": "/chat/{{ user.username }}",
-                        "username": "{{ user.name[:8] }}"},
-                    {% endfor %}
-                ]
-            '>
-            </site-header>
             <p dir="rtl" class="text-center mt-2">شما تا به حال گفتگویی نداشته اید!</p>
-    {% endif %} {% if mess_data %}
+    {% endif %} 
+    {% if mess_data %}
     <div
         class="left mt-14 flex items-center flex-col absolute left-0 border-r-2 border-solid border-white h-full"
     >
@@ -242,7 +254,9 @@
             };
         },
         template: `
-            <header style="overflow: auto !important" ref="root" class="flex flex-none mt-24 justify-center mx-auto mt-16 w-4/5 p-2 right-0">
+            {% endraw %}
+            <header style="overflow: auto !important" ref="root" class="{% if mess_data %} hidden {% else %} flex {% endif %} flex-none justify-center mx-auto mt-16 w-4/5 p-2 right-0">
+            {% raw %}
                 <a :href="item.user_href" v-for="item in items_dict" class="relative flex items-center justify-center flex-col flex-none">
                     <img :src="item.user_img" class="flex justify-s\\tart text-lg w-9/10 text-[#292929] gap-2 relative h-20 rounded-full user items-center mx-3" />
                     <p class="text-xl">{{ item.username }}</p>
